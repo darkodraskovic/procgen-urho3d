@@ -16,3 +16,4 @@ script
 **/*.obj
 **/*.mtl
 **/*.blend1
+.cmake

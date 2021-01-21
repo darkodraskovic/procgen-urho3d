@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/Engine.h>
 #include <Urho3D/Engine/EngineDefs.h>
@@ -10,19 +12,20 @@
 #include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/VertexBuffer.h>
 #include <Urho3D/Graphics/Zone.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Input/Input.h>
-#include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/UI/UI.h>
 
 #include "App.h"
+#include "ProceduralModel.h"
 
 using namespace Urho3D;
 App::App(Context* context) :
     Application(context) {
+
+    context_->RegisterFactory<ProceduralModel>();
 }
 
 void App::Setup() {
@@ -37,7 +40,34 @@ void App::Start() {
     SubscribeToEvents();
     CreateScene();
     SetupViewport();
-    CreateModel();
+
+    float positions[] = {
+        -1.0f, -1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+    };
+
+    float normals[] = {
+        0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, -1.0f,
+    };
+
+    unsigned short indices[] = {
+        0, 1, 2,
+    };
+    
+    const unsigned numVertices = 3;    
+    
+    auto* procModel = new ProceduralModel(context_);
+    procModel->SetPositions(positions, numVertices);
+    procModel->SetNormals(normals);
+    procModel->SetIndices(indices);
+    procModel->Generate();
+    
+    Node* node = scene_->CreateChild("ProceduralObject");
+    auto* object = node->CreateComponent<StaticModel>();
+    object->SetModel(procModel->model_);
 }
 
 void App::SubscribeToEvents() {
@@ -80,98 +110,6 @@ void App::SetupViewport() {
     renderer->SetViewport(0, viewport);    
 }
 
-void App::CreateModel() {
-        const unsigned numVertices = 18;
-
-        float vertexData[] = {
-            // Position             Normal
-            0.0f, 0.5f, 0.0f,       0.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f,      0.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,     0.0f, 0.0f, 0.0f,
-
-            0.0f, 0.5f, 0.0f,       0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f,     0.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f,      0.0f, 0.0f, 0.0f,
-
-            0.0f, 0.5f, 0.0f,       0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f,     0.0f, 0.0f, 0.0f,
-
-            0.0f, 0.5f, 0.0f,       0.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,     0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 0.0f,
-
-            0.5f, -0.5f, -0.5f,     0.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f,      0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f,     0.0f, 0.0f, 0.0f,
-
-            0.5f, -0.5f, -0.5f,     0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f,     0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 0.0f
-        };
-
-        const unsigned short indexData[] = {
-            0, 1, 2,
-            3, 4, 5,
-            6, 7, 8,
-            9, 10, 11,
-            12, 13, 14,
-            15, 16, 17
-        };
-
-        // Calculate face normals now
-        for (unsigned i = 0; i < numVertices; i += 3) {
-            Vector3& v1 = *(reinterpret_cast<Vector3*>(&vertexData[6 * i]));
-            Vector3& v2 = *(reinterpret_cast<Vector3*>(&vertexData[6 * (i + 1)]));
-            Vector3& v3 = *(reinterpret_cast<Vector3*>(&vertexData[6 * (i + 2)]));
-            Vector3& n1 = *(reinterpret_cast<Vector3*>(&vertexData[6 * i + 3]));
-            Vector3& n2 = *(reinterpret_cast<Vector3*>(&vertexData[6 * (i + 1) + 3]));
-            Vector3& n3 = *(reinterpret_cast<Vector3*>(&vertexData[6 * (i + 2) + 3]));
-
-            Vector3 edge1 = v1 - v2;
-            Vector3 edge2 = v1 - v3;
-            n1 = n2 = n3 = edge1.CrossProduct(edge2).Normalized();
-        }
-
-        SharedPtr<Model> fromScratchModel(new Model(context_));
-        SharedPtr<VertexBuffer> vb(new VertexBuffer(context_));
-        SharedPtr<IndexBuffer> ib(new IndexBuffer(context_));
-        SharedPtr<Geometry> geom(new Geometry(context_));
-
-        // Shadowed buffer needed for raycasts to work, and so that data can be automatically restored on device loss
-        vb->SetShadowed(true);
-        // We could use the "legacy" element bitmask to define elements for more compact code, but let's demonstrate
-        // defining the vertex elements explicitly to allow any element types and order
-        PODVector<VertexElement> elements;
-        elements.Push(VertexElement(TYPE_VECTOR3, SEM_POSITION));
-        elements.Push(VertexElement(TYPE_VECTOR3, SEM_NORMAL));
-        vb->SetSize(numVertices, elements);
-        vb->SetData(vertexData);
-
-        ib->SetShadowed(true);
-        ib->SetSize(numVertices, false);
-        ib->SetData(indexData);
-
-        geom->SetVertexBuffer(0, vb);
-        geom->SetIndexBuffer(ib);
-        geom->SetDrawRange(TRIANGLE_LIST, 0, numVertices);
-
-        fromScratchModel->SetNumGeometries(1);
-        fromScratchModel->SetGeometry(0, 0, geom);
-        fromScratchModel->SetBoundingBox(BoundingBox(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.5f, 0.5f, 0.5f)));
-
-        // Though not necessary to render, the vertex & index buffers must be listed in the model so that it can be saved properly
-        Vector<SharedPtr<VertexBuffer> > vertexBuffers;
-        Vector<SharedPtr<IndexBuffer> > indexBuffers;
-        vertexBuffers.Push(vb);
-        indexBuffers.Push(ib);
-
-        Node* node = scene_->CreateChild("FromScratchObject");
-        // node->SetPosition(Vector3(0.0f, 3.0f, 0.0f));
-        auto* object = node->CreateComponent<StaticModel>();
-        object->SetModel(fromScratchModel);
-}
-
 void App::Stop() {
 }
 
@@ -206,7 +144,6 @@ void App::MoveCamera(float timeStep) {
     if (input->GetKeyDown(KEY_D))
         cameraNode_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);    
 }
-
 
 void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     using namespace KeyDown;

@@ -1,4 +1,6 @@
 #include <Urho3D/Engine/Application.h>
+#include <Urho3D/Graphics/VertexBuffer.h>
+#include <Urho3D/Scene/Scene.h>
 
 using namespace Urho3D;
 
@@ -14,10 +16,8 @@ public:
     void MoveCamera(float timeStep);    
     void CreateScene();
     void SetupViewport();
-    void CreateModel();
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     void SubscribeToEvents();
-
 
 private:
     SharedPtr<Scene> scene_;
