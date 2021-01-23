@@ -1,9 +1,6 @@
 #include <iostream>
 
-#include <Urho3D/Graphics/VertexBuffer.h>
-#include <Urho3D/Graphics/IndexBuffer.h>
 #include <Urho3D/Graphics/Geometry.h>
-#include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/StaticModel.h>
 
 #include "ModelGenerator.h"
@@ -12,7 +9,7 @@ using namespace ProcGen;
 
 ModelGenerator::ModelGenerator(Context *context) : Object(context){};
 
-void ModelGenerator::SetVertexBuffer(float* data, VertexMask semantics, unsigned numVertices) {
+void ModelGenerator::SetVertexBuffer(void* data, VertexMask semantics, unsigned numVertices) {
     if (!numVertices) numVertices = vertexBuffers_.At(0)->GetVertexCount();
     VertexBuffer* buffer = new VertexBuffer(context_);
     buffer->SetSize(numVertices, semantics);

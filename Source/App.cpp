@@ -1,4 +1,5 @@
 #include <Urho3D/Graphics/GraphicsDefs.h>
+#include <Urho3D/Graphics/Material.h>
 #include <iostream>
 
 #include <Urho3D/Core/CoreEvents.h>
@@ -15,11 +16,13 @@
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Zone.h>
 #include <Urho3D/Graphics/Camera.h>
+#include <Urho3D/Graphics/Technique.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/UI/UI.h>
 
 #include "App.h"
+#include "CameraController.h"
 #include "ModelGenerator.h"
 
 using namespace Urho3D;
@@ -27,6 +30,7 @@ App::App(Context* context) :
     Application(context) {
 
     // context_->RegisterFactory<ModelGenerator>();
+    context_->RegisterFactory<ProcGen::CameraController>();
 }
 
 void App::Setup() {
@@ -67,6 +71,11 @@ void App::Start() {
         
     };
 
+    unsigned char colors[] = {
+        255,0,0,255, 0,255,0,255, 0,0,255,255, 255,0,255,255,
+        255,0,0,255, 0,255,0,255, 0,0,255,255, 255,0,255,255,
+    };
+    
     unsigned short indices[] = {
         0, 1, 2,
         0, 2, 3,
@@ -80,6 +89,7 @@ void App::Start() {
     auto* modelGenerator = new ProcGen::ModelGenerator(context_);
     modelGenerator->SetVertexBuffer(positions, VertexMask::MASK_POSITION, numVertices);
     modelGenerator->SetVertexBuffer(normals, VertexMask::MASK_NORMAL);
+    modelGenerator->SetVertexBuffer(colors, VertexMask::MASK_COLOR);
     modelGenerator->SetIndices(indices, numIndices);
     auto* model = modelGenerator->Generate();
     
@@ -87,6 +97,18 @@ void App::Start() {
     auto* object = node->CreateComponent<StaticModel>();
     object->SetModel(model);
 
+    auto* cache = GetSubsystem<ResourceCache>();
+    
+    auto* techNoTexture = cache->GetResource<Technique>("Techniques/NoTexture.xml");
+    auto* techNoTextureUnlit = cache->GetResource<Technique>("Techniques/NoTextureUnlit.xml");
+    auto* techNoTextureUnlitAlpha = cache->GetResource<Technique>("Techniques/NoTextureUnlitAlpha.xml");
+    auto* techNoTextureVCol = cache->GetResource<Technique>("Techniques/NoTextureVCol.xml");
+    auto* mat1 = new Material(context_);
+    mat1->SetTechnique(0, techNoTextureVCol);
+    object->SetMaterial(0, mat1);
+    // mat1->SetTechnique(0, techNoTexture);
+    // mat1->SetShaderParameter("MatDiffColor", Color(1, 0, 1, 1));
+    
     // node = scene_->CreateChild("ProceduralObject");
     // object = node->CreateComponent<StaticModel>();
     // object->SetModel(model);
@@ -127,10 +149,13 @@ void App::CreateScene() {
 }
 
 void App::SetupViewport() {
-    cameraNode_ = new Node(context_);
+    // cameraNode_ = new Node(context_);
+    cameraNode_ = scene_->CreateChild("camera");
     cameraNode_->SetPosition(Vector3(0.0f, 0.0f, -10.0f));
     cameraNode_->LookAt(Vector3::ZERO);
+    cameraNode_->CreateComponent<ProcGen::CameraController>();
     auto* camera = cameraNode_->CreateComponent<Camera>();
+    
     // camera->SetFarClip(300.0f);
 
     auto* renderer = GetSubsystem<Renderer>();
@@ -139,54 +164,6 @@ void App::SetupViewport() {
 }
 
 void App::Stop() {
-}
-
-void App::MoveCamera(float timeStep) {
-    // Do not move if the UI has a focused element (the console)
-    if (GetSubsystem<UI>()->GetFocusElement())
-        return;
-
-    auto* input = GetSubsystem<Input>();
-
-
-    // // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
-    // IntVector2 mouseMove = input->GetMouseMove();
-    // yaw_ += MOUSE_SENSITIVITY * mouseMove.x_;
-    // pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
-    // pitch_ = Clamp(pitch_, -90.0f, 90.0f);
-
-    // // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
-    // cameraNode_->SetRotation(Quaternion(pitch_, yaw_, 0.0f));
-
-    const float MOVE_SPEED = 16.0f;
-    
-    if (input->GetKeyDown(KEY_W))
-        cameraNode_->Translate(Vector3::FORWARD * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_S))
-        cameraNode_->Translate(Vector3::BACK * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_A))
-        cameraNode_->Translate(Vector3::LEFT * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_D))
-        cameraNode_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_Q))
-        cameraNode_->Translate(Vector3::DOWN * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_E))
-        cameraNode_->Translate(Vector3::UP * MOVE_SPEED * timeStep);
-
-    const float MOUSE_SENSITIVITY = 0.3f;
-    
-    if (input->GetKeyDown(KEY_J)) {
-        cameraNode_->Rotate(Quaternion(0, -MOUSE_SENSITIVITY, 0));
-    }
-    if (input->GetKeyDown(KEY_L)) {
-        cameraNode_->Rotate(Quaternion(0, MOUSE_SENSITIVITY, 0));
-    }
-    if (input->GetKeyDown(KEY_I)) {
-        cameraNode_->Rotate(Quaternion(-MOUSE_SENSITIVITY, 0, 0));
-    }
-    if (input->GetKeyDown(KEY_K)) {
-        cameraNode_->Rotate(Quaternion(MOUSE_SENSITIVITY, 0, 0));
-    }
 }
 
 void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
@@ -202,10 +179,6 @@ void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     // Take the frame time step, which is stored as a float
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-
-    // Move the camera, scale movement with time step
-    MoveCamera(timeStep);
 }
-
 
 URHO3D_DEFINE_APPLICATION_MAIN(App)

@@ -13,7 +13,6 @@ public:
     virtual void Stop();
     void HandleKeyDown(StringHash eventType, VariantMap& eventData);
 
-    void MoveCamera(float timeStep);    
     void CreateScene();
     void SetupViewport();
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
