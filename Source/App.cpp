@@ -20,17 +20,18 @@
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/UI/UI.h>
+#include <sys/types.h>
 
 #include "App.h"
 #include "CameraController.h"
-#include "ModelGenerator.h"
+#include "ProcModel.h"
 
 using namespace Urho3D;
 App::App(Context* context) :
     Application(context) {
 
-    // context_->RegisterFactory<ModelGenerator>();
     context_->RegisterFactory<ProcGen::CameraController>();
+    context_->RegisterFactory<ProcGen::ProcModel>();
 }
 
 void App::Setup() {
@@ -46,56 +47,32 @@ void App::Start() {
     CreateScene();
     SetupViewport();
 
-    float positions[] = {
-        -1.0f, -1.0f, 0.0f,
-        -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
+    Node* node = scene_->CreateChild("ProceduralObject");
+    ProcGen::ProcModel* procModel = node->CreateComponent<ProcGen::ProcModel>();
+    
+    procModel->positions_ = {
+        {-1.0f, -1.0f, 0.0f},
+        {-1.0f, 1.0f, 0.0f},
+        {1.0f, 1.0f, 0.0f},
+        {1.0f, -1.0f, 0.0f},
 
-        -1.0f, 1.0f, 0.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 0.0f,
-    };
-
-    float normals[] = {
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        
-    };
-
-    unsigned char colors[] = {
-        255,0,0,255, 0,255,0,255, 0,0,255,255, 255,0,255,255,
-        255,0,0,255, 0,255,0,255, 0,0,255,255, 255,0,255,255,
+        {-1.0f, 1.0f, 0.0f},
+        {-1.0f, 1.0f, 1.0f},
+        {1.0f, 1.0f, 1.0f},
+        {1.0f, 1.0f, 0.0f},
     };
     
-    unsigned short indices[] = {
+    procModel->colors_ = {
+        255,0,0,255, 0,255,0,255, 0,0,255,255, 255,0,255,255,
+        255,0,0,255, 0,255,0,255, 0,0,255,255, 255,0,255,255,
+    };
+
+    procModel->indices_ = {
         0, 1, 2,
         0, 2, 3,
         4, 5, 6,
         4, 6, 7,
     };
-    
-    const unsigned numVertices = 8;
-    const unsigned numIndices = 12;
-    
-    auto* modelGenerator = new ProcGen::ModelGenerator(context_);
-    modelGenerator->SetVertexBuffer(positions, VertexMask::MASK_POSITION, numVertices);
-    modelGenerator->SetVertexBuffer(normals, VertexMask::MASK_NORMAL);
-    modelGenerator->SetVertexBuffer(colors, VertexMask::MASK_COLOR);
-    modelGenerator->SetIndices(indices, numIndices);
-    auto* model = modelGenerator->Generate();
-    
-    Node* node = scene_->CreateChild("ProceduralObject");
-    auto* object = node->CreateComponent<StaticModel>();
-    object->SetModel(model);
 
     auto* cache = GetSubsystem<ResourceCache>();
     
@@ -105,14 +82,9 @@ void App::Start() {
     auto* techNoTextureVCol = cache->GetResource<Technique>("Techniques/NoTextureVCol.xml");
     auto* mat1 = new Material(context_);
     mat1->SetTechnique(0, techNoTextureVCol);
-    object->SetMaterial(0, mat1);
-    // mat1->SetTechnique(0, techNoTexture);
-    // mat1->SetShaderParameter("MatDiffColor", Color(1, 0, 1, 1));
-    
-    // node = scene_->CreateChild("ProceduralObject");
-    // object = node->CreateComponent<StaticModel>();
-    // object->SetModel(model);
-    // node->Translate(Vector3::RIGHT);
+
+    procModel->material_ = mat1;
+    procModel->Generate();
     
     // node = scene_->CreateChild("ProceduralObject");
     // object = node->CreateComponent<StaticModel>();
@@ -171,6 +143,14 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     int key = eventData[P_KEY].GetInt();
     if (key == KEY_ESCAPE)
         engine_->Exit();
+
+    if (key == KEY_M) {
+        auto* node = scene_->GetChild("ProceduralObject");
+        auto* procModel = node->GetComponent<ProcGen::ProcModel>();
+
+        procModel->positions_[0] = procModel->positions_[0] * 1.25;
+        procModel->Generate();
+    }
 }
 
 void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
