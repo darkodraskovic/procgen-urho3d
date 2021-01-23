@@ -1,3 +1,4 @@
+#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <iostream>
 
 #include <Urho3D/Core/CoreEvents.h>
@@ -19,13 +20,13 @@
 #include <Urho3D/UI/UI.h>
 
 #include "App.h"
-#include "ProceduralModel.h"
+#include "ModelGenerator.h"
 
 using namespace Urho3D;
 App::App(Context* context) :
     Application(context) {
 
-    context_->RegisterFactory<ProceduralModel>();
+    // context_->RegisterFactory<ModelGenerator>();
 }
 
 void App::Setup() {
@@ -43,31 +44,58 @@ void App::Start() {
 
     float positions[] = {
         -1.0f, -1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
         1.0f, -1.0f, 0.0f,
+
+        -1.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f,
     };
 
     float normals[] = {
         0.0f, 0.0f, -1.0f,
         0.0f, 0.0f, -1.0f,
         0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, -1.0f,
+
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        
     };
 
     unsigned short indices[] = {
         0, 1, 2,
+        0, 2, 3,
+        4, 5, 6,
+        4, 6, 7,
     };
     
-    const unsigned numVertices = 3;    
+    const unsigned numVertices = 8;
+    const unsigned numIndices = 12;
     
-    auto* procModel = new ProceduralModel(context_);
-    procModel->SetPositions(positions, numVertices);
-    procModel->SetNormals(normals);
-    procModel->SetIndices(indices);
-    procModel->Generate();
+    auto* modelGenerator = new ProcGen::ModelGenerator(context_);
+    modelGenerator->SetVertexBuffer(positions, VertexMask::MASK_POSITION, numVertices);
+    modelGenerator->SetVertexBuffer(normals, VertexMask::MASK_NORMAL);
+    modelGenerator->SetIndices(indices, numIndices);
+    auto* model = modelGenerator->Generate();
     
     Node* node = scene_->CreateChild("ProceduralObject");
     auto* object = node->CreateComponent<StaticModel>();
-    object->SetModel(procModel->model_);
+    object->SetModel(model);
+
+    // node = scene_->CreateChild("ProceduralObject");
+    // object = node->CreateComponent<StaticModel>();
+    // object->SetModel(model);
+    // node->Translate(Vector3::RIGHT);
+    
+    // node = scene_->CreateChild("ProceduralObject");
+    // object = node->CreateComponent<StaticModel>();
+    // object->SetModel(model);
+    // node->Translate(Vector3::LEFT);
 }
 
 void App::SubscribeToEvents() {
@@ -120,21 +148,18 @@ void App::MoveCamera(float timeStep) {
 
     auto* input = GetSubsystem<Input>();
 
-    // Movement speed as world units per second
-    const float MOVE_SPEED = 20.0f;
-    // Mouse sensitivity as degrees per pixel
-    const float MOUSE_SENSITIVITY = 0.05f;
 
-    // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
-    IntVector2 mouseMove = input->GetMouseMove();
-    yaw_ += MOUSE_SENSITIVITY * mouseMove.x_;
-    pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
-    pitch_ = Clamp(pitch_, -90.0f, 90.0f);
+    // // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
+    // IntVector2 mouseMove = input->GetMouseMove();
+    // yaw_ += MOUSE_SENSITIVITY * mouseMove.x_;
+    // pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
+    // pitch_ = Clamp(pitch_, -90.0f, 90.0f);
 
-    // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
-    cameraNode_->SetRotation(Quaternion(pitch_, yaw_, 0.0f));
+    // // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
+    // cameraNode_->SetRotation(Quaternion(pitch_, yaw_, 0.0f));
 
-    // Read WASD keys and move the camera scene node to the corresponding direction if they are pressed
+    const float MOVE_SPEED = 16.0f;
+    
     if (input->GetKeyDown(KEY_W))
         cameraNode_->Translate(Vector3::FORWARD * MOVE_SPEED * timeStep);
     if (input->GetKeyDown(KEY_S))
@@ -142,7 +167,26 @@ void App::MoveCamera(float timeStep) {
     if (input->GetKeyDown(KEY_A))
         cameraNode_->Translate(Vector3::LEFT * MOVE_SPEED * timeStep);
     if (input->GetKeyDown(KEY_D))
-        cameraNode_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);    
+        cameraNode_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);
+    if (input->GetKeyDown(KEY_Q))
+        cameraNode_->Translate(Vector3::DOWN * MOVE_SPEED * timeStep);
+    if (input->GetKeyDown(KEY_E))
+        cameraNode_->Translate(Vector3::UP * MOVE_SPEED * timeStep);
+
+    const float MOUSE_SENSITIVITY = 0.3f;
+    
+    if (input->GetKeyDown(KEY_J)) {
+        cameraNode_->Rotate(Quaternion(0, -MOUSE_SENSITIVITY, 0));
+    }
+    if (input->GetKeyDown(KEY_L)) {
+        cameraNode_->Rotate(Quaternion(0, MOUSE_SENSITIVITY, 0));
+    }
+    if (input->GetKeyDown(KEY_I)) {
+        cameraNode_->Rotate(Quaternion(-MOUSE_SENSITIVITY, 0, 0));
+    }
+    if (input->GetKeyDown(KEY_K)) {
+        cameraNode_->Rotate(Quaternion(MOUSE_SENSITIVITY, 0, 0));
+    }
 }
 
 void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
