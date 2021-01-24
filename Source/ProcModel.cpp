@@ -1,7 +1,15 @@
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Math/Color.h>
+#include <Urho3D/Graphics/Viewport.h>
+#include <Urho3D/Math/BoundingBox.h>
 #include <iostream>
 
+#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Math/Color.h>
+#include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Scene/Component.h>
+#include <Urho3D/Scene/LogicComponent.h>
+#include <Urho3D/Scene/Scene.h>
+#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Geometry.h>
 #include <Urho3D/Graphics/GraphicsDefs.h>
 
@@ -38,8 +46,8 @@ void ProcModel::SetIndices(unsigned short* data, unsigned numIndices){
 void ProcModel::CalculateNormals() {
     normals_.Clear();
     for (int i = 0; i < indices_.Size(); i += 3) {
-        Vector3 edge1 = positions_[indices_[i]] - positions_[indices_[i+1]];
-        Vector3 edge2 = positions_[indices_[i]] - positions_[indices_[i+2]];
+        Vector3 edge1 = positions_[indices_[i+1]] - positions_[indices_[i]];
+        Vector3 edge2 = positions_[indices_[i+2]] - positions_[indices_[i]];
         Vector3 normal = edge1.CrossProduct(edge2).Normalized();
         normals_.Push(normal); normals_.Push(normal); normals_.Push(normal);
     }
@@ -64,7 +72,7 @@ void ProcModel::Generate() {
         geometry->SetVertexBuffer(i, vertexBuffers_.At(i));
     }
     geometry->SetIndexBuffer(indexBuffers_.At(0));
-    geometry->SetDrawRange(TRIANGLE_LIST, 0, indexBuffers_.At(0)->GetIndexCount());
+    geometry->SetDrawRange(primitiveType_, 0, indexBuffers_.At(0)->GetIndexCount());
 
     // TODO
     // Optional. Morph ranges could also be not defined. Define a zero range (no morphing) for the vertex buffer.
@@ -84,4 +92,30 @@ void ProcModel::Generate() {
     
     vertexBuffers_.Clear();
     indexBuffers_.Clear();
+}
+
+void ProcModel::SetDrawNormals(bool enabled) {
+    if (enabled) {
+        drawNormals_ = true;
+        
+        if (HasSubscribedToEvent(E_POSTRENDERUPDATE)) return;
+        else SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(ProcModel, HandlePostRenderUpdate));
+
+        return;
+    }
+    UnsubscribeFromEvent(E_POSTRENDERUPDATE);
+    drawNormals_ = false;
+}
+
+void ProcModel::HandlePostRenderUpdate (StringHash eventType, VariantMap& eventData) {
+    if (drawNormals_) {
+        auto* debugRenderer = GetScene()->GetComponent<DebugRenderer>();
+        auto tnf = node_->GetWorldTransform();
+        auto rot = node_->GetWorldRotation().RotationMatrix();
+        auto scene = GetScene();
+        for (int i = 0; i < positions_.Size(); ++i) {
+            auto pos = tnf * positions_[i];
+            debugRenderer->AddLine(pos, pos + rot * normals_[i], Color::RED);
+        }
+    }
 }

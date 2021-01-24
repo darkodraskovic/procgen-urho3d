@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Urho3D/Container/Vector.h>
+#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Math/Vector2.h>
 #include <Urho3D/Scene/LogicComponent.h>
@@ -19,11 +20,14 @@ namespace ProcGen {
         public:
         explicit ProcModel(Context* context);
 
-        // void Update(float timeStep) override;
         virtual void Start() override;
+        // void Update(float timeStep) override;
+        // virtual void PostUpdate (float timeStep) override;
+        void HandlePostRenderUpdate (StringHash eventType, VariantMap& eventData);
         void CalculateNormals();
         void Generate();
-
+        void SetDrawNormals(bool enabled);
+        
         Vector<Vector3> positions_;
         Vector<Vector3> normals_;
         Vector<Vector4> tangents_;
@@ -31,6 +35,8 @@ namespace ProcGen {
         Vector<Vector2> uvs;
         Vector<unsigned short> indices_;
         SharedPtr<Material> material_;
+
+        PrimitiveType primitiveType_ = TRIANGLE_LIST;
         
     protected:
         SharedPtr<Model> model_;
@@ -41,6 +47,8 @@ namespace ProcGen {
     private:
         void SetVertexBuffer(void* vertexData, VertexMask semantics, unsigned numVertices = 0);
         void SetIndices(unsigned short* indexData, unsigned numIndices = 0);
+        
+        bool drawNormals_ = false;
     };
 
 }  // ProcGen

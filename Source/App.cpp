@@ -1,7 +1,10 @@
-#include <Urho3D/Graphics/GraphicsDefs.h>
-#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Math/Color.h>
+#include <Urho3D/Math/Quaternion.h>
 #include <iostream>
 
+#include <Urho3D/Graphics/GraphicsDefs.h>
+#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Scene/Component.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/Engine.h>
 #include <Urho3D/Engine/EngineDefs.h>
@@ -85,6 +88,10 @@ void App::Start() {
 
     procModel->material_ = mat1;
     procModel->Generate();
+
+    node->Translate(Vector3::ONE);
+    // node->Rotate(Quaternion(30, 30, 0));
+    node->Scale(1.5);
     
     // node = scene_->CreateChild("ProceduralObject");
     // object = node->CreateComponent<StaticModel>();
@@ -95,6 +102,7 @@ void App::Start() {
 void App::SubscribeToEvents() {
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(App, HandleKeyDown));    
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(App, HandleUpdate));
+    // SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(App, HandlePostRenderUpdate));    
 }
 
 void App::CreateScene() {
@@ -112,24 +120,22 @@ void App::CreateScene() {
     zone->SetFogEnd(300.0f);
 
     Node* lightNode = scene_->CreateChild("DirectionalLight");
-    // lightNode->SetDirection(Vector3(-0.6f, -1.0f, -0.8f));
     lightNode->SetDirection(Vector3(0, -1.0f, 0.8f));
     auto* light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
     light->SetColor(Color(0.4f, 1.0f, 0.4f));
     light->SetSpecularIntensity(1.5f);
+
+    debugRenderer_ =  scene_->CreateComponent<DebugRenderer>();
 }
 
 void App::SetupViewport() {
-    // cameraNode_ = new Node(context_);
     cameraNode_ = scene_->CreateChild("camera");
-    cameraNode_->SetPosition(Vector3(0.0f, 0.0f, -10.0f));
+    cameraNode_->SetPosition(Vector3(0.0f, 4.0f, -8.0f));
     cameraNode_->LookAt(Vector3::ZERO);
     cameraNode_->CreateComponent<ProcGen::CameraController>();
     auto* camera = cameraNode_->CreateComponent<Camera>();
     
-    // camera->SetFarClip(300.0f);
-
     auto* renderer = GetSubsystem<Renderer>();
     SharedPtr<Viewport> viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
     renderer->SetViewport(0, viewport);    
@@ -144,12 +150,18 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     if (key == KEY_ESCAPE)
         engine_->Exit();
 
+    auto* node = scene_->GetChild("ProceduralObject");
+    auto* procModel = node->GetComponent<ProcGen::ProcModel>();
     if (key == KEY_M) {
-        auto* node = scene_->GetChild("ProceduralObject");
-        auto* procModel = node->GetComponent<ProcGen::ProcModel>();
-
         procModel->positions_[0] = procModel->positions_[0] * 1.25;
         procModel->Generate();
+    }
+
+    if (key == KEY_P) {
+        procModel->SetDrawNormals(true);
+    }
+    else if (key == KEY_O) {
+        procModel->SetDrawNormals(false);
     }
 }
 
@@ -159,6 +171,11 @@ void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     // Take the frame time step, which is stored as a float
     float timeStep = eventData[P_TIMESTEP].GetFloat();
+}
+
+void App::HandlePostRenderUpdate(StringHash eventType, VariantMap& eventData)
+{
+    debugRenderer_->AddLine(Vector3::ZERO, Vector3::RIGHT, Color::WHITE);
 }
 
 URHO3D_DEFINE_APPLICATION_MAIN(App)

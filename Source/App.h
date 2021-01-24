@@ -1,6 +1,9 @@
+#include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Engine/Application.h>
 #include <Urho3D/Graphics/VertexBuffer.h>
+#include <Urho3D/Scene/Component.h>
 #include <Urho3D/Scene/Scene.h>
+#include <Urho3D/Graphics/DebugRenderer.h>
 
 using namespace Urho3D;
 
@@ -12,6 +15,7 @@ public:
     virtual void Start();
     virtual void Stop();
     void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+    void HandlePostRenderUpdate(StringHash /*eventType*/, VariantMap& eventData);
 
     void CreateScene();
     void SetupViewport();
@@ -19,6 +23,7 @@ public:
     void SubscribeToEvents();
 
 private:
+    SharedPtr<DebugRenderer> debugRenderer_;
     SharedPtr<Scene> scene_;
     /// Camera scene node.
     SharedPtr<Node> cameraNode_;
