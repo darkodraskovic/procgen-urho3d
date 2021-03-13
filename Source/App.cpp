@@ -1,6 +1,8 @@
+#include <Urho3D/Scene/ValueAnimationInfo.h>
 #include <iostream>
 
 #include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Scene/ValueAnimation.h>
 #include <Urho3D/Scene/Component.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/Engine.h>
@@ -14,11 +16,13 @@
 #include <Urho3D/Graphics/Technique.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/UI/UI.h>
-#include <sys/types.h>
 
 #include "App.h"
+
 #include "Subsystems/SceneManager.h"
+#include "Subsystems/ModelCreator.h"
 
 #include "Components/CameraController.h"
 #include "Components/ProcModel.h"
@@ -27,6 +31,7 @@ using namespace Urho3D;
 App::App(Context* context) :
     Application(context) {
     context_->RegisterSubsystem<ProcGen::SceneManager>();
+    context_->RegisterSubsystem<ProcGen::ModelCreator>();
     
     context_->RegisterFactory<ProcGen::CameraController>();
     context_->RegisterFactory<ProcGen::ProcModel>();
@@ -42,12 +47,32 @@ void App::Setup() {
 
 void App::Start() {
     SubscribeToEvents();
+    
     ProcGen::SceneManager* sceneManager = GetSubsystem<ProcGen::SceneManager>();
     sceneManager->CreateScene();
     sceneManager->SetupViewport();
-    auto* scene = sceneManager->GetScene();
+    scene_ = sceneManager->GetScene();
 
-    Node* node = scene->CreateChild("ProceduralObject");
+    CreateStockModel();
+    // CreateProceduralModel();
+}
+
+void App::CreateStockModel() {
+    auto* cache = GetSubsystem<ResourceCache>();
+    
+    ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
+    modelCreator->Start();
+    Material* material = cache->GetResource<Material>("Data/Materials/PGUnlit.xml");
+    Node* node = modelCreator->CreateStockModel("Box", material);
+    
+    auto* body = node->CreateComponent<RigidBody>();
+    body->SetMass(1);
+    body->SetUseGravity(false);
+    body->SetAngularVelocity(Vector3::UP * 1.5);
+}
+
+void App::CreateProceduralModel() {
+    Node* node = scene_->CreateChild("ProceduralObject");
     ProcGen::ProcModel* procModel = node->CreateComponent<ProcGen::ProcModel>();
     
     procModel->positions_ = {
@@ -102,13 +127,12 @@ void App::Start() {
     // node->Translate(Vector3::LEFT);
 }
 
+void App::Stop() {
+}
+
 void App::SubscribeToEvents() {
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(App, HandleKeyDown));    
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(App, HandleUpdate));
-    // SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(App, HandlePostRenderUpdate));    
-}
-
-void App::Stop() {
 }
 
 void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
@@ -117,7 +141,9 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     if (key == KEY_ESCAPE)
         engine_->Exit();
 
-    auto* node = GetSubsystem<ProcGen::SceneManager>()->GetScene()->GetChild("ProceduralObject");
+    
+    auto* node = scene_->GetChild("ProceduralObject");
+    if (!node) return;
     auto* procModel = node->GetComponent<ProcGen::ProcModel>();
     if (key == KEY_M) {
         procModel->positions_[0] = procModel->positions_[0] * 1.25;

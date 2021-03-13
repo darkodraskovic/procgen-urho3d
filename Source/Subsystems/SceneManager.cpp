@@ -39,7 +39,7 @@ void SceneManager::CreateScene() {
 
 void SceneManager::SetupViewport() {
     cameraNode_ = scene_->CreateChild("camera");
-    cameraNode_->SetPosition(Vector3(0.0f, 4.0f, -8.0f));
+    cameraNode_->SetPosition(Vector3(0.0f, 3.0f, -4.0f));
     cameraNode_->LookAt(Vector3::ZERO);
     cameraNode_->CreateComponent<ProcGen::CameraController>();
     auto* camera = cameraNode_->CreateComponent<Camera>();

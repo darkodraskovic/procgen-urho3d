@@ -14,10 +14,13 @@ public:
     virtual void Setup();
     virtual void Start();
     virtual void Stop();
+    
+private:
     void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     void SubscribeToEvents();
 
-private:
+    void CreateStockModel();
+    void CreateProceduralModel();
+    SharedPtr<Scene> scene_;
 };
