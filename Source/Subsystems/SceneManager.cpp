@@ -31,21 +31,19 @@ void SceneManager::CreateScene() {
     lightNode->SetDirection(Vector3(0, -1.0f, 0.8f));
     auto* light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
-    light->SetColor(Color(0.4f, 1.0f, 0.4f));
     light->SetSpecularIntensity(1.5f);
+    light->SetPerVertex(true);
 
     debugRenderer_ =  scene_->CreateComponent<DebugRenderer>();
 }
 
 void SceneManager::SetupViewport() {
-    cameraNode_ = scene_->CreateChild("camera");
-    cameraNode_->SetPosition(Vector3(0.0f, 3.0f, -4.0f));
-    cameraNode_->LookAt(Vector3::ZERO);
-    cameraNode_->CreateComponent<ProcGen::CameraController>();
-    auto* camera = cameraNode_->CreateComponent<Camera>();
+    auto* camNode_ = scene_->CreateChild("camera");
+    camNode_->CreateComponent<ProcGen::CameraController>();
+    auto* camera = camNode_->CreateComponent<Camera>();
     
     auto* renderer = GetSubsystem<Renderer>();
-    SharedPtr<Viewport> viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
+    SharedPtr<Viewport> viewport(new Viewport(context_, scene_, camNode_->GetComponent<Camera>()));
     renderer->SetViewport(0, viewport);    
 }
 

@@ -1,0 +1,14 @@
+<technique vs="PG_Basic" ps="PG_Basic" vsdefines="NOUV" >
+  <!-- base: Renders ambient light, per-vertex lights and fog for an opaque object. -->
+  <pass name="base" />
+
+  <!-- Renders the first per-pixel light, ambient light and fog for an opaque object. Optional pass for optimization. -->
+  <!-- <pass name="litbase" psdefines="AMBIENT" /> -->
+
+  <!-- Renders one per-pixel light's contribution additively for an opaque object. -->
+  <!-- <pass name="light" depthtest="equal" depthwrite="false" blend="add" /> -->
+
+  <!-- <pass name="prepass" psdefines="PREPASS" /> -->
+  <!-- <pass name="material" /> -->
+  <!-- <pass name="deferred" psdefines="DEFERRED" /> -->
+</technique>

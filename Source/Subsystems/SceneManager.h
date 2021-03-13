@@ -22,11 +22,5 @@ namespace ProcGen {
     private:
         SharedPtr<DebugRenderer> debugRenderer_;
         SharedPtr<Scene> scene_;
-        /// Camera scene node.
-        SharedPtr<Node> cameraNode_;
-        /// Camera yaw angle.
-        float yaw_;
-        /// Camera pitch angle.
-        float pitch_;
     };
 }

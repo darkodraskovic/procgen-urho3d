@@ -1,4 +1,3 @@
-#include <Urho3D/Scene/ValueAnimationInfo.h>
 #include <iostream>
 
 #include <Urho3D/Graphics/Material.h>
@@ -62,7 +61,7 @@ void App::CreateStockModel() {
     
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     modelCreator->Start();
-    Material* material = cache->GetResource<Material>("Data/Materials/PGUnlit.xml");
+    Material* material = cache->GetResource<Material>("Data/Materials/PG_Basic.xml");
     Node* node = modelCreator->CreateStockModel("Box", material);
     
     auto* body = node->CreateComponent<RigidBody>();

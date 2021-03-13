@@ -15,8 +15,12 @@ namespace ProcGen {
     public:
         explicit CameraController(Context* context);
         void Update(float timeStep) override;
+        void DelayedStart() override;
+
+    private:
+        /// Camera yaw angle.
+        float yaw_;
+        /// Camera pitch angle.
+        float pitch_;
     };
-    
 }
-
-

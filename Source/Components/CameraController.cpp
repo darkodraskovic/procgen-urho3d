@@ -1,3 +1,4 @@
+#include <Urho3D/Graphics/Graphics.h>
 #include <iostream>
 
 #include <Urho3D/Core/Context.h>
@@ -14,22 +15,19 @@ CameraController::CameraController(Context *context) : LogicComponent(context) {
     SetUpdateEventMask(USE_UPDATE);
 }
 
+void CameraController::DelayedStart() {
+    node_->SetPosition(Vector3(0.0f, 3.0f, -4.0f));
+    node_->LookAt(Vector3::ZERO);
+}
+
 void CameraController::Update(float timeStep) {
     if (GetSubsystem<Urho3D::UI>()->GetFocusElement())
         return;
 
     auto* input = GetSubsystem<Urho3D::Input>();
 
-    // // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
-    // IntVector2 mouseMove = input->GetMouseMove();
-    // yaw_ += MOUSE_SENSITIVITY * mouseMove.x_;
-    // pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
-    // pitch_ = Clamp(pitch_, -90.0f, 90.0f);
-
-    // // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
-    // cameraNode_->SetRotation(Quaternion(pitch_, yaw_, 0.0f));
-
-    const float MOVE_SPEED = 16.0f;
+    // Movement speed as world units per second    
+    const float MOVE_SPEED = 12.0f;
 
     using namespace Urho3D;
     
@@ -46,7 +44,17 @@ void CameraController::Update(float timeStep) {
     if (input->GetKeyDown(KEY_E))
         node_->Translate(Vector3::UP * MOVE_SPEED * timeStep);
 
+
+    // Mouse sensitivity as degrees per pixel
     const float MOUSE_SENSITIVITY = 0.3f;
+
+    // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
+    IntVector2 mouseMove = input->GetMouseMove();
+    yaw_ += MOUSE_SENSITIVITY * mouseMove.x_;
+    pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
+    pitch_ = Clamp(pitch_, -90.0f, 90.0f);
+    // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
+    // node_->SetRotation(Quaternion(pitch_, yaw_, 0.0f));
     
     if (input->GetKeyDown(KEY_J)) {
         node_->Rotate(Quaternion(0, -MOUSE_SENSITIVITY, 0));
