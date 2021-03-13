@@ -10,3 +10,16 @@
 
 `cd` to `bin` and run `./Procgen`.
 
+## Configure, compile and run (in one go)
+
+If you start in the `build` directory, to configure
+
+```
+cd ../ && script/cmake_generic.sh .
+```
+
+If you start in the `build` directory, to compile and run
+
+```
+cd ../ && make && cd bin/ && ./Procgen
+```

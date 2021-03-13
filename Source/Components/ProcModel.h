@@ -27,6 +27,7 @@ namespace ProcGen {
         void CalculateNormals();
         void Generate();
         void SetDrawNormals(bool enabled);
+        bool GetDrawNormals();
         
         Vector<Vector3> positions_;
         Vector<Vector3> normals_;
@@ -46,7 +47,7 @@ namespace ProcGen {
 
     private:
         void SetVertexBuffer(void* vertexData, VertexMask semantics, unsigned numVertices = 0);
-        void SetIndices(unsigned short* indexData, unsigned numIndices = 0);
+        void SetIndexBuffer(unsigned short* indexData, unsigned numIndices = 0);
         
         bool drawNormals_ = false;
     };

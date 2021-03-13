@@ -1,4 +1,6 @@
-bin/
+bin/Urho3D.log
+bin/Procgen
+bin/CoreData
 CMake/
 Scripts/
 build/

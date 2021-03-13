@@ -15,21 +15,9 @@ public:
     virtual void Start();
     virtual void Stop();
     void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-    void HandlePostRenderUpdate(StringHash /*eventType*/, VariantMap& eventData);
 
-    void CreateScene();
-    void SetupViewport();
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     void SubscribeToEvents();
 
 private:
-    SharedPtr<DebugRenderer> debugRenderer_;
-    SharedPtr<Scene> scene_;
-    /// Camera scene node.
-    SharedPtr<Node> cameraNode_;
-    /// Camera yaw angle.
-    float yaw_;
-    /// Camera pitch angle.
-    float pitch_;    
-    
 };

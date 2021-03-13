@@ -34,7 +34,7 @@ void ProcModel::SetVertexBuffer(void* data, VertexMask semantics, unsigned numVe
     vertexBuffers_.Push(SharedPtr<VertexBuffer>(buffer));
 }
 
-void ProcModel::SetIndices(unsigned short* data, unsigned numIndices){
+void ProcModel::SetIndexBuffer(unsigned short* data, unsigned numIndices){
     if (!numIndices) numIndices = vertexBuffers_.At(0)->GetVertexCount();
     IndexBuffer* indices = new IndexBuffer(context_);
     indices->SetSize(numIndices, false);
@@ -44,6 +44,7 @@ void ProcModel::SetIndices(unsigned short* data, unsigned numIndices){
 }
 
 void ProcModel::CalculateNormals() {
+    // works only when len(indices) == len(vertices)
     normals_.Clear();
     for (int i = 0; i < indices_.Size(); i += 3) {
         Vector3 edge1 = positions_[indices_[i+1]] - positions_[indices_[i]];
@@ -61,7 +62,7 @@ void ProcModel::Generate() {
     SetVertexBuffer(positions_.Buffer(), MASK_POSITION, positions_.Size());
     if (normals_.Size()) SetVertexBuffer(normals_.Buffer(), MASK_NORMAL);
     if (colors_.Size()) SetVertexBuffer(colors_.Buffer(), MASK_COLOR);
-    SetIndices(indices_.Buffer(), indices_.Size());
+    SetIndexBuffer(indices_.Buffer(), indices_.Size());
 
     Geometry* geometry = new Geometry(context_);
     model_->SetNumGeometries(1);
@@ -105,6 +106,10 @@ void ProcModel::SetDrawNormals(bool enabled) {
     }
     UnsubscribeFromEvent(E_POSTRENDERUPDATE);
     drawNormals_ = false;
+}
+
+bool ProcModel::GetDrawNormals() {
+    return drawNormals_;
 }
 
 void ProcModel::HandlePostRenderUpdate (StringHash eventType, VariantMap& eventData) {
