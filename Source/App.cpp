@@ -1,3 +1,8 @@
+#include <Urho3D/Graphics/GraphicsDefs.h>
+#include <Urho3D/Graphics/Texture.h>
+#include <Urho3D/Container/Ptr.h>
+#include <Urho3D/Math/Color.h>
+#include <Urho3D/Resource/Image.h>
 #include <iostream>
 
 #include <Urho3D/Graphics/Material.h>
@@ -10,6 +15,7 @@
 #include <Urho3D/Graphics/Geometry.h>
 #include <Urho3D/Graphics/Graphics.h>
 #include <Urho3D/Graphics/IndexBuffer.h>
+#include <Urho3D/Graphics/Texture2D.h>
 #include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Technique.h>
@@ -52,8 +58,28 @@ void App::Start() {
     sceneManager->SetupViewport();
     scene_ = sceneManager->GetScene();
 
+    CreateTexture();
     CreateStockModel();
     // CreateProceduralModel();
+}
+
+void App::CreateTexture() {
+    SharedPtr<Image> image(new Image(context_));
+    SharedPtr<Texture2D> texture2D(new Texture2D(context_));
+    int w = 320;
+    int h = 320;
+    image->SetSize(w, h, 3);
+    texture2D->SetSize(w, h, Graphics::GetRGBFormat(), Urho3D::TEXTURE_DYNAMIC);
+
+    for (int y = 0; y < h; ++y) {
+        bool ymod = y % (w/10) < (w/20);
+        for (int x = 0; x < w; ++x) {
+            if (ymod) image->SetPixel(x, y, Color::RED);
+            else image->SetPixel(x, y, Color::GREEN);
+        }
+    }
+    texture2D->SetData(image);
+    image->SavePNG("Data/Textures/Lines.png");
 }
 
 void App::CreateStockModel() {
