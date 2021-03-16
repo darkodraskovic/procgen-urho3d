@@ -16,9 +16,9 @@ namespace ProcGen {
         explicit SceneManager (Context* context);
         void CreateScene();
         void SetupViewport();
-        
+
         Scene* GetScene();
-        
+
     private:
         SharedPtr<DebugRenderer> debugRenderer_;
         SharedPtr<Scene> scene_;

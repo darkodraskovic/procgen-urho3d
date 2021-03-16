@@ -5,6 +5,8 @@
 #include <Urho3D/Graphics/Zone.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Graphics/RenderPath.h>
+#include <Urho3D/Resource/XMLFile.h>
 
 #include "SceneManager.h"
 #include "../Components/CameraController.h"
@@ -41,10 +43,18 @@ void SceneManager::SetupViewport() {
     auto* camNode_ = scene_->CreateChild("camera");
     camNode_->CreateComponent<ProcGen::CameraController>();
     auto* camera = camNode_->CreateComponent<Camera>();
-    
+
     auto* renderer = GetSubsystem<Renderer>();
     SharedPtr<Viewport> viewport(new Viewport(context_, scene_, camNode_->GetComponent<Camera>()));
-    renderer->SetViewport(0, viewport);    
+    renderer->SetViewport(0, viewport);
+
+    auto* cache = GetSubsystem<ResourceCache>();
+    SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
+    // effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/GreyScale.xml"));
+    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/PP_Basic.xml"));
+    // effectRenderPath->SetShaderParameter("BloomMix", Vector2(1.1f, .7f));
+    // effectRenderPath->SetEnabled("Bloom", true);
+    // viewport->SetRenderPath(effectRenderPath);
 }
 
 Scene* SceneManager::GetScene() {

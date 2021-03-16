@@ -22,6 +22,6 @@ private:
 
     void CreateStockModel();
     void CreateProceduralModel();
-    void CreateTexture();
+    
     SharedPtr<Scene> scene_;
 };

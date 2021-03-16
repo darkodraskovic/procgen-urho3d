@@ -2,9 +2,8 @@
 #include <Urho3D/Graphics/Texture.h>
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Math/Color.h>
+#include <Urho3D/Math/Quaternion.h>
 #include <Urho3D/Resource/Image.h>
-#include <iostream>
-
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Scene/ValueAnimation.h>
 #include <Urho3D/Scene/Component.h>
@@ -23,11 +22,13 @@
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/IO/Log.h>
 
 #include "App.h"
 
 #include "Subsystems/SceneManager.h"
 #include "Subsystems/ModelCreator.h"
+#include "Subsystems/TextureCreator.h"
 
 #include "Components/CameraController.h"
 #include "Components/ProcModel.h"
@@ -37,6 +38,7 @@ App::App(Context* context) :
     Application(context) {
     context_->RegisterSubsystem<ProcGen::SceneManager>();
     context_->RegisterSubsystem<ProcGen::ModelCreator>();
+    context_->RegisterSubsystem<ProcGen::TextureCreator>();
     
     context_->RegisterFactory<ProcGen::CameraController>();
     context_->RegisterFactory<ProcGen::ProcModel>();
@@ -52,44 +54,65 @@ void App::Setup() {
 
 void App::Start() {
     SubscribeToEvents();
-    
+
     ProcGen::SceneManager* sceneManager = GetSubsystem<ProcGen::SceneManager>();
     sceneManager->CreateScene();
     sceneManager->SetupViewport();
     scene_ = sceneManager->GetScene();
 
-    CreateTexture();
+    ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
+    modelCreator->Start();
+
+    GetSubsystem<ProcGen::TextureCreator>()->Start();
+    
     CreateStockModel();
     // CreateProceduralModel();
 }
 
-void App::CreateTexture() {
-    SharedPtr<Image> image(new Image(context_));
-    SharedPtr<Texture2D> texture2D(new Texture2D(context_));
-    int w = 320;
-    int h = 320;
-    image->SetSize(w, h, 3);
-    texture2D->SetSize(w, h, Graphics::GetRGBFormat(), Urho3D::TEXTURE_DYNAMIC);
-
-    for (int y = 0; y < h; ++y) {
-        bool ymod = y % (w/10) < (w/20);
-        for (int x = 0; x < w; ++x) {
-            if (ymod) image->SetPixel(x, y, Color::RED);
-            else image->SetPixel(x, y, Color::GREEN);
-        }
-    }
-    texture2D->SetData(image);
-    image->SavePNG("Data/Textures/Lines.png");
-}
-
 void App::CreateStockModel() {
     auto* cache = GetSubsystem<ResourceCache>();
-    
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
-    modelCreator->Start();
-    Material* material = cache->GetResource<Material>("Data/Materials/PG_Basic.xml");
+    ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
+    
+    // MATERIAL
+    Material* material(new Material(context_));
+    
+    // material = cache->GetResource<Material>("Data/Materials/PG_Basic.xml");
+    // material = cache->GetResource<Material>("Data/Materials/PG_Shapes.xml");
+    
+    // material->SetTechnique(0, cache->GetResource<Technique>("Data/Techniques/PG_Lit.xml"));
+    // material->SetShaderParameter("MatDiffColor", Color::WHITE);
+
+    // material->SetTechnique(0, cache->GetResource<Technique>("Techniques/DiffUnlit.xml"));
+    // material->SetDepthBias(BiasParameters(-0.001f, 0.0f));
+
+    // TEXTURE
+    
+    int w = 320, h = 320;
+    
+    Texture2D* texture = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
+    
+    // Image* image(new Image(context_));
+    // image->SetSize(w, h, 3);
+    // for (int y = 0; y < h; ++y) {
+    //     bool ymod = y % (w/10) < (w/20);
+    //     for (int x = 0; x < w; ++x) {
+    //         if (ymod) image->SetPixel(x, y, Color::RED);
+    //         else image->SetPixel(x, y, Color::GREEN);
+    //     }
+    // }
+    // Texture2D* texture = textureCreator->CreateImageTexture(image);
+    
+    // material->SetTexture(TU_DIFFUSE, texture);
+
+    // NODE
+    
     Node* node = modelCreator->CreateStockModel("Box", material);
     
+    // Node* node = modelCreator->CreateStockModel("Plane", material);
+    // node->Rotate(Quaternion(-90, 0, 0));
+
+    // BODY
     auto* body = node->CreateComponent<RigidBody>();
     body->SetMass(1);
     body->SetUseGravity(false);

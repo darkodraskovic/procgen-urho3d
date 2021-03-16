@@ -1,0 +1,6 @@
+<renderpath>
+  <!-- <command type="quad" tag="GreyScale" vs="PP_Basic" ps="PP_Basic" output="viewport"> -->
+  <command type="quad" tag="Shapes" vs="PP_Shapes" ps="PP_Shapes" output="viewport">
+    <texture unit="diffuse" name="viewport" />
+  </command>
+</renderpath>
