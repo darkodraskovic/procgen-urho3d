@@ -14,7 +14,7 @@ namespace ProcGen {
 
         void Start();
         Texture2D* CreateImageTexture(Image* image);
-        Texture2D* CreateEffectTexture(int w, int h, const String& effect, RenderSurfaceUpdateMode mode = SURFACE_UPDATEVISIBLE);
+        Texture2D* CreateEffectTexture(int w, int h, const String& shader, RenderSurfaceUpdateMode mode = SURFACE_UPDATEVISIBLE);
 
     public:
         explicit TextureCreator (Context* context);

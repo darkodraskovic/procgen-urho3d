@@ -1,4 +1,7 @@
+#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Graphics/Viewport.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Graphics/Camera.h>
@@ -37,7 +40,7 @@ Texture2D* TextureCreator::CreateImageTexture(Image* image) {
     return texture2D;
 }
 
-Texture2D* TextureCreator::CreateEffectTexture(int w, int h, const String& effect, RenderSurfaceUpdateMode mode) {
+Texture2D* TextureCreator::CreateEffectTexture(int w, int h, const String& shader, RenderSurfaceUpdateMode mode) {
     auto* cache = GetSubsystem<ResourceCache>();
 
     Texture2D* renderTexture(new Texture2D(context_));
@@ -49,15 +52,26 @@ Texture2D* TextureCreator::CreateEffectTexture(int w, int h, const String& effec
     // to the Renderer subsystem. By default the texture viewport will be updated when the texture is visible
     // in the main view
     RenderSurface* surface = renderTexture->GetRenderSurface();
+
+    surface->SetUpdateMode(mode);
+    if (mode == Urho3D::SURFACE_MANUALUPDATE) surface->QueueUpdate();
+
+    // Viewport* viewport(new Viewport(context_));
     Viewport* viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
     surface->SetViewport(0, viewport);
     
-    surface->SetUpdateMode(mode);
-    if (mode == Urho3D::SURFACE_MANUALUPDATE) surface->QueueUpdate();
+    RenderPathCommand rpCommand;
+    rpCommand.SetOutput(0, "viewport");
+    rpCommand.type_ = RenderCommandType::CMD_QUAD;
+    rpCommand.vertexShaderName_ = shader;
+    rpCommand.pixelShaderName_ = shader;
+    rpCommand.SetTextureName(Urho3D::TU_DIFFUSE, "viewport");
     
-    SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
-    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/" + effect + ".xml"));
-    viewport->SetRenderPath(effectRenderPath);
+    // RenderPath* renderPath = new RenderPath();
+    SharedPtr<RenderPath> renderPath = viewport->GetRenderPath()->Clone();
+
+    renderPath->AddCommand(rpCommand);
+    viewport->SetRenderPath(renderPath);
 
     return renderTexture;
 }

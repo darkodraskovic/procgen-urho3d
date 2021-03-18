@@ -1,5 +1,0 @@
-<material>
-  <technique name="Data/Techniques/PG_Basic.xml" />
-  <parameter name="MatDiffColor" value="1 1 1 1" />
-  <texture unit="diffuse" name="Data/Textures/Lines.png" />
-</material>

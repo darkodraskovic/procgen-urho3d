@@ -1,23 +1,16 @@
-#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/Texture.h>
-#include <Urho3D/Container/Ptr.h>
-#include <Urho3D/Math/Color.h>
-#include <Urho3D/Math/Quaternion.h>
 #include <Urho3D/Resource/Image.h>
 #include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Scene/ValueAnimation.h>
-#include <Urho3D/Scene/Component.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/Engine.h>
 #include <Urho3D/Engine/EngineDefs.h>
 #include <Urho3D/Input/InputEvents.h>
 #include <Urho3D/Graphics/Geometry.h>
 #include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/IndexBuffer.h>
 #include <Urho3D/Graphics/Texture2D.h>
 #include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Technique.h>
+#include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Physics/RigidBody.h>
@@ -29,6 +22,7 @@
 #include "Subsystems/SceneManager.h"
 #include "Subsystems/ModelCreator.h"
 #include "Subsystems/TextureCreator.h"
+#include "Subsystems/MaterialCreator.h"
 
 #include "Components/CameraController.h"
 #include "Components/ProcModel.h"
@@ -39,6 +33,7 @@ App::App(Context* context) :
     context_->RegisterSubsystem<ProcGen::SceneManager>();
     context_->RegisterSubsystem<ProcGen::ModelCreator>();
     context_->RegisterSubsystem<ProcGen::TextureCreator>();
+    context_->RegisterSubsystem<ProcGen::MaterialCreator>();
     
     context_->RegisterFactory<ProcGen::CameraController>();
     context_->RegisterFactory<ProcGen::ProcModel>();
@@ -64,6 +59,8 @@ void App::Start() {
     modelCreator->Start();
 
     GetSubsystem<ProcGen::TextureCreator>()->Start();
+
+    GetSubsystem<ProcGen::MaterialCreator>()->Start();
     
     CreateStockModel();
     // CreateProceduralModel();
@@ -73,24 +70,12 @@ void App::CreateStockModel() {
     auto* cache = GetSubsystem<ResourceCache>();
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
-    
-    // MATERIAL
-    Material* material(new Material(context_));
-    
-    // material = cache->GetResource<Material>("Data/Materials/PG_Basic.xml");
-    // material = cache->GetResource<Material>("Data/Materials/PG_Shapes.xml");
-    
-    // material->SetTechnique(0, cache->GetResource<Technique>("Data/Techniques/PG_Lit.xml"));
-    // material->SetShaderParameter("MatDiffColor", Color::WHITE);
-
-    // material->SetTechnique(0, cache->GetResource<Technique>("Techniques/DiffUnlit.xml"));
-    // material->SetDepthBias(BiasParameters(-0.001f, 0.0f));
-
-    // TEXTURE
+    ProcGen::MaterialCreator* materialCreator =  GetSubsystem<ProcGen::MaterialCreator>();
     
     int w = 320, h = 320;
-    
-    Texture2D* texture = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
+    // Texture2D* texture = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
+    // Texture2D* texture = textureCreator->CreateEffectTexture(w, h, "PP_Shapes");
+    Texture2D* texture = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
     
     // Image* image(new Image(context_));
     // image->SetSize(w, h, 3);
@@ -102,21 +87,21 @@ void App::CreateStockModel() {
     //     }
     // }
     // Texture2D* texture = textureCreator->CreateImageTexture(image);
-    
+    Material* material = materialCreator->Create("Unlit", Color::WHITE, texture);
+
     // material->SetTexture(TU_DIFFUSE, texture);
 
     // NODE
     
-    Node* node = modelCreator->CreateStockModel("Box", material);
-    
-    // Node* node = modelCreator->CreateStockModel("Plane", material);
-    // node->Rotate(Quaternion(-90, 0, 0));
+    // Node* node = modelCreator->CreateStockModel("Box", material);
+    Node* node = modelCreator->CreateStockModel("Plane", material);
+    node->Rotate(Quaternion(-90, 0, 0));
 
     // BODY
     auto* body = node->CreateComponent<RigidBody>();
     body->SetMass(1);
     body->SetUseGravity(false);
-    body->SetAngularVelocity(Vector3::UP * 1.5);
+    // body->SetAngularVelocity(Vector3::UP * 1.5);
 }
 
 void App::CreateProceduralModel() {

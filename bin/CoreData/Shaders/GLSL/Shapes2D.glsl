@@ -1,6 +1,13 @@
 float rectFill(vec2 fragPos, vec2 size, vec2 anchor = vec2(0)) {
     fragPos = step(-anchor*size, fragPos)
-        - step(size - anchor*size, fragPos);
+        * step(-anchor*size, -fragPos); // reflect around origin
+    return fragPos.x * fragPos.y;
+}
+
+float rectFillSmooth(vec2 fragPos, vec2 size, vec2 anchor = vec2(0), vec2 antiAlias = vec2(0)) {
+    vec2 as = anchor*size;
+    fragPos = smoothstep(-as, -as + antiAlias, fragPos)
+        * smoothstep(-as, -as + antiAlias, -fragPos);
     return fragPos.x * fragPos.y;
 }
 

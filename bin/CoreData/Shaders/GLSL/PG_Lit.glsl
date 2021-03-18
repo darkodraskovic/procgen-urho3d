@@ -43,8 +43,6 @@ void VS()
 void PS()
 {
     vec4 diffColor = cMatDiffColor;
-    // vec3 lightDir = cVertexLights[index * 3 + 1].xyz;
-    // float intensity = dot(vNormal, cLightDirPS);
     diffColor *= vec4(diffColor.xyz * vVertexLight, 1);
     
     #ifdef VERTEXCOLOR

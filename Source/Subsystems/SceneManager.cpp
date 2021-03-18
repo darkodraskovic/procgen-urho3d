@@ -51,7 +51,6 @@ void SceneManager::SetupViewport() {
     auto* cache = GetSubsystem<ResourceCache>();
     SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
     // effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/GreyScale.xml"));
-    effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/PP_Basic.xml"));
     // effectRenderPath->SetShaderParameter("BloomMix", Vector2(1.1f, .7f));
     // effectRenderPath->SetEnabled("Bloom", true);
     // viewport->SetRenderPath(effectRenderPath);
