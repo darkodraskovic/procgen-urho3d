@@ -4,6 +4,8 @@
 #include <Urho3D/Graphics/Viewport.h>
 #include <Urho3D/Graphics/Zone.h>
 #include <Urho3D/Graphics/Camera.h>
+#include <Urho3D/Graphics/Skybox.h>
+#include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Resource/XMLFile.h>
@@ -36,7 +38,14 @@ void SceneManager::CreateScene() {
     light->SetSpecularIntensity(1.5f);
     light->SetPerVertex(true);
 
-    debugRenderer_ =  scene_->CreateComponent<DebugRenderer>();
+    // Create skybox. The Skybox component is used like StaticModel, but it will be always located at the camera, giving the
+    // illusion of the box planes being far away. Use just the ordinary Box model and a suitable material, whose shader will
+    // generate the necessary 3D texture coordinates for cube mapping
+    Node* skyNode = scene_->CreateChild("Sky");
+    skyNode->SetScale(500.0f); // The scale actually does not matter
+    auto* skybox = skyNode->CreateComponent<Skybox>();
+    skybox->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+    skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
 }
 
 void SceneManager::SetupViewport() {
@@ -54,6 +63,8 @@ void SceneManager::SetupViewport() {
     // effectRenderPath->SetShaderParameter("BloomMix", Vector2(1.1f, .7f));
     // effectRenderPath->SetEnabled("Bloom", true);
     // viewport->SetRenderPath(effectRenderPath);
+
+    debugRenderer_ =  scene_->CreateComponent<DebugRenderer>();
 }
 
 Scene* SceneManager::GetScene() {

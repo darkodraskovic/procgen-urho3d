@@ -1,5 +1,6 @@
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Engine/Application.h>
+#include <Urho3D/Graphics/Texture2D.h>
 #include <Urho3D/Graphics/VertexBuffer.h>
 #include <Urho3D/Scene/Component.h>
 #include <Urho3D/Scene/Scene.h>
@@ -18,10 +19,12 @@ public:
 private:
     void HandleKeyDown(StringHash eventType, VariantMap& eventData);
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
+    // void HandlePostrenderupdate(StringHash eventType, VariantMap& eventData);
     void SubscribeToEvents();
 
     void CreateStockModel();
     void CreateProceduralModel();
     
     SharedPtr<Scene> scene_;
+    Texture2D* texture_;
 };

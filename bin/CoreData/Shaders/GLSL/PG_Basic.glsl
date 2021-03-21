@@ -1,8 +1,6 @@
 #include "Uniforms.glsl"
 #include "Samplers.glsl"
 #include "Transform.glsl"
-#include "ScreenPos.glsl"
-// #include "Lighting.glsl"
 
 #if defined(DIFFMAP) || defined(ALPHAMAP)
     varying vec2 vTexCoord;
@@ -11,33 +9,18 @@
     varying vec4 vColor;
 #endif
 
-// PG
-varying vec3 vNormal;
-varying vec4 vScreenPos;
-// varying vec3 vVertexLight;
-
 void VS()
 {
     mat4 modelMatrix = iModelMatrix;
     vec3 worldPos = GetWorldPos(modelMatrix);
     gl_Position = GetClipPos(worldPos);
-
+    
     #ifdef DIFFMAP
-        vTexCoord = GetTexCoord(iTexCoord);
+        vTexCoord = iTexCoord;
     #endif
     #ifdef VERTEXCOLOR
         vColor = iColor;
     #endif
-
-    // PG
-    vNormal = GetWorldNormal(modelMatrix);
-    vScreenPos = GetScreenPos(gl_Position);
-
-    // vVertexLight = GetAmbient(GetZonePos(worldPos));
-    // #ifdef NUMVERTEXLIGHTS
-    //     for (int i = 0; i < NUMVERTEXLIGHTS; ++i)
-    //         vVertexLight += GetVertexLight(i, worldPos, vNormal) * cVertexLights[i * 3].rgb;
-    // #endif
 }
 
 void PS()
@@ -57,8 +40,6 @@ void PS()
             if (diffInput.a < 0.5)
                 discard;
         #endif
-        // gl_FragColor = diffColor;
-        // gl_FragColor = diffInput;
         gl_FragColor = diffColor * diffInput;
     #endif
     #ifdef ALPHAMAP
