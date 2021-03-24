@@ -26,5 +26,4 @@ private:
     void CreateProceduralModel();
     
     SharedPtr<Scene> scene_;
-    Texture2D* texture_;
 };

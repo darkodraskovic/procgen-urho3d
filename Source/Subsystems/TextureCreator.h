@@ -1,14 +1,15 @@
 #pragma once
 
+#include <Urho3D/Container/HashMap.h>
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Graphics/GraphicsDefs.h>
+#include <Urho3D/Graphics/Texture.h>
 #include <Urho3D/Graphics/Texture2D.h>
 #include <Urho3D/Scene/Scene.h>
 
 using namespace Urho3D;
 
 namespace ProcGen {
-
     class TextureCreator : public Object {
         URHO3D_OBJECT(TextureCreator, Object);
 

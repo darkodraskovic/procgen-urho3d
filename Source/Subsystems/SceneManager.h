@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Urho3D/Core/Object.h>
-#include <Urho3D/Core/Context.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 
@@ -15,6 +14,7 @@ namespace ProcGen {
     public:
         explicit SceneManager (Context* context);
         void CreateScene();
+        void CreateSkybox(const String& material);
         void SetupViewport();
 
         Scene* GetScene();

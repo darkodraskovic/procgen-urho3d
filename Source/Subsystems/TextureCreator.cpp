@@ -69,7 +69,6 @@ Texture2D* TextureCreator::CreateEffectTexture(int w, int h, const String& shade
     
     // RenderPath* renderPath = new RenderPath();
     SharedPtr<RenderPath> renderPath = viewport->GetRenderPath()->Clone();
-
     renderPath->AddCommand(rpCommand);
     viewport->SetRenderPath(renderPath);
 

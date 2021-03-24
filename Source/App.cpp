@@ -1,3 +1,4 @@
+#include <Urho3D/Container/HashMap.h>
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/Texture.h>
@@ -54,6 +55,7 @@ void App::Start() {
 
     ProcGen::SceneManager* sceneManager = GetSubsystem<ProcGen::SceneManager>();
     sceneManager->CreateScene();
+    sceneManager->CreateSkybox("Materials/Space.xml");
     sceneManager->SetupViewport();
     scene_ = sceneManager->GetScene();
 
@@ -77,9 +79,9 @@ void App::CreateStockModel() {
     // TEXTURE
     
     int w = 320, h = 320;
-    // texture_ = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
-    texture_ = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
-    // texture_ = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
+    auto* diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
 
     // Image* image(new Image(context_));
     // image->SetSize(w, h, 3);
@@ -90,23 +92,38 @@ void App::CreateStockModel() {
     //         else image->SetPixel(x, y, Color::GREEN);
     //     }
     // }
-    // texture_ = textureCreator->CreateImageTexture(image);
+    // diffuseTexture = textureCreator->CreateImageTexture(image);
 
-    // MATERIAL
+    auto* skyboxTexture = cache->GetResource<TextureCube>("Textures/Space.xml");
+
+    auto* mmDiffuse = textureCreator->CreateImageTexture(cache->GetResource<Image>("Textures/MM_Diffuse.png"));
+    auto* mmNormal = textureCreator->CreateImageTexture(cache->GetResource<Image>("Textures/MM_Normal.png"));
     
-    // Material* material = materialCreator->Create("Unlit", Color::WHITE, texture_);
-    Material* material = materialCreator->Create("PG_Basic00", Color::WHITE, texture_);
+    // MATERIAL
 
-    // material->SetTexture(TU_DIFFUSE, texture_);
+    HashMap<TextureUnit, Texture*> textureData = {
+        {TU_DIFFUSE, diffuseTexture}, {TU_ENVIRONMENT, skyboxTexture},
+    };
+
+    HashMap<TextureUnit, Texture*> textureData2 = {
+        {TU_DIFFUSE, mmDiffuse}, {TU_NORMAL, mmNormal}, {TU_ENVIRONMENT, skyboxTexture},
+    };
+    
+    Material* material = materialCreator->Create("PG_Basic00", Color::WHITE, textureData2);
+    // Material* material = materialCreator->Create(
+    //     cache->GetResource<Technique>("Data/Techniques/DiffNormalEnvCube.xml"),
+    //     textureData2);
 
     // NODE
     
     // Node* node = modelCreator->CreateStockModel("Box", material);
+    Node* node = modelCreator->CreateStockModel("Sphere", material);
     
     // Node* node = modelCreator->CreateStockModel("Plane", material);
     // node->Rotate(Quaternion(-90, 0, 0));
 
-    Node* node = modelCreator->CreateStockModel("TeaPot", material);
+    // Node* node = modelCreator->CreateStockModel("TeaPot", material);
+    // node->Translate(Vector3::DOWN / 4);
     
     // BODY
     auto* body = node->CreateComponent<RigidBody>();
@@ -209,10 +226,6 @@ void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
 }
 
 // void App::HandlePostrenderupdate(StringHash eventType, VariantMap& eventData) {
-//     if (texture_) {
-//         texture_->GetImage()->SavePNG("Data/Textures/Scottish.png");
-//         texture_ = nullptr;
-//     }
 // }
 
 URHO3D_DEFINE_APPLICATION_MAIN(App)

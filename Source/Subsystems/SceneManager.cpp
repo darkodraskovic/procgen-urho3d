@@ -36,8 +36,12 @@ void SceneManager::CreateScene() {
     auto* light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
     light->SetSpecularIntensity(1.5f);
-    light->SetPerVertex(true);
+    // light->SetPerVertex(true);
+}
 
+void SceneManager::CreateSkybox(const String& material) {
+    auto* cache = GetSubsystem<ResourceCache>();
+    
     // Create skybox. The Skybox component is used like StaticModel, but it will be always located at the camera, giving the
     // illusion of the box planes being far away. Use just the ordinary Box model and a suitable material, whose shader will
     // generate the necessary 3D texture coordinates for cube mapping
@@ -45,7 +49,7 @@ void SceneManager::CreateScene() {
     skyNode->SetScale(500.0f); // The scale actually does not matter
     auto* skybox = skyNode->CreateComponent<Skybox>();
     skybox->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
-    skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
+    skybox->SetMaterial(cache->GetResource<Material>(material));
 }
 
 void SceneManager::SetupViewport() {

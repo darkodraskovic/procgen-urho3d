@@ -2,7 +2,8 @@
 #include "Samplers.glsl"
 #include "Transform.glsl"
 
-varying vec2 vTexCoord;
+varying vec4 vTexCoord;
+varying vec4 vTangent;
 
 varying vec3 vNormal;
 varying vec3 vReflectionVec;
@@ -12,24 +13,39 @@ void VS()
     mat4 modelMatrix = iModelMatrix;
     vec3 worldPos = GetWorldPos(modelMatrix);
     gl_Position = GetClipPos(worldPos);
-    
-    vTexCoord = iTexCoord;
-    
-    // vNormal = iNormal;
     vNormal = GetWorldNormal(modelMatrix);
+    
+#ifdef NORMALMAP
+    vec4 tangent = GetWorldTangent(modelMatrix);
+    vec3 bitangent = cross(tangent.xyz, vNormal) * tangent.w;
+    vTexCoord = vec4(GetTexCoord(iTexCoord), bitangent.xy);
+    vTangent = vec4(tangent.xyz, bitangent.z);
+#else
+    vTexCoord = GetTexCoord(iTexCoord);
+#endif
+    
     vReflectionVec = worldPos - cCameraPos;
 }
 
 void PS()
 {
-    vec4 diffColor = cMatDiffColor;
+    vec4 color = cMatDiffColor;
 
-    vec4 diffInput = texture2D(sDiffMap, vTexCoord);
+    vec4 diffInput = texture2D(sDiffMap, vTexCoord.xy);
 
-    vec3 normColor = abs(vNormal);
+    color *= diffInput;
 
-    vec3 envColor = cMatEnvMapColor * textureCube(sEnvCubeMap, reflect(vReflectionVec, vNormal)).rgb;
-    vec3 color = mix(envColor, normColor, .5);
+#ifdef NORMALMAP
+    mat3 tbn = mat3(vTangent.xyz, vec3(vTexCoord.zw, vTangent.w), vNormal);
+    vec3 normal = normalize(tbn * DecodeNormal(texture2D(sNormalMap, vTexCoord.xy)));
+#else
+    vec3 normal = normalize(vNormal);
+#endif
+
+#ifdef ENVCUBEMAP
+    vec3 envInput = cMatEnvMapColor * textureCube(sEnvCubeMap, reflect(vReflectionVec, normal)).rgb;
+    color.xyz += envInput;
+#endif
             
-    gl_FragColor = vec4(color, 1);
+    gl_FragColor = color;
 }
