@@ -23,6 +23,8 @@
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/IO/Log.h>
+#include <Urho3D/Engine/DebugHud.h>
+#include <Urho3D/Engine/Console.h>
 
 #include "App.h"
 
@@ -54,11 +56,12 @@ void App::Setup() {
     engineParameters_[EP_FULL_SCREEN]  = false;
     engineParameters_[EP_WINDOW_POSITION_X]  = 0;
     engineParameters_[EP_WINDOW_POSITION_Y]  = 0;
-    engineParameters_[EP_WINDOW_WIDTH]  = 1024;
-    engineParameters_[EP_WINDOW_HEIGHT]  = 640;
+    engineParameters_[EP_WINDOW_WIDTH]  = 1366;
+    engineParameters_[EP_WINDOW_HEIGHT]  = 768;
 }
 
 void App::Start() {
+    CreateConsoleAndDebugHud();
     SubscribeToEvents();
 
     ProcGen::SceneManager* sceneManager = GetSubsystem<ProcGen::SceneManager>();
@@ -79,6 +82,21 @@ void App::Start() {
     CreateChunk();
 }
 
+void App::CreateConsoleAndDebugHud() {
+    // Get default style
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    XMLFile* xmlFile = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
+
+    // Create console
+    Console* console = engine_->CreateConsole();
+    console->SetDefaultStyle(xmlFile);
+    console->GetBackground()->SetOpacity(0.8f);
+
+    // Create debug HUD.
+    DebugHud* debugHud = engine_->CreateDebugHud();
+    debugHud->SetDefaultStyle(xmlFile);
+}
+    
 void App::CreateStockModel() {
     auto* cache = GetSubsystem<ResourceCache>();
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
@@ -239,12 +257,15 @@ void App::CreateChunk() {
     Node* node = scene_->CreateChild("ProceduralObject");
     ProcGen::ProcModel* procModel = node->CreateComponent<ProcGen::ProcModel>();
     ProcGen::Block* block = node->CreateComponent<ProcGen::Block>();
-    block->CreateQuad(ProcGen::BACK, ProcGen::GRASS_SIDE);
-    block->CreateQuad(ProcGen::LEFT, ProcGen::GRASS_SIDE);
-    block->CreateQuad(ProcGen::FRONT, ProcGen::GRASS_SIDE);
-    block->CreateQuad(ProcGen::RIGHT, ProcGen::GRASS_SIDE);
-    block->CreateQuad(ProcGen::BOTTOM, ProcGen::EARTH);
-    block->CreateQuad(ProcGen::TOP, ProcGen::GRASS_TOP);
+    ProcGen::Chunk* chunk = node->CreateComponent<ProcGen::Chunk>();
+    chunk->Build();
+    
+    // block->CreateQuad(ProcGen::BACK, ProcGen::GRASS_SIDE);
+    // block->CreateQuad(ProcGen::LEFT, ProcGen::GRASS_SIDE);
+    // block->CreateQuad(ProcGen::FRONT, ProcGen::GRASS_SIDE);
+    // block->CreateQuad(ProcGen::RIGHT, ProcGen::GRASS_SIDE);
+    // block->CreateQuad(ProcGen::BOTTOM, ProcGen::EARTH);
+    // block->CreateQuad(ProcGen::TOP, ProcGen::GRASS_TOP);
 
     auto* cache = GetSubsystem<ResourceCache>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
@@ -255,21 +276,23 @@ void App::CreateChunk() {
     texture->SetFilterMode(Urho3D::FILTER_NEAREST);
     
     auto* techDiff = cache->GetResource<Technique>("CoreData/Techniques/Diff.xml");
-    auto* techNoTexture = cache->GetResource<Technique>("CoreData/Techniques/NoTexture.xml");
-    auto* techNoTextureVCol = cache->GetResource<Technique>("CoreData/Techniques/NoTextureVCol.xml");
+    // auto* techNoTexture = cache->GetResource<Technique>("CoreData/Techniques/NoTexture.xml");
+    // auto* techNoTextureVCol = cache->GetResource<Technique>("CoreData/Techniques/NoTextureVCol.xml");
+    // auto* techDiffLightMap = cache->GetResource<Technique>("CoreData/Techniques/DiffLightMap.xml");
+    // auto* techDiffAO = cache->GetResource<Technique>("CoreData/Techniques/DiffAO.xml");
     auto* mat1 = new Material(context_);
-    // mat1->SetTechnique(0, techNoTexture);
     mat1->SetTechnique(0, techDiff);
     mat1->SetTexture(Urho3D::TU_DIFFUSE, texture);
 
     procModel->material_ = mat1;
     procModel->Generate();
+    node->GetComponent<StaticModel>()->SetCastShadows(true);
 
     auto* body = node->CreateComponent<RigidBody>();
     body->SetMass(1);
     body->SetUseGravity(false);
     // body->SetAngularVelocity(Vector3::ONE);
-    body->SetAngularVelocity(Vector3::UP*2);
+    body->SetAngularVelocity(Vector3::UP*1.5);
 }
 
 void App::Stop() {
@@ -287,6 +310,14 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     if (key == KEY_ESCAPE)
         engine_->Exit();
 
+    // Toggle console with F1
+    if (key == KEY_F1)
+        GetSubsystem<Console>()->Toggle();
+
+    // Toggle debug HUD with F2
+    else if (key == KEY_F2)
+        GetSubsystem<DebugHud>()->ToggleAll();
+    
 
     auto* node = scene_->GetChild("ProceduralObject");
     if (!node) return;

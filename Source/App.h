@@ -21,6 +21,7 @@ private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     // void HandlePostrenderupdate(StringHash eventType, VariantMap& eventData);
     void SubscribeToEvents();
+    void CreateConsoleAndDebugHud();
 
     void CreateStockModel();
     void CreateProceduralModel();

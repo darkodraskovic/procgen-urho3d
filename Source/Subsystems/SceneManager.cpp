@@ -34,10 +34,11 @@ void SceneManager::CreateScene() {
     zone->SetAmbientColor(Urho3D::Color(ambientIntensity, ambientIntensity, ambientIntensity));
 
     Node* lightNode = scene_->CreateChild("DirectionalLight");
-    lightNode->SetDirection(Vector3(0, -1.0f, 0.8f));
+    lightNode->SetDirection(Vector3(0, -1.0f, 1.0f));
     auto* light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
     light->SetSpecularIntensity(1.5f);
+    light->SetCastShadows(true);
     // light->SetPerVertex(true);
 }
 

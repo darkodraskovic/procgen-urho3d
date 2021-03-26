@@ -59,7 +59,9 @@ void ProcModel::Generate() {
     
     // index buffer
     SharedPtr<IndexBuffer>indexBuffer(new IndexBuffer(context_));
-    indexBuffer->SetSize(indices_.Size(), false);
+    URHO3D_LOGINFOF("%d", indices_.Size()); // debug
+
+    indexBuffer->SetSize(indices_.Size(), true);
     indexBuffer->SetData(indices_.Buffer());
     indexBuffer->SetShadowed(true);
 
@@ -71,9 +73,9 @@ void ProcModel::Generate() {
     geometry->SetDrawRange(primitiveType_, 0, indexBuffer->GetIndexCount());
 
     // model
-    model_ = new Model(context_);
-    model_->SetNumGeometries(1);
-    model_->SetGeometry(0, 0, geometry);
+    Model* model = new Model(context_);
+    model->SetNumGeometries(1);
+    model->SetGeometry(0, 0, geometry);
     
     // TODO
     // Optional. Morph ranges could also be not defined. Define a zero range (no morphing) for the vertex buffer.
@@ -81,16 +83,17 @@ void ProcModel::Generate() {
     PODVector<unsigned> morphRangeCounts;
     morphRangeStarts.Push(0);
     morphRangeCounts.Push(0);
-    model_->SetVertexBuffers({vertexBuffer}, morphRangeStarts, morphRangeCounts);
-    model_->SetIndexBuffers({indexBuffer});
+    model->SetVertexBuffers({vertexBuffer}, morphRangeStarts, morphRangeCounts);
+    model->SetIndexBuffers({indexBuffer});
 
     auto* staticModel = node_->GetComponent<StaticModel>();
     if (!staticModel) staticModel = node_->CreateComponent<StaticModel>();
-    staticModel->SetModel(model_);
+    staticModel->SetModel(model);
     if (material_.NotNull()) staticModel->SetMaterial(material_);
     
     // TODO
-    // model->SetBoundingBox(BoundingBox(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.5f, 0.5f, 0.5f)));
+    // float size = 32;
+    // model->SetBoundingBox(BoundingBox(Vector3::ZERO, Vector3(size, size, size)));
 }
 
 void ProcModel::SetDrawNormals(bool enabled) {

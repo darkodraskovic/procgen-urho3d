@@ -9,7 +9,11 @@ using namespace Urho3D;
 
 namespace ProcGen {
     enum BlockFace {BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK};
-    enum BlockType {DIRT, STONE, EARTH, GRASS_SIDE, GRASS_TOP};
+    enum BlockType {DIRT, STONE, EARTH, GRASS_SIDE, GRASS_TOP, AIR};
+    struct BlockData {
+        BlockType type_;
+        bool transparent_;
+    };
     
     class Block : public LogicComponent {
         URHO3D_OBJECT(Block, LogicComponent);

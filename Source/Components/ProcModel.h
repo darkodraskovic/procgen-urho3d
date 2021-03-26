@@ -34,14 +34,12 @@ namespace ProcGen {
         // Vector<unsigned char> colors_;
         Vector<Color> colors_;
         Vector<Vector2> uvs_;
-        Vector<unsigned short> indices_;
+        Vector<unsigned int> indices_;
         SharedPtr<Material> material_;
 
         PrimitiveType primitiveType_ = TRIANGLE_LIST;
         
-    protected:
-        SharedPtr<Model> model_;
-
+    private:
         bool drawNormals_ = false;
     };
 
