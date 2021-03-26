@@ -1,17 +1,20 @@
-#include <Urho3D/Graphics/Viewport.h>
+#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/GraphicsDefs.h>
+#include <Urho3D/Graphics/VertexBuffer.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/IO/VectorBuffer.h>
 #include <Urho3D/Math/BoundingBox.h>
-#include <iostream>
-
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Math/Color.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Math/MathDefs.h>
 #include <Urho3D/Scene/Component.h>
 #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Geometry.h>
-#include <Urho3D/Graphics/GraphicsDefs.h>
 
 #include "ProcModel.h"
 
@@ -19,28 +22,6 @@ using namespace ProcGen;
 
 ProcModel::ProcModel(Context* context) : LogicComponent(context) {
     SetUpdateEventMask(USE_NO_EVENT);
-}
-
-void ProcModel::Start() {
-    node_->CreateComponent<StaticModel>();
-}
-
-void ProcModel::SetVertexBuffer(void* data, VertexMask semantics, unsigned numVertices) {
-    if (!numVertices) numVertices = vertexBuffers_.At(0)->GetVertexCount();
-    VertexBuffer* buffer = new VertexBuffer(context_);
-    buffer->SetSize(numVertices, semantics);
-    buffer->SetData(data);
-    buffer->SetShadowed(true);
-    vertexBuffers_.Push(SharedPtr<VertexBuffer>(buffer));
-}
-
-void ProcModel::SetIndexBuffer(unsigned short* data, unsigned numIndices){
-    if (!numIndices) numIndices = vertexBuffers_.At(0)->GetVertexCount();
-    IndexBuffer* indices = new IndexBuffer(context_);
-    indices->SetSize(numIndices, false);
-    indices->SetData(data);
-    indices->SetShadowed(true);
-    indexBuffers_.Push(SharedPtr<IndexBuffer>(indices));
 }
 
 void ProcModel::CalculateNormals() {
@@ -55,44 +36,61 @@ void ProcModel::CalculateNormals() {
 }
 
 void ProcModel::Generate() {
-    model_ = new Model(context_);
-
+    // vertex buffer
     if (!normals_.Size()) CalculateNormals();
-    
-    SetVertexBuffer(positions_.Buffer(), MASK_POSITION, positions_.Size());
-    if (normals_.Size()) SetVertexBuffer(normals_.Buffer(), MASK_NORMAL);
-    if (colors_.Size()) SetVertexBuffer(colors_.Buffer(), MASK_COLOR);
-    SetIndexBuffer(indices_.Buffer(), indices_.Size());
 
+    PODVector<VertexElement> vertexElements{{TYPE_VECTOR3, SEM_POSITION}};
+    if (normals_.Size()) vertexElements.Push({TYPE_VECTOR3, SEM_NORMAL});
+    if (colors_.Size()) vertexElements.Push({TYPE_VECTOR4, SEM_COLOR});
+    if (uvs_.Size()) vertexElements.Push({TYPE_VECTOR2, SEM_TEXCOORD});
+
+    VectorBuffer vecBuffer;
+    for (int i = 0; i < positions_.Size(); i++) {
+        if (positions_.Size()) vecBuffer.WriteVector3(positions_[i]);
+        if (normals_.Size()) vecBuffer.WriteVector3(normals_[i]);
+        if (colors_.Size()) vecBuffer.WriteColor(colors_[i]);
+        if (uvs_.Size()) vecBuffer.WriteVector2(uvs_[i]);
+    }
+
+    SharedPtr<VertexBuffer>vertexBuffer(new VertexBuffer(context_));
+    vertexBuffer->SetSize(positions_.Size(), vertexElements);
+    vertexBuffer->SetData((void*)vecBuffer.GetData());
+    vertexBuffer->SetShadowed(true);
+    
+    // index buffer
+    SharedPtr<IndexBuffer>indexBuffer(new IndexBuffer(context_));
+    indexBuffer->SetSize(indices_.Size(), false);
+    indexBuffer->SetData(indices_.Buffer());
+    indexBuffer->SetShadowed(true);
+
+    // geometry
     Geometry* geometry = new Geometry(context_);
+    geometry->SetNumVertexBuffers(1);
+    geometry->SetVertexBuffer(0, vertexBuffer);
+    geometry->SetIndexBuffer(indexBuffer);
+    geometry->SetDrawRange(primitiveType_, 0, indexBuffer->GetIndexCount());
+
+    // model
+    model_ = new Model(context_);
     model_->SetNumGeometries(1);
     model_->SetGeometry(0, 0, geometry);
-
-    geometry->SetNumVertexBuffers(vertexBuffers_.Size());
-    for (int i = 0; i < vertexBuffers_.Size(); i++) {
-        geometry->SetVertexBuffer(i, vertexBuffers_.At(i));
-    }
-    geometry->SetIndexBuffer(indexBuffers_.At(0));
-    geometry->SetDrawRange(primitiveType_, 0, indexBuffers_.At(0)->GetIndexCount());
-
+    
     // TODO
     // Optional. Morph ranges could also be not defined. Define a zero range (no morphing) for the vertex buffer.
     PODVector<unsigned> morphRangeStarts;
     PODVector<unsigned> morphRangeCounts;
     morphRangeStarts.Push(0);
     morphRangeCounts.Push(0);
-    model_->SetVertexBuffers(vertexBuffers_, morphRangeStarts, morphRangeCounts);
-    model_->SetIndexBuffers(indexBuffers_);
+    model_->SetVertexBuffers({vertexBuffer}, morphRangeStarts, morphRangeCounts);
+    model_->SetIndexBuffers({indexBuffer});
 
     auto* staticModel = node_->GetComponent<StaticModel>();
+    if (!staticModel) staticModel = node_->CreateComponent<StaticModel>();
     staticModel->SetModel(model_);
     if (material_.NotNull()) staticModel->SetMaterial(material_);
     
     // TODO
     // model->SetBoundingBox(BoundingBox(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.5f, 0.5f, 0.5f)));
-    
-    vertexBuffers_.Clear();
-    indexBuffers_.Clear();
 }
 
 void ProcModel::SetDrawNormals(bool enabled) {

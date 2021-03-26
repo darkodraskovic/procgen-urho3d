@@ -24,6 +24,7 @@ private:
 
     void CreateStockModel();
     void CreateProceduralModel();
+    void CreateChunk();
     
     SharedPtr<Scene> scene_;
 };

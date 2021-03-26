@@ -20,7 +20,6 @@ namespace ProcGen {
         public:
         explicit ProcModel(Context* context);
 
-        virtual void Start() override;
         // void Update(float timeStep) override;
         // virtual void PostUpdate (float timeStep) override;
         void HandlePostRenderUpdate (StringHash eventType, VariantMap& eventData);
@@ -32,8 +31,9 @@ namespace ProcGen {
         Vector<Vector3> positions_;
         Vector<Vector3> normals_;
         Vector<Vector4> tangents_;
-        Vector<unsigned char> colors_;
-        Vector<Vector2> uvs;
+        // Vector<unsigned char> colors_;
+        Vector<Color> colors_;
+        Vector<Vector2> uvs_;
         Vector<unsigned short> indices_;
         SharedPtr<Material> material_;
 
@@ -42,13 +42,6 @@ namespace ProcGen {
     protected:
         SharedPtr<Model> model_;
 
-        Vector<SharedPtr<VertexBuffer>> vertexBuffers_;
-        Vector<SharedPtr<IndexBuffer>> indexBuffers_;
-
-    private:
-        void SetVertexBuffer(void* vertexData, VertexMask semantics, unsigned numVertices = 0);
-        void SetIndexBuffer(unsigned short* indexData, unsigned numIndices = 0);
-        
         bool drawNormals_ = false;
     };
 

@@ -30,6 +30,8 @@ void SceneManager::CreateScene() {
     zone->SetFogColor(Color(0.2f, 0.2f, 0.2f));
     zone->SetFogStart(200.0f);
     zone->SetFogEnd(300.0f);
+    float ambientIntensity = .25;
+    zone->SetAmbientColor(Urho3D::Color(ambientIntensity, ambientIntensity, ambientIntensity));
 
     Node* lightNode = scene_->CreateChild("DirectionalLight");
     lightNode->SetDirection(Vector3(0, -1.0f, 0.8f));

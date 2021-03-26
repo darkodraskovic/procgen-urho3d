@@ -16,7 +16,7 @@ CameraController::CameraController(Context *context) : LogicComponent(context) {
 }
 
 void CameraController::DelayedStart() {
-    node_->SetPosition(Vector3(0.0f, 1.5f, -2.0f));
+    node_->SetPosition(Vector3(0.0f, 2.f, -3.0f));
     node_->LookAt(Vector3::ZERO);
 }
 
