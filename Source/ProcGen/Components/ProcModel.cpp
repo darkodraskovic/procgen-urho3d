@@ -59,9 +59,7 @@ void ProcModel::Generate() {
     
     // index buffer
     SharedPtr<IndexBuffer>indexBuffer(new IndexBuffer(context_));
-    URHO3D_LOGINFOF("%d", indices_.Size()); // debug
-
-    indexBuffer->SetSize(indices_.Size(), true);
+    indexBuffer->SetSize(indices_.Size(), false);
     indexBuffer->SetData(indices_.Buffer());
     indexBuffer->SetShadowed(true);
 

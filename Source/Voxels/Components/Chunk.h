@@ -8,7 +8,7 @@
 
 using namespace Urho3D;
 
-namespace ProcGen {
+namespace Voxels {
 
     class Chunk : public LogicComponent {
         URHO3D_OBJECT(Chunk, LogicComponent);

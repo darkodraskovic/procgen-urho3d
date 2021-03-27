@@ -2,10 +2,10 @@
 #include <Urho3D/Math/Vector2.h>
 
 #include "Block.h"
-#include "../ProcModel.h"
+#include "../../ProcGen/Components/ProcModel.h"
 
 using namespace ProcGen;
-
+using namespace Voxels;
 
 Vector<Vector3> points = {
     // clockwise winding, starts with (transformed) left bottom back
@@ -33,8 +33,9 @@ Block::Block(Context* context) : LogicComponent(context) {
 void Block::CreateQuad(BlockFace face, BlockType type, const Vector3& position) {
     ProcModel* procModel = node_->GetComponent<ProcModel>();
 
-    unsigned int idx = procModel->indices_.Size() ? procModel->indices_.Back() + 1 : 0;
-    procModel->indices_.Push({idx, idx + 1, idx+ 2, idx, idx+2, idx+3});
+    unsigned short idx = procModel->indices_.Size() ? procModel->indices_.Back() + 1 : 0;
+    procModel->indices_.Push({idx, (unsigned short)(idx + 1), (unsigned short)(idx+ 2),
+                              idx, (unsigned short)(idx+2), (unsigned short)(idx+3)});
     
     procModel->uvs_.Push({UVs[type][0], UVs[type][1], UVs[type][2], UVs[type][3]});
     

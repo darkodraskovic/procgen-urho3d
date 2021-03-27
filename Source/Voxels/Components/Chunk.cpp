@@ -7,16 +7,20 @@
 #include <Urho3D/Math/Random.h>
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Scene/Node.h>
+
+#include "../../ProcGen/Components/ProcModel.h"
+
 #include "Block.h"
 #include "Chunk.h"
 
 using namespace ProcGen;
+using namespace Voxels;
 
 Chunk::Chunk(Context* context) : LogicComponent(context) {
     SetUpdateEventMask(USE_NO_EVENT);
 
     SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
-    size_ = {32, 16, 32};
+    size_ = {16, 16, 16};
     for(int x = 0; x < size_.x_; x++) {
         blocks_.Push(Vector<Vector<BlockData>>{});
         for(int y = 0; y < size_.y_; y++) {
@@ -33,7 +37,7 @@ Chunk::Chunk(Context* context) : LogicComponent(context) {
 // void Chunk::Update(float timeStep) {}
 
 void Chunk::Build() {
-    auto* block = node_->GetComponent<ProcGen::Block>();
+    auto* block = node_->GetComponent<Voxels::Block>();
 
     for(int x = 0; x < size_.x_; x++) {
         for(int y = 0; y < size_.y_; y++) {

@@ -16,9 +16,9 @@ CameraController::CameraController(Context *context) : LogicComponent(context) {
 }
 
 void CameraController::DelayedStart() {
-    float dist = 64;
-    node_->SetPosition(Vector3(0.0f, dist, -dist));
-    node_->LookAt(Vector3::ZERO);
+    float dist = 16 * 8;
+    node_->SetPosition(Vector3(dist/2, dist * 2, -dist));
+    node_->LookAt({dist/2, dist/2, dist/2});
 }
 
 void CameraController::Update(float timeStep) {
@@ -28,7 +28,7 @@ void CameraController::Update(float timeStep) {
     auto* input = GetSubsystem<Urho3D::Input>();
 
     // Movement speed as world units per second    
-    const float MOVE_SPEED = 12.0f;
+    const float MOVE_SPEED = 32.0f;
 
     using namespace Urho3D;
     

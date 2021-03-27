@@ -28,15 +28,16 @@
 
 #include "App.h"
 
-#include "Subsystems/SceneManager.h"
-#include "Subsystems/ModelCreator.h"
-#include "Subsystems/TextureCreator.h"
-#include "Subsystems/MaterialCreator.h"
+#include "ProcGen/Subsystems/SceneManager.h"
+#include "ProcGen/Subsystems/ModelCreator.h"
+#include "ProcGen/Subsystems/TextureCreator.h"
+#include "ProcGen/Subsystems/MaterialCreator.h"
 
-#include "Components/CameraController.h"
-#include "Components/ProcModel.h"
-#include "Components/Voxels/Block.h"
-#include "Components/Voxels/Chunk.h"
+#include "ProcGen/Components/CameraController.h"
+#include "ProcGen/Components/ProcModel.h"
+#include "Voxels/Components/Block.h"
+#include "Voxels/Components/Chunk.h"
+#include "Voxels/Subsystems/World.h"
 
 using namespace Urho3D;
 App::App(Context* context) :
@@ -48,8 +49,10 @@ App::App(Context* context) :
 
     context_->RegisterFactory<ProcGen::CameraController>();
     context_->RegisterFactory<ProcGen::ProcModel>();
-    context_->RegisterFactory<ProcGen::Block>();
-    context_->RegisterFactory<ProcGen::Chunk>();
+    
+    context_->RegisterSubsystem<Voxels::World>();
+    context_->RegisterFactory<Voxels::Block>();
+    context_->RegisterFactory<Voxels::Chunk>();
 }
 
 void App::Setup() {
@@ -79,7 +82,7 @@ void App::Start() {
 
     // CreateStockModel();
     // CreateProceduralModel();
-    CreateChunk();
+    CreateVoxels();
 }
 
 void App::CreateConsoleAndDebugHud() {
@@ -253,19 +256,9 @@ void App::CreateProceduralModel() {
     // node->Translate(Vector3::LEFT);
 }
 
-void App::CreateChunk() {
-    Node* node = scene_->CreateChild("ProceduralObject");
-    ProcGen::ProcModel* procModel = node->CreateComponent<ProcGen::ProcModel>();
-    ProcGen::Block* block = node->CreateComponent<ProcGen::Block>();
-    ProcGen::Chunk* chunk = node->CreateComponent<ProcGen::Chunk>();
-    chunk->Build();
-    
-    // block->CreateQuad(ProcGen::BACK, ProcGen::GRASS_SIDE);
-    // block->CreateQuad(ProcGen::LEFT, ProcGen::GRASS_SIDE);
-    // block->CreateQuad(ProcGen::FRONT, ProcGen::GRASS_SIDE);
-    // block->CreateQuad(ProcGen::RIGHT, ProcGen::GRASS_SIDE);
-    // block->CreateQuad(ProcGen::BOTTOM, ProcGen::EARTH);
-    // block->CreateQuad(ProcGen::TOP, ProcGen::GRASS_TOP);
+void App::CreateVoxels() {
+    auto* world = GetSubsystem<Voxels::World>();
+    world->SetRoot(scene_);
 
     auto* cache = GetSubsystem<ResourceCache>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
@@ -280,19 +273,13 @@ void App::CreateChunk() {
     // auto* techNoTextureVCol = cache->GetResource<Technique>("CoreData/Techniques/NoTextureVCol.xml");
     // auto* techDiffLightMap = cache->GetResource<Technique>("CoreData/Techniques/DiffLightMap.xml");
     // auto* techDiffAO = cache->GetResource<Technique>("CoreData/Techniques/DiffAO.xml");
-    auto* mat1 = new Material(context_);
-    mat1->SetTechnique(0, techDiff);
-    mat1->SetTexture(Urho3D::TU_DIFFUSE, texture);
+    auto* material = new Material(context_);
+    material->SetTechnique(0, techDiff);
+    material->SetTexture(Urho3D::TU_DIFFUSE, texture);
+    world->SetMaterial(material);
 
-    procModel->material_ = mat1;
-    procModel->Generate();
-    node->GetComponent<StaticModel>()->SetCastShadows(true);
-
-    auto* body = node->CreateComponent<RigidBody>();
-    body->SetMass(1);
-    body->SetUseGravity(false);
-    // body->SetAngularVelocity(Vector3::ONE);
-    body->SetAngularVelocity(Vector3::UP*1.5);
+    world->BuildColumn(0,0);
+    world->BuildColumn(1,0);
 }
 
 void App::Stop() {

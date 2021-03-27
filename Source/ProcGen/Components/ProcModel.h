@@ -34,7 +34,7 @@ namespace ProcGen {
         // Vector<unsigned char> colors_;
         Vector<Color> colors_;
         Vector<Vector2> uvs_;
-        Vector<unsigned int> indices_;
+        Vector<unsigned short> indices_;
         SharedPtr<Material> material_;
 
         PrimitiveType primitiveType_ = TRIANGLE_LIST;

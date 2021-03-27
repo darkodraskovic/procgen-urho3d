@@ -7,7 +7,7 @@
 
 using namespace Urho3D;
 
-namespace ProcGen {
+namespace Voxels {
     enum BlockFace {BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK};
     enum BlockType {DIRT, STONE, EARTH, GRASS_SIDE, GRASS_TOP, AIR};
     struct BlockData {
