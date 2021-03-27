@@ -2,15 +2,15 @@
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Math/Vector2.h>
 #include <Urho3D/Scene/LogicComponent.h>
 
 using namespace Urho3D;
 
 namespace Voxels {
     enum BlockFace {BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK};
-    enum BlockType {DIRT, STONE, EARTH, GRASS_SIDE, GRASS_TOP, AIR};
+    enum BlockType {GRAVEL, STONE, DIRT, GRASS_SIDE, GRASS_TOP, AIR};
     struct BlockData {
+        Vector3 position_;
         BlockType type_;
         bool transparent_;
     };

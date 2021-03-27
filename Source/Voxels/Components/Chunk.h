@@ -19,11 +19,10 @@ namespace Voxels {
         // virtual void Update (float timeStep) override;
 
         void Build();
-        bool IsTransparent(int x, int y, int z);
+        bool IsTransparent(BlockData* data, int x, int y, int z);
 
     private:
         Vector<Vector<Vector<BlockData>>> blocks_;
-        IntVector3 size_;
     };
 
 }

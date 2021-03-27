@@ -1,15 +1,10 @@
-#include <Urho3D/Container/Vector.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/IO/Log.h>
-#include <Urho3D/Math/BoundingBox.h>
-#include <Urho3D/Math/MathDefs.h>
 #include <Urho3D/Math/Random.h>
-#include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Scene/Node.h>
 
 #include "../../ProcGen/Components/ProcModel.h"
 
+#include "../Subsystems/World.h"
 #include "Block.h"
 #include "Chunk.h"
 
@@ -20,14 +15,17 @@ Chunk::Chunk(Context* context) : LogicComponent(context) {
     SetUpdateEventMask(USE_NO_EVENT);
 
     SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
-    size_ = {16, 16, 16};
-    for(int x = 0; x < size_.x_; x++) {
+
+    auto* world = GetSubsystem<Voxels::World>();
+    for(int x = 0; x < world->chunkSize_; x++) {
         blocks_.Push(Vector<Vector<BlockData>>{});
-        for(int y = 0; y < size_.y_; y++) {
+        for(int y = 0; y < world->chunkSize_; y++) {
             blocks_[x].Push(Vector<BlockData>{});
-            for(int z = 0; z < size_.z_; z++) {
-                if (Random() > .3) blocks_[x][y].Push({DIRT, false});
-                else blocks_[x][y].Push({AIR, true});
+            for(int z = 0; z < world->chunkSize_; z++) {
+                Vector3 pos = Vector3(x, y, z);
+                // blocks_[x][y].Push({pos, GRAVEL, false});
+                if (Random() > .3) blocks_[x][y].Push({pos, STONE, false});
+                else blocks_[x][y].Push({pos, AIR, true});
             }
         }
     }
@@ -39,30 +37,31 @@ Chunk::Chunk(Context* context) : LogicComponent(context) {
 void Chunk::Build() {
     auto* block = node_->GetComponent<Voxels::Block>();
 
-    for(int x = 0; x < size_.x_; x++) {
-        for(int y = 0; y < size_.y_; y++) {
-            for(int z = 0; z < size_.z_; z++) {
+    auto* world = GetSubsystem<Voxels::World>();
+    for(int x = 0; x < world->chunkSize_; x++) {
+        for(int y = 0; y < world->chunkSize_; y++) {
+            for(int z = 0; z < world->chunkSize_; z++) {
                 auto& blockData = blocks_[x][y][z];
                 
                 if (blockData.type_ == AIR) continue;;
                 
                 Vector3 pos = {(float)x, (float)y, (float)z};
-                if (IsTransparent(x-1, y, z)) {
+                if (IsTransparent(&blockData, x-1, y, z)) {
                     block->CreateQuad(LEFT, blockData.type_, pos);
                 }
-                if (IsTransparent(x+1, y, z)) {
+                if (IsTransparent(&blockData, x+1, y, z)) {
                     block->CreateQuad(RIGHT, blockData.type_, pos);
                 }
-                if (IsTransparent(x, y-1, z)) {
+                if (IsTransparent(&blockData, x, y-1, z)) {
                     block->CreateQuad(BOTTOM, blockData.type_, pos);
                 }
-                if (IsTransparent(x, y+1, z)) {
+                if (IsTransparent(&blockData, x, y+1, z)) {
                     block->CreateQuad(TOP, blockData.type_, pos);
                 }
-                if (IsTransparent(x, y, z-1)) {
+                if (IsTransparent(&blockData, x, y, z-1)) {
                     block->CreateQuad(BACK, blockData.type_, pos);
                 }
-                if (IsTransparent(x, y, z+1)) {
+                if (IsTransparent(&blockData, x, y, z+1)) {
                     block->CreateQuad(FRONT, blockData.type_, pos);
                 }
             }
@@ -70,7 +69,27 @@ void Chunk::Build() {
     }
 }
 
-bool Chunk::IsTransparent(int x, int y, int z) {
-    if (x < 0 || x >= size_.x_ || y < 0 || y >= size_.y_ || z < 0 || z >= size_.z_) return true;
+bool Chunk::IsTransparent(BlockData* data, int x, int y, int z) {
+    auto* world = GetSubsystem<Voxels::World>();
+    int chunkSize = world->chunkSize_;
+    
+    // if block in a neighbour chunk
+    if (x < 0 || x >= chunkSize || y < 0 || y >= chunkSize || z < 0 || z >= chunkSize) {
+        Vector3 neighbourPos = node_->GetPosition() +
+            (Vector3(x, y, z) - data->position_) * chunkSize;
+        
+        auto* neighbour = world->GetRoot()->GetChild(neighbourPos.ToString());
+        if (neighbour) {
+            Chunk* chunk = neighbour->GetComponent<Chunk>();
+            x = (x + chunkSize) % chunkSize;
+            y = (y + chunkSize) % chunkSize;
+            z = (z + chunkSize) % chunkSize;
+            return chunk->blocks_[x][y][z].transparent_;
+        }
+        
+        return true;
+    };
+    
     return blocks_[x][y][z].transparent_;
 }
+

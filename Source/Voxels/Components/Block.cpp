@@ -1,5 +1,4 @@
 #include <Urho3D/IO/Log.h>
-#include <Urho3D/Math/Vector2.h>
 
 #include "Block.h"
 #include "../../ProcGen/Components/ProcModel.h"
@@ -19,9 +18,9 @@ float size = 1. / 16;
 
 // The order of UVs must match the order in enum BlockType
 Vector<Vector <Vector2>> UVs = {
-    Block::GetTextureCoords(0, 0), // DIRT
+    Block::GetTextureCoords(0, 0), // GRAVEL
     Block::GetTextureCoords(1, 0), // STONE
-    Block::GetTextureCoords(2, 0), // EARTH
+    Block::GetTextureCoords(2, 0), // DIRT
     Block::GetTextureCoords(3, 0), // GRASS_SIDE
     Block::GetTextureCoords(2, 9), // GRASS_TOP
 };

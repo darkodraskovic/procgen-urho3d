@@ -14,13 +14,16 @@ namespace Voxels {
     public:
         explicit World (Context* context);
 
-        void BuildColumn(int x, int z);
+        void CreateColumn(int x, int z);
+        void CreateColumns();
+        void Build();
         void SetRoot(Node* node);
+        Node* GetRoot();
         void SetMaterial(Material* material);
+        Material* GetMaterial(void);
         
-        IntVector2 size_ = {4,4};
+        IntVector3 size_ = {4,16,4};
         int chunkSize_ = 16;
-        int columnHeight_ = 16;
 
     private:
         HashMap<String, Node*> chunks_;

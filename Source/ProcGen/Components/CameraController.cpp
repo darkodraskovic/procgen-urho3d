@@ -16,7 +16,7 @@ CameraController::CameraController(Context *context) : LogicComponent(context) {
 }
 
 void CameraController::DelayedStart() {
-    float dist = 16 * 8;
+    float dist = 16 * 4;
     node_->SetPosition(Vector3(dist/2, dist * 2, -dist));
     node_->LookAt({dist/2, dist/2, dist/2});
 }
@@ -68,5 +68,12 @@ void CameraController::Update(float timeStep) {
     }
     if (input->GetKeyDown(KEY_K)) {
         node_->Rotate(Quaternion(MOUSE_SENSITIVITY, 0, 0));
+    }
+    if (input->GetKeyDown(KEY_U)) {
+        node_->Rotate(Quaternion(0, 0, MOUSE_SENSITIVITY));
+    }
+    if (input->GetKeyDown(KEY_O)) {
+        node_->Rotate(Quaternion(0, 0, -MOUSE_SENSITIVITY));
     }    
+    
 }

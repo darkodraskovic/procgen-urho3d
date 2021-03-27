@@ -278,8 +278,11 @@ void App::CreateVoxels() {
     material->SetTexture(Urho3D::TU_DIFFUSE, texture);
     world->SetMaterial(material);
 
-    world->BuildColumn(0,0);
-    world->BuildColumn(1,0);
+    world->size_ = {2, 16, 2};
+    world->CreateColumns();
+    world->Build();
+    // world->BuildColumn(0,0);
+    // world->BuildColumn(1,0);
 }
 
 void App::Stop() {
