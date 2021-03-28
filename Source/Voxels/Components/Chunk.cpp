@@ -1,10 +1,12 @@
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Math/Random.h>
+#include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Scene/Node.h>
 
 #include "../../ProcGen/Components/ProcModel.h"
 
 #include "../Subsystems/World.h"
+#include "../Subsystems/Utils.h"
 #include "Block.h"
 #include "Chunk.h"
 
@@ -14,8 +16,11 @@ using namespace Voxels;
 Chunk::Chunk(Context* context) : LogicComponent(context) {
     SetUpdateEventMask(USE_NO_EVENT);
 
-    SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
+}
 
+void Chunk::Start() {
+    auto* utils = GetSubsystem<Voxels::Utils>();
+    Vector3 chunkPos = node_->GetPosition();
     auto* world = GetSubsystem<Voxels::World>();
     for(int x = 0; x < world->chunkSize_; x++) {
         blocks_.Push(Vector<Vector<BlockData>>{});
@@ -23,15 +28,18 @@ Chunk::Chunk(Context* context) : LogicComponent(context) {
             blocks_[x].Push(Vector<BlockData>{});
             for(int z = 0; z < world->chunkSize_; z++) {
                 Vector3 pos = Vector3(x, y, z);
-                // blocks_[x][y].Push({pos, GRAVEL, false});
-                if (Random() > .3) blocks_[x][y].Push({pos, STONE, false});
-                else blocks_[x][y].Push({pos, AIR, true});
+                Vector3 worldPos(chunkPos + pos);
+                if (worldPos.y_ < utils->GenerateHeight(worldPos.x_, worldPos.z_)) {
+                    blocks_[x][y].Push({pos, DIRT, false});
+                }
+                else {
+                    blocks_[x][y].Push({pos, AIR, true});
+                }
             }
         }
     }
 }
 
-// void Chunk::Start() {}
 // void Chunk::Update(float timeStep) {}
 
 void Chunk::Build() {

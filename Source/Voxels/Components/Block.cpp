@@ -21,6 +21,7 @@ Vector<Vector <Vector2>> UVs = {
     Block::GetTextureCoords(0, 0), // GRAVEL
     Block::GetTextureCoords(1, 0), // STONE
     Block::GetTextureCoords(2, 0), // DIRT
+    Block::GetTextureCoords(7, 0), // BRICKS
     Block::GetTextureCoords(3, 0), // GRASS_SIDE
     Block::GetTextureCoords(2, 9), // GRASS_TOP
 };

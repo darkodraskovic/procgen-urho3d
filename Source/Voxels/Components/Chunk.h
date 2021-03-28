@@ -15,7 +15,7 @@ namespace Voxels {
 
     public:
         explicit Chunk (Context* context);
-        // virtual void Start () override;
+        virtual void Start () override;
         // virtual void Update (float timeStep) override;
 
         void Build();

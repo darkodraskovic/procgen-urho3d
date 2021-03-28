@@ -1,6 +1,7 @@
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/IO/Log.h>
+#include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Node.h>
 
@@ -55,7 +56,10 @@ void World::Build() {
                 String name = (Vector3(x, y, z) * chunkSize_).ToString();
                 Node* node = root_->GetChild(name);
                 node->GetComponent<Chunk>()->Build();
-                node->GetComponent<ProcGen::ProcModel>()->Generate();
+                auto* model = node->GetComponent<ProcGen::ProcModel>();
+                if (model->positions_.Size()) {
+                    node->GetComponent<ProcGen::ProcModel>()->Generate();
+                }
             }
         }
     }

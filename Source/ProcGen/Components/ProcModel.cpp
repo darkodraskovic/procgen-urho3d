@@ -89,9 +89,7 @@ void ProcModel::Generate() {
     staticModel->SetModel(model);
     if (material_.NotNull()) staticModel->SetMaterial(material_);
     
-    // TODO
-    // float size = 32;
-    // model->SetBoundingBox(BoundingBox(Vector3::ZERO, Vector3(size, size, size)));
+    // model->SetBoundingBox(BoundingBox(&positions_.Front(), positions_.Size()));
 }
 
 void ProcModel::SetDrawNormals(bool enabled) {

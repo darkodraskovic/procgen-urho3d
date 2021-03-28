@@ -1,10 +1,6 @@
-#include <Urho3D/Container/HashMap.h>
-#include <Urho3D/Container/Vector.h>
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/Texture.h>
-#include <Urho3D/Math/Color.h>
-#include <Urho3D/Math/Vector2.h>
+#include <Urho3D/Math/MathDefs.h>
+#include <Urho3D/Math/Quaternion.h>
 #include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Resource/Image.h>
 #include <Urho3D/Graphics/Material.h>
@@ -12,12 +8,9 @@
 #include <Urho3D/Engine/Engine.h>
 #include <Urho3D/Engine/EngineDefs.h>
 #include <Urho3D/Input/InputEvents.h>
-#include <Urho3D/Graphics/Geometry.h>
 #include <Urho3D/Graphics/Graphics.h>
 #include <Urho3D/Graphics/Texture2D.h>
 #include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Technique.h>
-#include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Physics/RigidBody.h>
@@ -38,6 +31,7 @@
 #include "Voxels/Components/Block.h"
 #include "Voxels/Components/Chunk.h"
 #include "Voxels/Subsystems/World.h"
+#include "Voxels/Subsystems/Utils.h"
 
 using namespace Urho3D;
 App::App(Context* context) :
@@ -50,7 +44,9 @@ App::App(Context* context) :
     context_->RegisterFactory<ProcGen::CameraController>();
     context_->RegisterFactory<ProcGen::ProcModel>();
     
+    context_->RegisterSubsystem<Voxels::Utils>();
     context_->RegisterSubsystem<Voxels::World>();
+    
     context_->RegisterFactory<Voxels::Block>();
     context_->RegisterFactory<Voxels::Chunk>();
 }
@@ -82,6 +78,7 @@ void App::Start() {
 
     // CreateStockModel();
     // CreateProceduralModel();
+
     CreateVoxels();
 }
 
@@ -258,9 +255,12 @@ void App::CreateProceduralModel() {
 
 void App::CreateVoxels() {
     auto* world = GetSubsystem<Voxels::World>();
+    auto* utils = GetSubsystem<Voxels::Utils>();
+    auto* cache = GetSubsystem<ResourceCache>();
+    auto* cam = scene_->GetChild("Camera");
+    
     world->SetRoot(scene_);
 
-    auto* cache = GetSubsystem<ResourceCache>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
 
     // material
@@ -278,11 +278,20 @@ void App::CreateVoxels() {
     material->SetTexture(Urho3D::TU_DIFFUSE, texture);
     world->SetMaterial(material);
 
-    world->size_ = {2, 16, 2};
+    world->size_ = {8, 4, 8};
+    
+    utils->minHeight_ = world->chunkSize_ * world->size_.y_ * .5;
+    utils->maxHeight_ = world->chunkSize_ * world->size_.y_;
+    utils->smooth_ = .01;
+    
     world->CreateColumns();
     world->Build();
-    // world->BuildColumn(0,0);
-    // world->BuildColumn(1,0);
+
+    Vector3 size = Vector3(world->size_) * world->chunkSize_;
+    cam->SetPosition(Vector3::UP * size.y_ * 1.5 + Vector3::RIGHT * size.x_);
+    cam->LookAt(size / 2);
+    cam->Translate(Vector3::BACK * size.y_);
+
 }
 
 void App::Stop() {

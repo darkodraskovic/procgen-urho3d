@@ -1,4 +1,5 @@
 #include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Math/Vector3.h>
 #include <iostream>
 
 #include <Urho3D/Core/Context.h>
@@ -13,12 +14,6 @@ using namespace ProcGen;
 
 CameraController::CameraController(Context *context) : LogicComponent(context) {
     SetUpdateEventMask(USE_UPDATE);
-}
-
-void CameraController::DelayedStart() {
-    float dist = 16 * 4;
-    node_->SetPosition(Vector3(dist/2, dist * 2, -dist));
-    node_->LookAt({dist/2, dist/2, dist/2});
 }
 
 void CameraController::Update(float timeStep) {

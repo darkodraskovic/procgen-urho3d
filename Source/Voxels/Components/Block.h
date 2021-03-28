@@ -8,9 +8,9 @@ using namespace Urho3D;
 
 namespace Voxels {
     enum BlockFace {BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK};
-    enum BlockType {GRAVEL, STONE, DIRT, GRASS_SIDE, GRASS_TOP, AIR};
+    enum BlockType {GRAVEL, STONE, DIRT, BRICKS, GRASS_SIDE, GRASS_TOP, AIR};
     struct BlockData {
-        Vector3 position_;
+        Vector3 position_; // chunk position
         BlockType type_;
         bool transparent_;
     };

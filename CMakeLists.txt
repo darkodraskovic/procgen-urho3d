@@ -29,3 +29,5 @@ define_source_files (
   RECURSE GROUP)
 # Setup target with resource copying
 setup_main_executable ()
+
+target_link_libraries(${TARGET_NAME} tcod)
