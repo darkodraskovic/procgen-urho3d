@@ -284,8 +284,8 @@ void App::CreateVoxels() {
     world->Build();
 
     Vector3 size = Vector3(world->size_) * world->chunkSize_;
-    // cam->SetPosition(Vector3::UP * size.y_ * 1.5 + Vector3::RIGHT * size.x_);
-    cam->SetPosition(Vector3::UP * size.y_ * 1.5);
+    cam->SetPosition(Vector3::UP * size.y_ + Vector3::RIGHT * size.x_);
+    // cam->SetPosition(Vector3::UP * size.y_ * 1.5);
     cam->LookAt(size / 2);
     cam->Translate(Vector3::BACK * size.y_);
 

@@ -24,6 +24,8 @@ Vector<Vector <Vector2>> UVs = {
     Block::GetTextureCoords(7, 0), // BRICKS
     Block::GetTextureCoords(3, 0), // GRASS_SIDE
     Block::GetTextureCoords(2, 9), // GRASS_TOP
+    Block::GetTextureCoords(1, 1), // BEDROCK
+    Block::GetTextureCoords(2, 3), // DIAMOND
 };
 
 Block::Block(Context* context) : LogicComponent(context) {
