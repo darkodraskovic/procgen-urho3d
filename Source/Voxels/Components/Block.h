@@ -24,5 +24,6 @@ namespace Voxels {
         void CreateQuad(BlockFace face, BlockType type, const Vector3& position = Vector3::ZERO);
         
         static Vector<Vector2> GetTextureCoords(int x, int y);
+
     };
 }

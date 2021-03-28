@@ -14,7 +14,7 @@ Vector<Vector3> points = {
 };
 
 // # cols/rows in the texture atlas
-float size = 1. / 16;
+float size = 1. / 16.;
 
 // The order of UVs must match the order in enum BlockType
 Vector<Vector <Vector2>> UVs = {

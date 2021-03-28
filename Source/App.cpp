@@ -280,15 +280,12 @@ void App::CreateVoxels() {
 
     world->size_ = {8, 4, 8};
     
-    utils->minHeight_ = world->chunkSize_ * world->size_.y_ * .5;
-    utils->maxHeight_ = world->chunkSize_ * world->size_.y_;
-    utils->smooth_ = .01;
-    
     world->CreateColumns();
     world->Build();
 
     Vector3 size = Vector3(world->size_) * world->chunkSize_;
-    cam->SetPosition(Vector3::UP * size.y_ * 1.5 + Vector3::RIGHT * size.x_);
+    // cam->SetPosition(Vector3::UP * size.y_ * 1.5 + Vector3::RIGHT * size.x_);
+    cam->SetPosition(Vector3::UP * size.y_ * 1.5);
     cam->LookAt(size / 2);
     cam->Translate(Vector3::BACK * size.y_);
 

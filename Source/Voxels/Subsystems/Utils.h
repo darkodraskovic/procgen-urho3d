@@ -13,15 +13,9 @@ namespace Voxels {
 
     public:
         explicit Utils (Context* context);
-        int GenerateHeight(float x, float y);
         float Map (float newMin, float newMax, float min, float max, float value);
+        int GenerateHeight(float x, float z, int height = 128, float smooth = 0.01, int octaves = 4);
 
-        int minHeight_;
-        int maxHeight_;
-        float smooth_;
-        int octaves_;
-        float persistence_;
-        
     private:
         TCODRandom* random_;
         TCODNoise* noise2D_;

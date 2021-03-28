@@ -19,9 +19,16 @@ Chunk::Chunk(Context* context) : LogicComponent(context) {
 }
 
 void Chunk::Start() {
+    SetRandomSeed(GetSubsystem<Time>()->GetSystemTime());
+
+    auto* world = GetSubsystem<Voxels::World>();
+    float surfaceH = (float)world->size_.y_ * world->chunkSize_  * .5;
+    float stoneH = .9;
+    float stoneBoderH = 8;
+    // float stoneHeight = dirtHeight * .9;
+    
     auto* utils = GetSubsystem<Voxels::Utils>();
     Vector3 chunkPos = node_->GetPosition();
-    auto* world = GetSubsystem<Voxels::World>();
     for(int x = 0; x < world->chunkSize_; x++) {
         blocks_.Push(Vector<Vector<BlockData>>{});
         for(int y = 0; y < world->chunkSize_; y++) {
@@ -29,8 +36,16 @@ void Chunk::Start() {
             for(int z = 0; z < world->chunkSize_; z++) {
                 Vector3 pos = Vector3(x, y, z);
                 Vector3 worldPos(chunkPos + pos);
-                if (worldPos.y_ < utils->GenerateHeight(worldPos.x_, worldPos.z_)) {
+                float height = utils->GenerateHeight(worldPos.x_, worldPos.z_, surfaceH) + surfaceH;
+                float stoneVar = utils->GenerateHeight(worldPos.x_, worldPos.z_, stoneBoderH, 0.1) - stoneBoderH/2;
+                if (worldPos.y_ < height * stoneH + stoneVar) {
+                    blocks_[x][y].Push({pos, STONE, false});
+                }
+                else if (worldPos.y_ < height) {
                     blocks_[x][y].Push({pos, DIRT, false});
+                }
+                else if (worldPos.y_ == height) {
+                    blocks_[x][y].Push({pos, GRASS_TOP, false});
                 }
                 else {
                     blocks_[x][y].Push({pos, AIR, true});
