@@ -6,6 +6,8 @@
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 
+#include "Voxels/Components/Character.h"
+
 using namespace Urho3D;
 
 class App : public Application
@@ -19,6 +21,7 @@ public:
 private:
     void HandleKeyDown(StringHash eventType, VariantMap& eventData);
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
+    void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
     // void HandlePostrenderupdate(StringHash eventType, VariantMap& eventData);
     void SubscribeToEvents();
     void CreateConsoleAndDebugHud();
@@ -26,6 +29,11 @@ private:
     void CreateStockModel();
     void CreateProceduralModel();
     void CreateVoxels();
+
+    void CreateCharacter();
     
     SharedPtr<Scene> scene_;
+
+    WeakPtr<Voxels::Character> character_;
+    bool firstPerson_ = false;
 };

@@ -53,15 +53,15 @@ void ProcModel::Generate() {
     }
 
     SharedPtr<VertexBuffer>vertexBuffer(new VertexBuffer(context_));
+    vertexBuffer->SetShadowed(true);
     vertexBuffer->SetSize(positions_.Size(), vertexElements);
     vertexBuffer->SetData((void*)vecBuffer.GetData());
-    vertexBuffer->SetShadowed(true);
     
     // index buffer
     SharedPtr<IndexBuffer>indexBuffer(new IndexBuffer(context_));
-    indexBuffer->SetSize(indices_.Size(), false);
-    indexBuffer->SetData(indices_.Buffer());
     indexBuffer->SetShadowed(true);
+    indexBuffer->SetSize(indices_.Size(), false, true);
+    indexBuffer->SetData(indices_.Buffer());
 
     // geometry
     Geometry* geometry = new Geometry(context_);
@@ -69,6 +69,7 @@ void ProcModel::Generate() {
     geometry->SetVertexBuffer(0, vertexBuffer);
     geometry->SetIndexBuffer(indexBuffer);
     geometry->SetDrawRange(primitiveType_, 0, indexBuffer->GetIndexCount());
+    // geometry->SetDrawRange(primitiveType_, 0, indices_.Size());
 
     // model
     Model* model = new Model(context_);
@@ -83,13 +84,12 @@ void ProcModel::Generate() {
     morphRangeCounts.Push(0);
     model->SetVertexBuffers({vertexBuffer}, morphRangeStarts, morphRangeCounts);
     model->SetIndexBuffers({indexBuffer});
+    model->SetBoundingBox(BoundingBox(&positions_.Front(), positions_.Size()));
 
     auto* staticModel = node_->GetComponent<StaticModel>();
     if (!staticModel) staticModel = node_->CreateComponent<StaticModel>();
     staticModel->SetModel(model);
     if (material_.NotNull()) staticModel->SetMaterial(material_);
-    
-    // model->SetBoundingBox(BoundingBox(&positions_.Front(), positions_.Size()));
 }
 
 void ProcModel::SetDrawNormals(bool enabled) {

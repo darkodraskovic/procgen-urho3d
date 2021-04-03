@@ -1,4 +1,5 @@
 #include <Urho3D/Graphics/Texture.h>
+#include <Urho3D/Input/InputConstants.h>
 #include <Urho3D/Math/MathDefs.h>
 #include <Urho3D/Math/Quaternion.h>
 #include <Urho3D/Math/Vector3.h>
@@ -14,6 +15,7 @@
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Engine/DebugHud.h>
@@ -28,10 +30,12 @@
 
 #include "ProcGen/Components/CameraController.h"
 #include "ProcGen/Components/ProcModel.h"
-#include "Voxels/Components/Block.h"
-#include "Voxels/Components/Chunk.h"
+
 #include "Voxels/Subsystems/World.h"
 #include "Voxels/Subsystems/Utils.h"
+#include "Voxels/Components/Block.h"
+#include "Voxels/Components/Chunk.h"
+#include "Voxels/Components/Character.h"
 
 using namespace Urho3D;
 App::App(Context* context) :
@@ -49,6 +53,7 @@ App::App(Context* context) :
     
     context_->RegisterFactory<Voxels::Block>();
     context_->RegisterFactory<Voxels::Chunk>();
+    Voxels::Character::RegisterObject(context);
 }
 
 void App::Setup() {
@@ -289,6 +294,22 @@ void App::CreateVoxels() {
     cam->LookAt(size / 2);
     cam->Translate(Vector3::BACK * size.y_);
 
+    CreateCharacter();
+    character_->GetNode()->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
+}
+
+void App::CreateCharacter() {
+    Node* node = scene_->CreateChild("Player");
+    
+    auto* body = node->CreateComponent<RigidBody>();
+    body->SetCollisionLayer(1);
+    body->SetMass(1.0f);
+    body->SetAngularFactor(Vector3::ZERO);
+    body->SetCollisionEventMode(COLLISION_ALWAYS);
+
+    auto* shape = node->CreateComponent<CollisionShape>();
+    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
+    character_ = node->CreateComponent<Voxels::Character>();
 }
 
 void App::Stop() {
@@ -297,6 +318,7 @@ void App::Stop() {
 void App::SubscribeToEvents() {
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(App, HandleKeyDown));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(App, HandleUpdate));
+    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(App, HandlePostUpdate));
     // SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(App, HandlePostrenderupdate));
 }
 
@@ -316,15 +338,21 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     
 
     auto* node = scene_->GetChild("ProceduralObject");
-    if (!node) return;
-    auto* procModel = node->GetComponent<ProcGen::ProcModel>();
-    if (key == KEY_M) {
-        procModel->positions_[0] = procModel->positions_[0] * 1.25;
-        procModel->Generate();
-    }
+    if (node) {
+        auto* procModel = node->GetComponent<ProcGen::ProcModel>();
+        if (key == KEY_M) {
+            procModel->positions_[0] = procModel->positions_[0] * 1.25;
+            procModel->Generate();
+        }
 
-    if (key == KEY_1) {
-        procModel->SetDrawNormals(!procModel->GetDrawNormals());
+        if (key == KEY_1) {
+            procModel->SetDrawNormals(!procModel->GetDrawNormals());
+        }
+    };
+
+    if (key == KEY_TAB) {
+        firstPerson_ = !firstPerson_;
+        scene_->GetChild("Camera")->GetComponent<ProcGen::CameraController>()->SetEnabled(!firstPerson_);
     }
 }
 
@@ -334,6 +362,35 @@ void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     // Take the frame time step, which is stored as a float
     float timeStep = eventData[P_TIMESTEP].GetFloat();
+
+    if (character_ && firstPerson_) {
+        auto* input = GetSubsystem<Input>();
+        
+        character_->controls_.Set(Voxels::CTRL_FORWARD, input->GetKeyDown(KEY_W));
+        character_->controls_.Set(Voxels::CTRL_BACK, input->GetKeyDown(KEY_S));
+        character_->controls_.Set(Voxels::CTRL_LEFT, input->GetKeyDown(KEY_A));
+        character_->controls_.Set(Voxels::CTRL_RIGHT, input->GetKeyDown(KEY_D));
+        character_->controls_.Set(Voxels::CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
+
+        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * Voxels::YAW_SENSITIVITY;
+        character_->controls_.pitch_ += (float)input->GetMouseMoveY() * Voxels::YAW_SENSITIVITY;
+        character_->controls_.pitch_ = Clamp(character_->controls_.pitch_, -80.0f, 80.0f);
+        character_->GetNode()->SetRotation(Quaternion(character_->controls_.yaw_, Vector3::UP));
+    }
+}
+
+void App::HandlePostUpdate(StringHash eventType, VariantMap &eventData) {
+    if (character_ && firstPerson_) {
+        Node* characterNode = character_->GetNode();
+
+        // Get camera lookat dir from character yaw + pitch
+        const Quaternion& rot = characterNode->GetRotation();
+        Quaternion dir = rot * Quaternion(character_->controls_.pitch_, Vector3::RIGHT);
+
+        auto* camNode = scene_->GetChild("Camera");
+        camNode->SetRotation(dir);
+        camNode->SetPosition(characterNode->GetPosition() + Vector3::UP * 1.8f);
+    }
 }
 
 // void App::HandlePostrenderupdate(StringHash eventType, VariantMap& eventData) {

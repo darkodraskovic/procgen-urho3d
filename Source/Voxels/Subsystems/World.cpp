@@ -2,6 +2,9 @@
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Math/Vector3.h>
+#include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Physics/PhysicsWorld.h>
+#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Node.h>
 
@@ -59,6 +62,10 @@ void World::Build() {
                 auto* model = node->GetComponent<ProcGen::ProcModel>();
                 if (model->positions_.Size()) {
                     node->GetComponent<ProcGen::ProcModel>()->Generate();
+                    auto* model = node->GetComponent<StaticModel>()->GetModel();
+                    auto* body = node->CreateComponent<RigidBody>();
+                    auto* shape = node->CreateComponent<CollisionShape>();
+                    shape->SetTriangleMesh(model);
                 }
             }
         }

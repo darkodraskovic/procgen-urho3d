@@ -6,6 +6,7 @@
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/Skybox.h>
 #include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Resource/XMLFile.h>
@@ -23,6 +24,7 @@ void SceneManager::CreateScene() {
     scene_ = new Scene(context_);
 
     scene_->CreateComponent<Octree>();
+    scene_->CreateComponent<PhysicsWorld>();
 
     Node* zoneNode = scene_->CreateChild("Zone");
     auto* zone = zoneNode->CreateComponent<Zone>();
