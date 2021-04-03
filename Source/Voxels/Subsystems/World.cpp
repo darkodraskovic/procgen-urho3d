@@ -1,10 +1,6 @@
 #include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Math/Vector3.h>
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Physics/PhysicsWorld.h>
-#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Node.h>
 
@@ -56,18 +52,21 @@ void World::Build() {
     for (int x = 0; x < size_.x_; x++) {
         for (int y = 0; y < size_.y_; y++) {
             for (int z = 0; z < size_.z_; z++) {
-                String name = (Vector3(x, y, z) * chunkSize_).ToString();
-                Node* node = root_->GetChild(name);
+                Node* node = root_->GetChild(GetChunkName(x, y, z));
                 node->GetComponent<Chunk>()->Build();
-                auto* model = node->GetComponent<ProcGen::ProcModel>();
-                if (model->positions_.Size()) {
-                    node->GetComponent<ProcGen::ProcModel>()->Generate();
-                    auto* model = node->GetComponent<StaticModel>()->GetModel();
-                    auto* body = node->CreateComponent<RigidBody>();
-                    auto* shape = node->CreateComponent<CollisionShape>();
-                    shape->SetTriangleMesh(model);
-                }
             }
         }
     }
+}
+
+Vector3 World::GetSize() {
+    return Vector3(size_ * chunkSize_);
+}
+
+Vector3 World::GetPosition(int x, int y, int z) {
+    return Vector3(x, y, z) * chunkSize_;
+}
+
+String World::GetChunkName(int x, int y, int z) {
+    return GetPosition(x, y, z).ToString();
 }

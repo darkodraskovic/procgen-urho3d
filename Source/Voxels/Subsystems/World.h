@@ -22,6 +22,10 @@ namespace Voxels {
         void SetMaterial(Material* material);
         Material* GetMaterial(void);
         
+        String GetChunkName(int x, int y, int z);
+        Vector3 GetSize();
+        Vector3 GetPosition(int x, int y, int z);
+        
         IntVector3 size_ = {4,16,4};
         int chunkSize_ = 16;
 

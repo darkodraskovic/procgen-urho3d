@@ -26,10 +26,12 @@
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
 
 #include "Character.h"
+#include "../../ProcGen/Components/CameraController.h"
 
 using namespace Voxels;
 
@@ -40,7 +42,7 @@ Character::Character(Context* context) :
     inAirTimer_(0.0f)
 {
     // Only the physics update event is needed: unsubscribe from the rest for optimization
-    SetUpdateEventMask(USE_FIXEDUPDATE);
+    SetUpdateEventMask(USE_FIXEDUPDATE | USE_UPDATE);
 }
 
 void Character::RegisterObject(Context* context)
@@ -60,6 +62,11 @@ void Character::Start()
 {
     // Component has been inserted into its scene node. Subscribe to events now
     SubscribeToEvent(GetNode(), E_NODECOLLISION, URHO3D_HANDLER(Character, HandleNodeCollision));
+}
+
+void Character::Update(float timeStep) {
+    controls_.pitch_ = Clamp(controls_.pitch_, -80.0f, 80.0f);
+    node_->SetRotation(Quaternion(controls_.yaw_, Vector3::UP));
 }
 
 void Character::FixedUpdate(float timeStep)
@@ -82,13 +89,13 @@ void Character::FixedUpdate(float timeStep)
     // Velocity on the XZ plane
     Vector3 planeVelocity(velocity.x_, 0.0f, velocity.z_);
 
-    if (controls_.IsDown(CTRL_FORWARD))
+    if (controls_.IsDown(ProcGen::CTRL_FORWARD))
         moveDir += Vector3::FORWARD;
-    if (controls_.IsDown(CTRL_BACK))
+    if (controls_.IsDown(ProcGen::CTRL_BACK))
         moveDir += Vector3::BACK;
-    if (controls_.IsDown(CTRL_LEFT))
+    if (controls_.IsDown(ProcGen::CTRL_LEFT))
         moveDir += Vector3::LEFT;
-    if (controls_.IsDown(CTRL_RIGHT))
+    if (controls_.IsDown(ProcGen::CTRL_RIGHT))
         moveDir += Vector3::RIGHT;
 
     // Normalize move vector so that diagonal strafing is not faster
@@ -105,7 +112,7 @@ void Character::FixedUpdate(float timeStep)
         body->ApplyImpulse(brakeForce);
 
         // Jump. Must release jump control between jumps
-        if (controls_.IsDown(CTRL_JUMP))
+        if (controls_.IsDown(ProcGen::CTRL_JUMP))
         {
             if (okToJump_)
             {

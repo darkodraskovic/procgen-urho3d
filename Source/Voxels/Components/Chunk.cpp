@@ -1,8 +1,10 @@
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Math/MathDefs.h>
 #include <Urho3D/Math/Random.h>
-#include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Scene/Node.h>
+#include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Graphics/StaticModel.h>
 
 #include "../../ProcGen/Components/ProcModel.h"
 
@@ -40,7 +42,7 @@ void Chunk::Start() {
                 Vector3 worldPos(chunkPos + pos);
 
 
-                float height = utils->GenerateHeight(worldPos.x_, worldPos.z_, surfaceH, 0.008) + surfaceH;
+                float height = utils->GenerateHeight(worldPos.x_, worldPos.z_, surfaceH, 0.005) + surfaceH;
                 float f = 1 - worldPos.y_ / height;
 
                 // bedrock
@@ -127,6 +129,17 @@ void Chunk::Build() {
             }
         }
     }
+
+    auto* model = node_->GetComponent<ProcGen::ProcModel>();
+    if (model->positions_.Size()) {
+        node_->GetComponent<ProcGen::ProcModel>()->Generate();
+        auto* staticModel = node_->GetComponent<StaticModel>();
+        staticModel->SetCastShadows(true);
+        auto* model = staticModel->GetModel();
+        auto* body = node_->CreateComponent<RigidBody>();
+        auto* shape = node_->CreateComponent<CollisionShape>();
+        shape->SetTriangleMesh(model);
+    }    
 }
 
 bool Chunk::IsTransparent(BlockData* data, int x, int y, int z) {

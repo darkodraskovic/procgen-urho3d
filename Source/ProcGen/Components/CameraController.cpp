@@ -27,48 +27,24 @@ void CameraController::Update(float timeStep) {
 
     using namespace Urho3D;
     
-    if (input->GetKeyDown(KEY_W))
+    if (controls_.IsDown(CTRL_FORWARD))
         node_->Translate(Vector3::FORWARD * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_S))
+    if (controls_.IsDown(CTRL_BACK))
         node_->Translate(Vector3::BACK * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_A))
+    if (controls_.IsDown(CTRL_LEFT))
         node_->Translate(Vector3::LEFT * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_D))
+    if (controls_.IsDown(CTRL_RIGHT))
         node_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_Q))
+    if (controls_.IsDown(CTRL_DOWN))
         node_->Translate(Vector3::DOWN * MOVE_SPEED * timeStep);
-    if (input->GetKeyDown(KEY_E))
+    if (controls_.IsDown(CTRL_UP))
         node_->Translate(Vector3::UP * MOVE_SPEED * timeStep);
 
+    controls_.pitch_ = Clamp(controls_.pitch_, -80.0f, 80.0f);
+    node_->SetRotation(Quaternion(controls_.pitch_, controls_.yaw_, 0.0f));
+}
 
-    // Mouse sensitivity as degrees per pixel
-    const float MOUSE_SENSITIVITY = 0.3f;
-
-    // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
-    IntVector2 mouseMove = input->GetMouseMove();
-    yaw_ += MOUSE_SENSITIVITY * mouseMove.x_;
-    pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
-    pitch_ = Clamp(pitch_, -90.0f, 90.0f);
-    // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
-    // node_->SetRotation(Quaternion(pitch_, yaw_, 0.0f));
-    
-    if (input->GetKeyDown(KEY_J)) {
-        node_->Rotate(Quaternion(0, -MOUSE_SENSITIVITY, 0));
-    }
-    if (input->GetKeyDown(KEY_L)) {
-        node_->Rotate(Quaternion(0, MOUSE_SENSITIVITY, 0));
-    }
-    if (input->GetKeyDown(KEY_I)) {
-        node_->Rotate(Quaternion(-MOUSE_SENSITIVITY, 0, 0));
-    }
-    if (input->GetKeyDown(KEY_K)) {
-        node_->Rotate(Quaternion(MOUSE_SENSITIVITY, 0, 0));
-    }
-    if (input->GetKeyDown(KEY_U)) {
-        node_->Rotate(Quaternion(0, 0, MOUSE_SENSITIVITY));
-    }
-    if (input->GetKeyDown(KEY_O)) {
-        node_->Rotate(Quaternion(0, 0, -MOUSE_SENSITIVITY));
-    }    
-    
+void CameraController::UpdateRotation() {
+    controls_.yaw_ = node_->GetRotation().YawAngle();
+    controls_.pitch_ = node_->GetRotation().PitchAngle();
 }
