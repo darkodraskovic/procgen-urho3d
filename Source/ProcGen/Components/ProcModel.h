@@ -24,7 +24,8 @@ namespace ProcGen {
         // virtual void PostUpdate (float timeStep) override;
         void HandlePostRenderUpdate (StringHash eventType, VariantMap& eventData);
         void CalculateNormals();
-        void Generate();
+        void GenerateData();
+        void Commit();
         void SetDrawNormals(bool enabled);
         bool GetDrawNormals();
         
@@ -41,6 +42,10 @@ namespace ProcGen {
         
     private:
         bool drawNormals_ = false;
+        SharedPtr<VertexBuffer> vertexBuffer_;
+        SharedPtr<IndexBuffer> indexBuffer_;
+        VectorBuffer vectorBuffer_;
+        PODVector<VertexElement> vertexElements;
     };
 
 }  // ProcGen

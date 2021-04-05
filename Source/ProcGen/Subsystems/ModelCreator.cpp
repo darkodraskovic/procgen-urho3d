@@ -15,17 +15,15 @@ void ModelCreator::Start() {
     scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
 
     auto* cache = GetSubsystem<ResourceCache>();
-
-    auto* tech = cache->GetResource<Technique>("Techniques/NoTexture.xml");
+    auto* tech = GetSubsystem<ResourceCache>()->GetResource<Technique>("Techniques/NoTexture.xml");
     defaultMaterial_ = new Material(context_);
     defaultMaterial_->SetTechnique(0, tech);
 }
 
 Node* ModelCreator::CreateStockModel(const String& modelName, Material* material){
-    auto* cache = GetSubsystem<ResourceCache>();
-
     Node* node = scene_->CreateChild(modelName);
     StaticModel* staticModel = node->CreateComponent<StaticModel>();
+    auto* cache = GetSubsystem<ResourceCache>();
     staticModel->SetModel(cache->GetResource<Model>("Models/" + modelName + ".mdl"));
 
     if (!material) staticModel->SetMaterial(defaultMaterial_);

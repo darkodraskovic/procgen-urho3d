@@ -23,7 +23,8 @@ void CameraController::Update(float timeStep) {
     auto* input = GetSubsystem<Urho3D::Input>();
 
     // Movement speed as world units per second    
-    const float MOVE_SPEED = 32.0f;
+    const float MOVE_SPEED = 8.0f;
+    // const float MOVE_SPEED = 32.0f;
 
     using namespace Urho3D;
     

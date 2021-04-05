@@ -23,6 +23,7 @@
 #pragma once
 
 #include <Urho3D/Input/Controls.h>
+#include <Urho3D/Math/Vector3.h>
 #include <Urho3D/Scene/LogicComponent.h>
 
 using namespace Urho3D;
@@ -51,6 +52,7 @@ namespace Voxels {
         void Update(float timeStep) override;
         /// Handle physics world update. Called by LogicComponent base class.
         void FixedUpdate(float timeStep) override;
+        Vector3 GetSize();
 
         /// Movement controls. Assigned by the main program each frame.
         Controls controls_;

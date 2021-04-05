@@ -41,7 +41,7 @@ Material* MaterialCreator::Create(const String& shader, const Color& color, cons
     
     String defines;
     for (TextureUnit tu : textureData.Keys()) {
-        defines +=* textureDefines[tu] + " ";
+        defines += *textureDefines[tu] + " ";
     }
     if (defines != "") {
         pass->SetVertexShaderDefines(defines);

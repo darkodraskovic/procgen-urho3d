@@ -35,11 +35,11 @@ void PS()
     for (int i = 0; i < NUM_LAYERS; i++) {
         vec3 pos = vec3(layers[i], 1);
         pos = translate2D(-lineW/2, -lineW/2) * pos;
-        colors[i%3] += rectFill(pos.xy, vec2(1 + lineW/2,lineW));
-        colors[i%3] += rectFill(pos.xy, vec2(lineW,1 + lineW/2));
+        colors[i%3] += rectFill(pos.xy, vec2(1 + lineW/2,lineW), vec2(0));
+        colors[i%3] += rectFill(pos.xy, vec2(lineW,1 + lineW/2), vec2(0));
     }
 
-    colors[0] += rectStroke(st.xy, vec2(1,1), lineW/4);
+    colors[0] += rectStroke(st.xy, vec2(1,1), lineW/4, vec2(0));
     
     gl_FragColor = vec4(colors[0], colors[1], colors[2], 1);
 }

@@ -35,29 +35,31 @@ void ProcModel::CalculateNormals() {
     }
 }
 
-void ProcModel::Generate() {
-    // vertex buffer
+void ProcModel::GenerateData() {
     if (!normals_.Size()) CalculateNormals();
 
-    PODVector<VertexElement> vertexElements{{TYPE_VECTOR3, SEM_POSITION}};
+    // PODVector<VertexElement> vertexElements{{TYPE_VECTOR3, SEM_POSITION}};
+    vertexElements.Push({TYPE_VECTOR3, SEM_POSITION});
     if (normals_.Size()) vertexElements.Push({TYPE_VECTOR3, SEM_NORMAL});
     if (colors_.Size()) vertexElements.Push({TYPE_VECTOR4, SEM_COLOR});
     if (uvs_.Size()) vertexElements.Push({TYPE_VECTOR2, SEM_TEXCOORD});
 
-    VectorBuffer vecBuffer;
+    vectorBuffer_.Clear();
     for (int i = 0; i < positions_.Size(); i++) {
-        if (positions_.Size()) vecBuffer.WriteVector3(positions_[i]);
-        if (normals_.Size()) vecBuffer.WriteVector3(normals_[i]);
-        if (colors_.Size()) vecBuffer.WriteColor(colors_[i]);
-        if (uvs_.Size()) vecBuffer.WriteVector2(uvs_[i]);
+        if (positions_.Size()) vectorBuffer_.WriteVector3(positions_[i]);
+        if (normals_.Size()) vectorBuffer_.WriteVector3(normals_[i]);
+        if (colors_.Size()) vectorBuffer_.WriteColor(colors_[i]);
+        if (uvs_.Size()) vectorBuffer_.WriteVector2(uvs_[i]);
     }
+}
 
+void ProcModel::Commit() {
+    // buffers
     SharedPtr<VertexBuffer>vertexBuffer(new VertexBuffer(context_));
     vertexBuffer->SetShadowed(true);
     vertexBuffer->SetSize(positions_.Size(), vertexElements);
-    vertexBuffer->SetData((void*)vecBuffer.GetData());
+    vertexBuffer->SetData((void*)vectorBuffer_.GetData());
     
-    // index buffer
     SharedPtr<IndexBuffer>indexBuffer(new IndexBuffer(context_));
     indexBuffer->SetShadowed(true);
     indexBuffer->SetSize(indices_.Size(), false, true);
@@ -69,7 +71,6 @@ void ProcModel::Generate() {
     geometry->SetVertexBuffer(0, vertexBuffer);
     geometry->SetIndexBuffer(indexBuffer);
     geometry->SetDrawRange(primitiveType_, 0, indexBuffer->GetIndexCount());
-    // geometry->SetDrawRange(primitiveType_, 0, indices_.Size());
 
     // model
     Model* model = new Model(context_);

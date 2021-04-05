@@ -1,3 +1,4 @@
+#include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Graphics/Light.h>
 #include <Urho3D/Graphics/Texture.h>
 #include <Urho3D/Input/Controls.h>
@@ -19,9 +20,12 @@
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/ProgressBar.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Engine/Console.h>
+#include <Urho3D/Core/WorkQueue.h>
+#include <Urho3D/UI/UIElement.h>
 
 #include "App.h"
 
@@ -66,6 +70,10 @@ void App::Setup() {
     engineParameters_[EP_WINDOW_HEIGHT]  = 768;
 }
 
+void threadHello(const WorkItem *workItem, unsigned threadIndex) {
+    URHO3D_LOGINFOF("I'm executing on thread %d", threadIndex); // debug
+}
+
 void App::Start() {
     CreateConsoleAndDebugHud();
     SubscribeToEvents();
@@ -82,12 +90,15 @@ void App::Start() {
     GetSubsystem<ProcGen::TextureCreator>()->Start();
 
     GetSubsystem<ProcGen::MaterialCreator>()->Start();
+    
+    GetSubsystem<Voxels::World>()->Start();
 
-    // CreateStockModel();
+    CreateStockModel();
     // CreateProceduralModel();
 
-    CreateVoxels();
+    // CreateVoxels();
 }
+
 
 void App::CreateConsoleAndDebugHud() {
     // Get default style
@@ -113,8 +124,10 @@ void App::CreateStockModel() {
     // TEXTURE
 
     int w = 320, h = 320;
+
+    Texture2D* diffuseTexture;
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
-    auto* diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
+    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
 
     // Image* image(new Image(context_));
@@ -134,29 +147,34 @@ void App::CreateStockModel() {
     auto* mmNormal = textureCreator->CreateImageTexture(cache->GetResource<Image>("Textures/MM_Normal.png"));
 
     // MATERIAL
-
+    
     HashMap<TextureUnit, Texture*> textureData = {
-        {TU_DIFFUSE, diffuseTexture}, {TU_ENVIRONMENT, skyboxTexture},
+        {TU_DIFFUSE, diffuseTexture}, // {TU_ENVIRONMENT, skyboxTexture},
     };
 
     HashMap<TextureUnit, Texture*> textureData2 = {
         {TU_DIFFUSE, mmDiffuse}, {TU_NORMAL, mmNormal}, {TU_ENVIRONMENT, skyboxTexture},
     };
 
-    Material* material = materialCreator->Create("PG_Basic00", Color::WHITE, textureData2);
+    Material* material;
+    material = materialCreator->Create("PG_Basic", Color::WHITE, textureData);
+    // material = materialCreator->Create("PG_Shapes");
+    
     // Material* material = materialCreator->Create(
     //     cache->GetResource<Technique>("Data/Techniques/DiffNormalEnvCube.xml"),
     //     textureData2);
 
     // NODE
 
-    // Node* node = modelCreator->CreateStockModel("Box", material);
-    Node* node = modelCreator->CreateStockModel("Sphere", material);
+    Node* node;
+    node = modelCreator->CreateStockModel("Box", material);
+    
+    // node = modelCreator->CreateStockModel("Sphere", material);
 
-    // Node* node = modelCreator->CreateStockModel("Plane", material);
+    // node = modelCreator->CreateStockModel("Plane", material);
     // node->Rotate(Quaternion(-90, 0, 0));
 
-    // Node* node = modelCreator->CreateStockModel("TeaPot", material);
+    // node = modelCreator->CreateStockModel("TeaPot", material);
     // node->Translate(Vector3::DOWN / 4);
 
     // BODY
@@ -164,6 +182,11 @@ void App::CreateStockModel() {
     body->SetMass(1);
     body->SetUseGravity(false);
     body->SetAngularVelocity(Vector3::UP * 1.5);
+
+    auto* camNode = scene_->GetChild("Camera");
+    camNode->Rotate(Quaternion(30, 0, 0));
+    camNode->Translate(Vector3::BACK * 5);
+    camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();    
 }
 
 void App::CreateProceduralModel() {
@@ -243,7 +266,7 @@ void App::CreateProceduralModel() {
     mat1->SetTechnique(0, techNoTextureVCol);
 
     procModel->material_ = mat1;
-    procModel->Generate();
+    procModel->GenerateData();
 
     auto* body = node->CreateComponent<RigidBody>();
     body->SetMass(1);
@@ -261,9 +284,22 @@ void App::CreateProceduralModel() {
 }
 
 void App::CreateVoxels() {
+    auto* cache = GetSubsystem<ResourceCache>();
+    auto* ui = GetSubsystem<UI>();
+    XMLFile* xmlFile = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
+    ui->GetRoot()->SetDefaultStyle(xmlFile);
+    ProgressBar* bar = new ProgressBar(context_);
+    bar->SetName("ProgressBar");
+    bar->SetRange(100);
+    bar->SetValue(0);
+    
+    ui->GetRoot()->AddChild(bar);
+    bar->SetAlignment(Urho3D::HA_CENTER, Urho3D::VA_BOTTOM);
+    bar->SetStyleAuto();
+    bar->SetSize(800, 30);
+    
     auto* world = GetSubsystem<Voxels::World>();
     auto* utils = GetSubsystem<Voxels::Utils>();
-    auto* cache = GetSubsystem<ResourceCache>();
     auto* cam = scene_->GetChild("Camera");
     
     world->SetRoot(scene_);
@@ -289,15 +325,17 @@ void App::CreateVoxels() {
     
     world->CreateColumns();
     world->Build();
+    // world->Model();
 
-    Vector3 size = world->GetSize();
+    Vector3 size = world->GetWorldSize();
     cam->SetPosition(Vector3::UP * size.y_ + Vector3::RIGHT * size.x_);
     cam->LookAt(size / 2);
     cam->Translate(Vector3::BACK * size.y_);
     cam->GetComponent<ProcGen::CameraController>()->UpdateRotation();
 
     CreateCharacter();
-    character_->GetNode()->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
+    world->SetPlayer(player_);
+    player_->GetNode()->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
 }
 
 void App::CreateCharacter() {
@@ -317,7 +355,7 @@ void App::CreateCharacter() {
 
     auto* shape = node->CreateComponent<CollisionShape>();
     shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
-    character_ = node->CreateComponent<Voxels::Character>();
+    player_ = node->CreateComponent<Voxels::Character>();
 }
 
 void App::Stop() {
@@ -350,7 +388,7 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
         auto* procModel = node->GetComponent<ProcGen::ProcModel>();
         if (key == KEY_M) {
             procModel->positions_[0] = procModel->positions_[0] * 1.25;
-            procModel->Generate();
+            procModel->GenerateData();
         }
 
         if (key == KEY_1) {
@@ -376,7 +414,7 @@ void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     auto* input = GetSubsystem<Input>();
-    Controls& controls = character_ && firstPerson_ ? character_->controls_ :
+    Controls& controls = player_ && firstPerson_ ? player_->controls_ :
         scene_->GetChild("Camera")->GetComponent<ProcGen::CameraController>()->controls_;
     
     using namespace ProcGen;
@@ -396,16 +434,17 @@ void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
 }
 
 void App::HandlePostUpdate(StringHash eventType, VariantMap &eventData) {
-    if (character_ && firstPerson_) {
-        Node* characterNode = character_->GetNode();
+    if (player_ && firstPerson_) {
+        Node* playerNode = player_->GetNode();
 
         // Get camera lookat dir from character yaw + pitch
-        const Quaternion& rot = characterNode->GetRotation();
-        Quaternion dir = rot * Quaternion(character_->controls_.pitch_, Vector3::RIGHT);
+        const Quaternion& rot = playerNode->GetRotation();
+        Quaternion dir = rot * Quaternion(player_->controls_.pitch_, Vector3::RIGHT);
 
         auto* camNode = scene_->GetChild("Camera");
         camNode->SetRotation(dir);
-        camNode->SetPosition(characterNode->GetPosition() + Vector3::UP * 1.8f);
+        Vector3 pos = playerNode->GetPosition(); pos.y_ += player_->GetSize().y_;
+        camNode->SetPosition(pos);
     }
 }
 

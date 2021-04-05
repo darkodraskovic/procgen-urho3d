@@ -51,13 +51,11 @@ Texture2D* TextureCreator::CreateEffectTexture(int w, int h, const String& shade
     // and define the viewport for rendering the auxiliary scene, similarly as how backbuffer viewports are defined
     // to the Renderer subsystem. By default the texture viewport will be updated when the texture is visible
     // in the main view
+    Viewport* viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
+    
     RenderSurface* surface = renderTexture->GetRenderSurface();
-
     surface->SetUpdateMode(mode);
     if (mode == Urho3D::SURFACE_MANUALUPDATE) surface->QueueUpdate();
-
-    // Viewport* viewport(new Viewport(context_));
-    Viewport* viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
     surface->SetViewport(0, viewport);
     
     RenderPathCommand rpCommand;

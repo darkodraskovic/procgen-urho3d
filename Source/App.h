@@ -34,6 +34,6 @@ private:
     
     SharedPtr<Scene> scene_;
 
-    WeakPtr<Voxels::Character> character_;
+    WeakPtr<Voxels::Character> player_;
     bool firstPerson_ = false;
 };

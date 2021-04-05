@@ -18,7 +18,6 @@ using namespace Voxels;
 
 Chunk::Chunk(Context* context) : LogicComponent(context) {
     SetUpdateEventMask(USE_NO_EVENT);
-
 }
 
 void Chunk::Start() {
@@ -40,7 +39,6 @@ void Chunk::Start() {
             for(int z = 0; z < world->chunkSize_; z++) {
                 Vector3 pos = Vector3(x, y, z);
                 Vector3 worldPos(chunkPos + pos);
-
 
                 float height = utils->GenerateHeight(worldPos.x_, worldPos.z_, surfaceH, 0.005) + surfaceH;
                 float f = 1 - worldPos.y_ / height;
@@ -131,15 +129,17 @@ void Chunk::Build() {
     }
 
     auto* model = node_->GetComponent<ProcGen::ProcModel>();
+    if (model->positions_.Size()) model->GenerateData();
+}
+
+void Chunk::Model() {
+    auto* model = node_->GetComponent<ProcGen::ProcModel>();
     if (model->positions_.Size()) {
-        node_->GetComponent<ProcGen::ProcModel>()->Generate();
-        auto* staticModel = node_->GetComponent<StaticModel>();
-        staticModel->SetCastShadows(true);
-        auto* model = staticModel->GetModel();
-        auto* body = node_->CreateComponent<RigidBody>();
-        auto* shape = node_->CreateComponent<CollisionShape>();
-        shape->SetTriangleMesh(model);
-    }    
+        node_->GetComponent<ProcGen::ProcModel>()->Commit();
+        node_->GetComponent<StaticModel>()->SetCastShadows(true);
+        // TODO: Put in a separate thread - consumes lot of CPU
+        node_->GetComponent<CollisionShape>()->SetTriangleMesh(node_->GetComponent<StaticModel>()->GetModel());
+    }
 }
 
 bool Chunk::IsTransparent(BlockData* data, int x, int y, int z) {
