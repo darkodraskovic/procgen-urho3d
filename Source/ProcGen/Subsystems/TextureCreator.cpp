@@ -48,23 +48,22 @@ Texture2D* TextureCreator::CreateEffectTexture(int w, int h, const String& shade
     renderTexture->SetFilterMode(FILTER_BILINEAR);
 
     // Get the texture's RenderSurface object (exists when the texture has been created in rendertarget mode)
+    RenderSurface* surface = renderTexture->GetRenderSurface();
     // and define the viewport for rendering the auxiliary scene, similarly as how backbuffer viewports are defined
-    // to the Renderer subsystem. By default the texture viewport will be updated when the texture is visible
-    // in the main view
+    // to the Renderer subsystem. The viewport will be updated when the texture is visible in the main view
     Viewport* viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
     
-    RenderSurface* surface = renderTexture->GetRenderSurface();
     surface->SetUpdateMode(mode);
     if (mode == Urho3D::SURFACE_MANUALUPDATE) surface->QueueUpdate();
     surface->SetViewport(0, viewport);
-    
+
     RenderPathCommand rpCommand;
     rpCommand.SetOutput(0, "viewport");
     rpCommand.type_ = RenderCommandType::CMD_QUAD;
     rpCommand.vertexShaderName_ = shader;
     rpCommand.pixelShaderName_ = shader;
     rpCommand.SetTextureName(Urho3D::TU_DIFFUSE, "viewport");
-    
+
     // RenderPath* renderPath = new RenderPath();
     SharedPtr<RenderPath> renderPath = viewport->GetRenderPath()->Clone();
     renderPath->AddCommand(rpCommand);

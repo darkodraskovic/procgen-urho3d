@@ -1,5 +1,6 @@
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Graphics/Light.h>
+#include <Urho3D/Graphics/Technique.h>
 #include <Urho3D/Graphics/Texture.h>
 #include <Urho3D/Input/Controls.h>
 #include <Urho3D/Input/InputConstants.h>
@@ -53,10 +54,10 @@ App::App(Context* context) :
 
     context_->RegisterFactory<ProcGen::CameraController>();
     context_->RegisterFactory<ProcGen::ProcModel>();
-    
+
     context_->RegisterSubsystem<Voxels::Utils>();
     context_->RegisterSubsystem<Voxels::World>();
-    
+
     context_->RegisterFactory<Voxels::Block>();
     context_->RegisterFactory<Voxels::Chunk>();
     Voxels::Character::RegisterObject(context);
@@ -90,7 +91,7 @@ void App::Start() {
     GetSubsystem<ProcGen::TextureCreator>()->Start();
 
     GetSubsystem<ProcGen::MaterialCreator>()->Start();
-    
+
     GetSubsystem<Voxels::World>()->Start();
 
     CreateStockModel();
@@ -114,79 +115,89 @@ void App::CreateConsoleAndDebugHud() {
     DebugHud* debugHud = engine_->CreateDebugHud();
     debugHud->SetDefaultStyle(xmlFile);
 }
-    
+
 void App::CreateStockModel() {
     auto* cache = GetSubsystem<ResourceCache>();
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
     ProcGen::MaterialCreator* materialCreator =  GetSubsystem<ProcGen::MaterialCreator>();
 
-    // TEXTURE
-
     int w = 320, h = 320;
 
+    // ================================================================
+
+    // IMAGE
+    auto* mmDiffuseImg = cache->GetResource<Image>("Textures/MM_Diffuse.png");
+    auto* mmNormalImg = cache->GetResource<Image>("Textures/MM_Normal.png");
+
+    Image* procImg(new Image(context_));
+    procImg->SetSize(w, h, 3);
+    for (int y = 0; y < h; ++y) {
+        bool ymod = y % (w/10) < (w/20);
+        for (int x = 0; x < w; ++x) {
+            if (ymod) procImg->SetPixel(x, y, Color::RED);
+            else procImg->SetPixel(x, y, Color::GREEN);
+        }
+    }
+
+    // ================================================================
+    // TEXTURE
+    
     Texture2D* diffuseTexture;
+
+    // DIFFUSE
+    // image based textures
+    // diffuseTexture = textureCreator->CreateImageTexture(procImg);
+    // diffuseTexture = textureCreator->CreateImageTexture(mmDiffuseImg);
+
+    // effect based textures
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
     diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
 
-    // Image* image(new Image(context_));
-    // image->SetSize(w, h, 3);
-    // for (int y = 0; y < h; ++y) {
-    //     bool ymod = y % (w/10) < (w/20);
-    //     for (int x = 0; x < w; ++x) {
-    //         if (ymod) image->SetPixel(x, y, Color::RED);
-    //         else image->SetPixel(x, y, Color::GREEN);
-    //     }
-    // }
-    // diffuseTexture = textureCreator->CreateImageTexture(image);
+    // NORMAL
+    Texture2D* normalTexture;
+    normalTexture = textureCreator->CreateImageTexture(mmNormalImg);
 
+    // SKYBOX
     auto* skyboxTexture = cache->GetResource<TextureCube>("Textures/Space.xml");
 
-    auto* mmDiffuse = textureCreator->CreateImageTexture(cache->GetResource<Image>("Textures/MM_Diffuse.png"));
-    auto* mmNormal = textureCreator->CreateImageTexture(cache->GetResource<Image>("Textures/MM_Normal.png"));
-
+    // ================================================================
     // MATERIAL
     
     HashMap<TextureUnit, Texture*> textureData = {
-        {TU_DIFFUSE, diffuseTexture}, // {TU_ENVIRONMENT, skyboxTexture},
-    };
-
-    HashMap<TextureUnit, Texture*> textureData2 = {
-        {TU_DIFFUSE, mmDiffuse}, {TU_NORMAL, mmNormal}, {TU_ENVIRONMENT, skyboxTexture},
+        {TU_DIFFUSE, diffuseTexture}, {TU_NORMAL, normalTexture}, {TU_ENVIRONMENT, skyboxTexture},
     };
 
     Material* material;
-    material = materialCreator->Create("PG_Basic", Color::WHITE, textureData);
-    // material = materialCreator->Create("PG_Shapes");
+    material = materialCreator->Create("PG_DiffUnlit", textureData);
     
-    // Material* material = materialCreator->Create(
-    //     cache->GetResource<Technique>("Data/Techniques/DiffNormalEnvCube.xml"),
-    //     textureData2);
-
+    // ================================================================
     // NODE
 
     Node* node;
-    node = modelCreator->CreateStockModel("Box", material);
-    
+    // node = modelCreator->CreateStockModel("Box", material);
+
     // node = modelCreator->CreateStockModel("Sphere", material);
 
-    // node = modelCreator->CreateStockModel("Plane", material);
-    // node->Rotate(Quaternion(-90, 0, 0));
+    node = modelCreator->CreateStockModel("Plane", material);
+    node->Rotate(Quaternion(-90, 0, 0));
 
     // node = modelCreator->CreateStockModel("TeaPot", material);
-    // node->Translate(Vector3::DOWN / 4);
 
+    // ================================================================
     // BODY
     auto* body = node->CreateComponent<RigidBody>();
     body->SetMass(1);
     body->SetUseGravity(false);
-    body->SetAngularVelocity(Vector3::UP * 1.5);
+    // body->SetAngularVelocity(Vector3::UP * 1.5);
 
+    // ================================================================
+    // CAM
     auto* camNode = scene_->GetChild("Camera");
-    camNode->Rotate(Quaternion(30, 0, 0));
-    camNode->Translate(Vector3::BACK * 5);
-    camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();    
+    // camNode->Rotate(Quaternion(30, 0, 0));
+    camNode->Translate(Vector3::BACK * 2);
+    camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();
 }
 
 void App::CreateProceduralModel() {
@@ -292,16 +303,16 @@ void App::CreateVoxels() {
     bar->SetName("ProgressBar");
     bar->SetRange(100);
     bar->SetValue(0);
-    
+
     ui->GetRoot()->AddChild(bar);
     bar->SetAlignment(Urho3D::HA_CENTER, Urho3D::VA_BOTTOM);
     bar->SetStyleAuto();
     bar->SetSize(800, 30);
-    
+
     auto* world = GetSubsystem<Voxels::World>();
     auto* utils = GetSubsystem<Voxels::Utils>();
     auto* cam = scene_->GetChild("Camera");
-    
+
     world->SetRoot(scene_);
 
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
@@ -310,7 +321,7 @@ void App::CreateVoxels() {
     auto* image = cache->GetResource<Image>("Textures/VoxelTerrain.png");
     auto* texture = textureCreator->CreateImageTexture(image);
     texture->SetFilterMode(Urho3D::FILTER_NEAREST);
-    
+
     auto* techDiff = cache->GetResource<Technique>("CoreData/Techniques/Diff.xml");
     // auto* techNoTexture = cache->GetResource<Technique>("CoreData/Techniques/NoTexture.xml");
     // auto* techNoTextureVCol = cache->GetResource<Technique>("CoreData/Techniques/NoTextureVCol.xml");
@@ -322,7 +333,7 @@ void App::CreateVoxels() {
     world->SetMaterial(material);
 
     world->size_ = {8, 4, 8};
-    
+
     world->CreateColumns();
     world->Build();
     // world->Model();
@@ -340,13 +351,13 @@ void App::CreateVoxels() {
 
 void App::CreateCharacter() {
     Node* node = scene_->CreateChild("Player");
-    
+
     Node* lightNode = node->CreateChild("DirectionalLight");
     lightNode->Translate(Vector3::UP * 2);
     auto* light = lightNode->CreateComponent<Light>();
     light->SetLightType(Urho3D::LIGHT_POINT);
     light->SetBrightness(.5);
-    
+
     auto* body = node->CreateComponent<RigidBody>();
     body->SetCollisionLayer(1);
     body->SetMass(1.0f);
@@ -381,7 +392,7 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     // Toggle debug HUD with F2
     else if (key == KEY_F2)
         GetSubsystem<DebugHud>()->ToggleAll();
-    
+
 
     auto* node = scene_->GetChild("ProceduralObject");
     if (node) {
@@ -416,16 +427,16 @@ void App::HandleUpdate(StringHash eventType, VariantMap& eventData)
     auto* input = GetSubsystem<Input>();
     Controls& controls = player_ && firstPerson_ ? player_->controls_ :
         scene_->GetChild("Camera")->GetComponent<ProcGen::CameraController>()->controls_;
-    
+
     using namespace ProcGen;
     controls.Set(CTRL_FORWARD, input->GetKeyDown(KEY_W));
     controls.Set(CTRL_BACK, input->GetKeyDown(KEY_S));
     controls.Set(CTRL_LEFT, input->GetKeyDown(KEY_A));
     controls.Set(CTRL_RIGHT, input->GetKeyDown(KEY_D));
-        
+
     controls.Set(CTRL_DOWN, input->GetKeyDown(KEY_Q));
     controls.Set(CTRL_UP, input->GetKeyDown(KEY_E));
-        
+
     controls.Set(CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
 
     float YAW_SENSITIVITY = 0.1f;
