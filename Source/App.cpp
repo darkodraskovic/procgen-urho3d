@@ -1,4 +1,5 @@
 #include <Urho3D/Container/Ptr.h>
+#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/Light.h>
 #include <Urho3D/Graphics/Technique.h>
 #include <Urho3D/Graphics/Texture.h>
@@ -151,10 +152,14 @@ void App::CreateStockModel() {
     // diffuseTexture = textureCreator->CreateImageTexture(mmDiffuseImg);
 
     // effect based textures
-    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Basic");
-    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Shapes");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
-
+    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Bricks");
+    
+    // diffuseTexture->SetFilterMode(Urho3D::FILTER_NEAREST);
+    diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
+    
     // NORMAL
     Texture2D* normalTexture;
     normalTexture = textureCreator->CreateImageTexture(mmNormalImg);

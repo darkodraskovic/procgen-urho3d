@@ -39,7 +39,7 @@ void PS()
         colors[i%3] += rectFill(pos.xy, vec2(lineW,1 + lineW/2), vec2(0));
     }
 
-    colors[0] += rectStroke(st.xy, vec2(1,1), lineW/4, vec2(0));
+    colors[0] += rectStroke(st.xy, vec2(1,1), vec2(0), lineW/4);
     
     gl_FragColor = vec4(colors[0], colors[1], colors[2], 1);
 }

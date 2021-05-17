@@ -42,7 +42,7 @@ void PS()
         tnl = rotate2D(-M_PI/2 * cElapsedTimePS) * tnl;
         col += rectFill(tnl.xy, vec2(.4,.05), vec2(.5));
     } else {
-        col = circleStroke(tnl.xy, .2, .05, vec2(0));
+        col = circleStroke(tnl.xy, .2, vec2(0), .05);
     }
     
     gl_FragColor = vec4(st, col, 1.0);
