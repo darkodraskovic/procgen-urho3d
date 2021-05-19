@@ -28,6 +28,7 @@
 #include <Urho3D/Engine/Console.h>
 #include <Urho3D/Core/WorkQueue.h>
 #include <Urho3D/UI/UIElement.h>
+#include <Urho3D/UI/UIEvents.h>
 
 #include "App.h"
 
@@ -70,6 +71,7 @@ void App::Setup() {
     engineParameters_[EP_WINDOW_POSITION_Y]  = 0;
     engineParameters_[EP_WINDOW_WIDTH]  = 1366;
     engineParameters_[EP_WINDOW_HEIGHT]  = 768;
+    engineParameters_[EP_MULTI_SAMPLE] = 4;    
 }
 
 void threadHello(const WorkItem *workItem, unsigned threadIndex) {
@@ -97,10 +99,30 @@ void App::Start() {
 
     CreateStockModel();
     // CreateProceduralModel();
-
     // CreateVoxels();
 }
 
+// Slider* App::CreateSlider(int x, int y, int xSize, int ySize, const String& text)
+// {
+//     UIElement* root = GetSubsystem<UI>()->GetRoot();
+//     auto* cache = GetSubsystem<ResourceCache>();
+//     auto* font = cache->GetResource<Font>("Fonts/Anonymous Pro.ttf");
+
+//     // Create text and slider below it
+//     auto* sliderText = root->CreateChild<Text>();
+//     sliderText->SetPosition(x, y);
+//     sliderText->SetFont(font, 12);
+//     sliderText->SetText(text);
+
+//     auto* slider = root->CreateChild<Slider>();
+//     slider->SetStyleAuto();
+//     slider->SetPosition(x, y + 20);
+//     slider->SetSize(xSize, ySize);
+//     // Use 0-1 range for controlling sound/music master volume
+//     slider->SetRange(1.0f);
+
+//     return slider;
+// }
 
 void App::CreateConsoleAndDebugHud() {
     // Get default style
@@ -149,13 +171,13 @@ void App::CreateStockModel() {
     // DIFFUSE
     // image based textures
     // diffuseTexture = textureCreator->CreateImageTexture(procImg);
-    // diffuseTexture = textureCreator->CreateImageTexture(mmDiffuseImg);
+    diffuseTexture = textureCreator->CreateImageTexture(mmDiffuseImg);
 
     // effect based textures
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Shapes");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
-    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Bricks");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Bricks");
     
     // diffuseTexture->SetFilterMode(Urho3D::FILTER_NEAREST);
     diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
@@ -175,33 +197,46 @@ void App::CreateStockModel() {
     };
 
     Material* material;
-    material = materialCreator->Create("PG_DiffUnlit", textureData);
+    // material = materialCreator->Create("PG_Basic", textureData);
+    material = materialCreator->Create("PG_Basic_Lit", textureData);
+    // material = materialCreator->Create("PG_Basic_Rim", textureData);
+    // material = materialCreator->Create("PG_DiffUnlit", textureData);
     
     // ================================================================
     // NODE
 
     Node* node;
     // node = modelCreator->CreateStockModel("Box", material);
+    
+    // node = modelCreator->CreateStockModel("Cylinder", material);
+    
+    // node = modelCreator->CreateStockModel("Pyramid", material);
+    
+    // node = modelCreator->CreateStockModel("Torus", material);
 
-    // node = modelCreator->CreateStockModel("Sphere", material);
-
-    node = modelCreator->CreateStockModel("Plane", material);
-    node->Rotate(Quaternion(-90, 0, 0));
+    node = modelCreator->CreateStockModel("Sphere", material);
 
     // node = modelCreator->CreateStockModel("TeaPot", material);
+
+    // node = modelCreator->CreateStockModel("Plane", material);
+    // node->Rotate(Quaternion(-90, 0, 0));
 
     // ================================================================
     // BODY
     auto* body = node->CreateComponent<RigidBody>();
     body->SetMass(1);
     body->SetUseGravity(false);
-    // body->SetAngularVelocity(Vector3::UP * 1.5);
+    body->SetAngularVelocity(Vector3::UP * 1.5);
 
     // ================================================================
     // CAM
     auto* camNode = scene_->GetChild("Camera");
-    // camNode->Rotate(Quaternion(30, 0, 0));
-    camNode->Translate(Vector3::BACK * 2);
+    
+    camNode->Rotate(Quaternion(30, 180, 0));
+    camNode->Translate(Vector3::BACK * 3);
+    
+    // camNode->Translate(Vector3::BACK * 2);
+    
     camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();
 }
 
@@ -465,6 +500,18 @@ void App::HandlePostUpdate(StringHash eventType, VariantMap &eventData) {
 }
 
 // void App::HandlePostrenderupdate(StringHash eventType, VariantMap& eventData) {
+// }
+
+// void App::HandleSlider0(StringHash eventType, VariantMap& eventData)
+// {
+//     using namespace SliderChanged;
+
+
+// }
+
+// void App::HandleSlider1(StringHash eventType, VariantMap& eventData)
+// {
+//     using namespace SliderChanged;
 // }
 
 URHO3D_DEFINE_APPLICATION_MAIN(App)

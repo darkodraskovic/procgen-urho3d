@@ -5,6 +5,7 @@
 #include <Urho3D/Scene/Component.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/UI/Slider.h>
 
 #include "Voxels/Components/Character.h"
 
@@ -23,6 +24,11 @@ private:
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
     void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
     // void HandlePostrenderupdate(StringHash eventType, VariantMap& eventData);
+
+    // void HandleSlider0(StringHash eventType, VariantMap& eventData);
+    // void HandleSlider1(StringHash eventType, VariantMap& eventData);
+    // Slider* CreateSlider(int x, int y, int xSize, int ySize, const String& text);
+    
     void SubscribeToEvents();
     void CreateConsoleAndDebugHud();
 
