@@ -1,4 +1,4 @@
-<technique vs="PG_Basic_Lit" ps="PG_Basic_Lit" vsdefines="DIFFMAP" psdefines="DIFFMAP" >
+<technique vs="Sha_Basic_Lit" ps="Sha_Basic_Lit" vsdefines="DIFFMAP" psdefines="DIFFMAP" >
   <pass name="base" />
   <pass name="light" depthtest="equal" depthwrite="false" blend="add" />
   <pass name="prepass" psdefines="PREPASS" />

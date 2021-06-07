@@ -1,6 +1,0 @@
-<technique vs="PG_Basic" ps="PG_Basic" vsdefines="DIFFMAP" psdefines="DIFFMAP" >
-  <pass name="base" />
-  <pass name="prepass" psdefines="PREPASS" />
-  <pass name="material" />
-  <pass name="deferred" psdefines="DEFERRED" />
-</technique>

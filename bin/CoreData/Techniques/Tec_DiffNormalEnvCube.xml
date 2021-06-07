@@ -1,4 +1,4 @@
-<technique vs="PG_LitSolid" ps="PG_LitSolid" psdefines="DIFFMAP">
+<technique vs="Sha_LitSolid" ps="Sha_LitSolid" psdefines="DIFFMAP">
     <pass name="base" vsdefines="NORMALMAP ENVCUBEMAP" psdefines="NORMALMAP ENVCUBEMAP" />
     <pass name="light" vsdefines="NORMALMAP" psdefines="NORMALMAP" depthtest="equal" depthwrite="false" blend="add" />
     <pass name="prepass" vsdefines="NORMALMAP" psdefines="PREPASS NORMALMAP" />

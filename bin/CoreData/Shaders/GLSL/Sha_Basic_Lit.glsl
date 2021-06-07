@@ -59,6 +59,8 @@ void PS()
     #endif
     #ifdef DIFFMAP
         vec4 diffInput = texture2D(sDiffMap, vTexCoord);
+        diffColor *= diffInput;
+        
         #ifdef ALPHAMASK
             if (diffInput.a < 0.5)
                 discard;

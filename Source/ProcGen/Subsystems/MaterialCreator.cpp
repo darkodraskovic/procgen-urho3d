@@ -16,10 +16,10 @@ void MaterialCreator::Start() {
 }
 
 Material* MaterialCreator::Create(const String& technique, const HashMap<TextureUnit, Texture*>& textureData) {
-    auto techn = cache_->GetResource<Technique>("CoreData/Techniques/" + technique +".xml");
+    auto tech = cache_->GetResource<Technique>("CoreData/Techniques/" + technique +".xml");
     
     Material* material(new Material(context_));
-    material->SetTechnique(0, techn);
+    material->SetTechnique(0, tech);
     for (TextureUnit tu : textureData.Keys()) {
         material->SetTexture(tu, *textureData[tu]);
     }

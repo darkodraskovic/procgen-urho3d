@@ -1,4 +1,4 @@
-<technique vs="PG_Unlit" ps="PG_Unlit" psdefines="DIFFMAP" >
+<technique vs="Sha_Unlit" ps="Sha_Unlit" psdefines="DIFFMAP" >
     <pass name="base" />
     <pass name="prepass" psdefines="PREPASS" />
     <pass name="material" />

@@ -24,6 +24,7 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/ProgressBar.h>
 #include <Urho3D/IO/Log.h>
+#include <Urho3D/UI/Sprite.h>
 #include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Engine/Console.h>
 #include <Urho3D/Core/WorkQueue.h>
@@ -168,16 +169,16 @@ void App::CreateStockModel() {
     
     Texture2D* diffuseTexture;
 
-    // DIFFUSE
-    // image based textures
+    // DIFFUSE > IMAGE
     // diffuseTexture = textureCreator->CreateImageTexture(procImg);
-    diffuseTexture = textureCreator->CreateImageTexture(mmDiffuseImg);
+    // diffuseTexture = textureCreator->CreateImageTexture(mmDiffuseImg);
 
-    // effect based textures
-    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Shapes");
-    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_ScottishTartan");
-    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Patterns_TicTacToe");
-    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PP_Bricks");
+    // DIFFUSE > EFFECT (Post-process)
+    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Shapes");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_ScottishTartan");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Patterns_TicTacToe");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Bricks");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Truchet");
     
     // diffuseTexture->SetFilterMode(Urho3D::FILTER_NEAREST);
     diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
@@ -197,16 +198,17 @@ void App::CreateStockModel() {
     };
 
     Material* material;
-    // material = materialCreator->Create("PG_Basic", textureData);
-    material = materialCreator->Create("PG_Basic_Lit", textureData);
-    // material = materialCreator->Create("PG_Basic_Rim", textureData);
-    // material = materialCreator->Create("PG_DiffUnlit", textureData);
+    material = materialCreator->Create("Tec_Basic", textureData);
+    // material = materialCreator->Create("Tec_Basic_Lit", textureData);
+    // material = materialCreator->Create("Tec_Basic_Rim", textureData);
+    // material = materialCreator->Create("Tec_DiffUnlit", textureData);
     
     // ================================================================
     // NODE
 
     Node* node;
-    // node = modelCreator->CreateStockModel("Box", material);
+    
+    node = modelCreator->CreateStockModel("Box", material);
     
     // node = modelCreator->CreateStockModel("Cylinder", material);
     
@@ -214,7 +216,7 @@ void App::CreateStockModel() {
     
     // node = modelCreator->CreateStockModel("Torus", material);
 
-    node = modelCreator->CreateStockModel("Sphere", material);
+    // node = modelCreator->CreateStockModel("Sphere", material);
 
     // node = modelCreator->CreateStockModel("TeaPot", material);
 
@@ -226,7 +228,8 @@ void App::CreateStockModel() {
     auto* body = node->CreateComponent<RigidBody>();
     body->SetMass(1);
     body->SetUseGravity(false);
-    body->SetAngularVelocity(Vector3::UP * 1.5);
+    body->SetAngularRestThreshold(0);
+    body->SetAngularVelocity(Vector3::UP * .5);
 
     // ================================================================
     // CAM
@@ -238,6 +241,21 @@ void App::CreateStockModel() {
     // camNode->Translate(Vector3::BACK * 2);
     
     camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();
+
+    // ================================================================
+    // SPRITE
+
+    auto* ui = GetSubsystem<UI>();
+    // auto* graphics = GetSubsystem<Graphics>();
+    
+    // auto width = (float)graphics->GetWidth();
+    // auto height = (float)graphics->GetHeight();
+    
+    SharedPtr<Sprite> sprite(new Sprite(context_));
+    sprite->SetTexture(diffuseTexture);
+    sprite->SetSize(IntVector2(w, h));
+    
+    ui->GetRoot()->AddChild(sprite);    
 }
 
 void App::CreateProceduralModel() {

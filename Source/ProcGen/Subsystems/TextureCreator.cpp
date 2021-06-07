@@ -43,7 +43,7 @@ Texture2D* TextureCreator::CreateImageTexture(Image* image) {
 Texture2D* TextureCreator::CreateEffectTexture(int w, int h, const String& shader, RenderSurfaceUpdateMode mode) {
     auto* cache = GetSubsystem<ResourceCache>();
 
-    Texture2D* renderTexture(new Texture2D(context_));
+    Texture2D* renderTexture = new Texture2D(context_);
     renderTexture->SetSize(w, h, Graphics::GetRGBFormat(), TEXTURE_RENDERTARGET);
     renderTexture->SetFilterMode(FILTER_BILINEAR);
 
