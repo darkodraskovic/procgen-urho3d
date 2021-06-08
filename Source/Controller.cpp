@@ -2,7 +2,9 @@
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Input/InputConstants.h>
 
+#include "ProcGen/Subsystems/SceneManager.h"
 #include "ProcGen/Components/CameraController.h"
+
 #include "Controller.h"
 
 using namespace ProcGen;
@@ -11,6 +13,10 @@ Controller::Controller(Context* context) : Object(context) {}
 
 void Controller::Start() {
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Controller, HandleUpdate));
+
+    auto* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    auto* camNode = scene->GetChild("Camera");
+    SetControls(&camNode->GetComponent<ProcGen::CameraController>()->controls_);
 }
 
 void Controller::HandleUpdate(StringHash eventType, VariantMap& eventData)
@@ -18,13 +24,12 @@ void Controller::HandleUpdate(StringHash eventType, VariantMap& eventData)
     using namespace Update;
 
     // Take the frame time step, which is stored as a float
-    float timeStep = eventData[P_TIMESTEP].GetFloat();
+    // float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     auto* input = GetSubsystem<Input>();
-    // Controls& controls = player_ && firstPerson_ ? player_->controls_ :
-    //     scene_->GetChild("Camera")->GetComponent<ProcGen::CameraController>()->controls_;
 
     using namespace ProcGen;
+    
     controls_->Set(CTRL_FORWARD, input->GetKeyDown(KEY_W));
     controls_->Set(CTRL_BACK, input->GetKeyDown(KEY_S));
     controls_->Set(CTRL_LEFT, input->GetKeyDown(KEY_A));

@@ -12,8 +12,6 @@ using namespace ProcGen;
 ModelCreator::ModelCreator(Context *context) : Object(context) {}
 
 void ModelCreator::Start() {
-    scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
-
     auto* cache = GetSubsystem<ResourceCache>();
     auto* tech = GetSubsystem<ResourceCache>()->GetResource<Technique>("Techniques/NoTexture.xml");
     defaultMaterial_ = new Material(context_);
@@ -21,7 +19,9 @@ void ModelCreator::Start() {
 }
 
 Node* ModelCreator::CreateStockModel(const String& modelName, Material* material){
-    Node* node = scene_->CreateChild(modelName);
+    Scene* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    
+    Node* node = scene->CreateChild(modelName);
     StaticModel* staticModel = node->CreateComponent<StaticModel>();
     auto* cache = GetSubsystem<ResourceCache>();
     staticModel->SetModel(cache->GetResource<Model>("Models/" + modelName + ".mdl"));

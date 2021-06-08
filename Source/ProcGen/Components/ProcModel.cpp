@@ -1,15 +1,11 @@
-#include <Urho3D/Container/Vector.h>
 #include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/VertexBuffer.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/IO/VectorBuffer.h>
 #include <Urho3D/Math/BoundingBox.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Math/Color.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Math/MathDefs.h>
 #include <Urho3D/Scene/Component.h>
 #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Scene/Scene.h>

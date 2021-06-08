@@ -20,7 +20,6 @@ namespace Toy {
         
         void CreateVoxels();
         void CreateCharacter();
-        void CreateSceneContent();
 
     private:
         WeakPtr<Voxels::Character> player_ = nullptr;

@@ -1,6 +1,4 @@
 #include <Urho3D/Engine/Application.h>
-#include <Urho3D/Input/Controls.h>
-#include <Urho3D/Scene/Scene.h>
 
 using namespace Urho3D;
 
@@ -21,6 +19,4 @@ private:
     void CreateConsoleAndDebugHud();
 
     void CreateProceduralModel();
-
-    SharedPtr<Scene> scene_;
 };

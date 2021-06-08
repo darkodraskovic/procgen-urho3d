@@ -17,7 +17,6 @@ namespace ProcGen {
         Node* CreateStockModel(const String& modelName, Material* material = nullptr);
 
     private:
-        Scene* scene_;
         SharedPtr<Material> defaultMaterial_;
     };
 }

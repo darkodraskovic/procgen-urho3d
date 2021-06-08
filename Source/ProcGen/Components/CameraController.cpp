@@ -1,8 +1,5 @@
 #include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Math/Vector3.h>
-#include <iostream>
 
-#include <Urho3D/Core/Context.h>
 #include <Urho3D/Input/InputConstants.h>
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Input/Input.h>

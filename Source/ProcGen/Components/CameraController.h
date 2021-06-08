@@ -1,8 +1,5 @@
 #pragma once
 
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Math/Quaternion.h>
 #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Input/Controls.h>
 
@@ -29,7 +26,6 @@ namespace ProcGen {
         void Update(float timeStep) override;
         void UpdateRotation();
         
-        /// Movement controls. Assigned by the main program each frame.
         Urho3D::Controls controls_;
         
     private:

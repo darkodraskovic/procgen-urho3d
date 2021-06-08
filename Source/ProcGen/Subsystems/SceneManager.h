@@ -13,13 +13,15 @@ namespace ProcGen {
 
     public:
         explicit SceneManager (Context* context);
+        void Start();
+
+        Scene* GetScene();
+        
+    private:
         void CreateScene();
         void CreateSkybox(const String& material);
         void SetupViewport();
-
-        Scene* GetScene();
-
-    private:
+        
         SharedPtr<DebugRenderer> debugRenderer_;
         SharedPtr<Scene> scene_;
     };

@@ -13,6 +13,6 @@ namespace Toy {
     public:
         explicit ShaderToy (Context* context);
 
-        void CreateSceneContent();
+        void Start();
     };
 }

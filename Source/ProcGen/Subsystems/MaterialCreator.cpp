@@ -1,9 +1,8 @@
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/Technique.h>
 #include <Urho3D/Graphics/Texture.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/Math/Color.h>
-#include <Urho3D/Math/Vector3.h>
+#include <Urho3D/Resource/ResourceCache.h>
+
 
 #include "MaterialCreator.h"
 
@@ -11,12 +10,8 @@ using namespace ProcGen;
 
 MaterialCreator::MaterialCreator(Context* context) : Object(context) {}
 
-void MaterialCreator::Start() {
-    cache_ = GetSubsystem<ResourceCache>();
-}
-
 Material* MaterialCreator::Create(const String& technique, const HashMap<TextureUnit, Texture*>& textureData) {
-    auto tech = cache_->GetResource<Technique>("CoreData/Techniques/" + technique +".xml");
+    auto tech = GetSubsystem<ResourceCache>()->GetResource<Technique>("CoreData/Techniques/" + technique +".xml");
     
     Material* material(new Material(context_));
     material->SetTechnique(0, tech);

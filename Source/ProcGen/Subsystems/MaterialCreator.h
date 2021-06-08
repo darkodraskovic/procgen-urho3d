@@ -2,10 +2,7 @@
 
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Technique.h>
-#include <Urho3D/Math/Color.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/TextureCube.h>
+// #include <Urho3D/Graphics/Texture.h>
 
 using namespace Urho3D;
 
@@ -16,12 +13,7 @@ namespace ProcGen {
 
     public:
         explicit MaterialCreator (Context* context);
-        void Start();
 
         Material* Create(const String& technique, const HashMap<TextureUnit, Texture*>& textureData = HashMap<TextureUnit, Texture*>{});
-
-    private:
-        ResourceCache* cache_;
     };
-
 }

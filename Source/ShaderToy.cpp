@@ -3,6 +3,7 @@
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/UI/Sprite.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/Graphics/TextureCube.h>
 
 #include "ProcGen/Components/CameraController.h"
 #include "ProcGen/Subsystems/ModelCreator.h"
@@ -16,7 +17,7 @@ using namespace Toy;
 
 ShaderToy::ShaderToy(Context* context) : Object(context) {}
 
-void ShaderToy::CreateSceneContent() {
+void ShaderToy::Start() {
     auto* cache = GetSubsystem<ResourceCache>();
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();

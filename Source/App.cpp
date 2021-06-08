@@ -15,6 +15,7 @@
 
 #include "App.h"
 
+#include "GeometryToy.h"
 #include "ProcGen/Subsystems/SceneManager.h"
 #include "ProcGen/Subsystems/ModelCreator.h"
 #include "ProcGen/Subsystems/TextureCreator.h"
@@ -51,11 +52,11 @@ App::App(Context* context) :
     context_->RegisterFactory<Voxels::Chunk>();
     Voxels::Character::RegisterObject(context);
 
-
     context_->RegisterSubsystem<ProcGen::Controller>();
     
     context_->RegisterSubsystem<Toy::ShaderToy>();
     context_->RegisterSubsystem<Toy::VoxelToy>();
+    context_->RegisterSubsystem<Toy::GeometryToy>();
 }
 
 void App::Setup() {
@@ -75,37 +76,33 @@ void App::Start() {
     CreateConsoleAndDebugHud();
     SubscribeToEvents();
 
-    ProcGen::SceneManager* sceneManager = GetSubsystem<ProcGen::SceneManager>();
-    sceneManager->CreateScene();
-    sceneManager->CreateSkybox("Materials/Space.xml");
-    sceneManager->SetupViewport();
-    scene_ = sceneManager->GetScene();
-
-    ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
-    modelCreator->Start();
-
+    // ================================================================
+    // CORE
+    
+    GetSubsystem<ProcGen::SceneManager>()->Start();
+    GetSubsystem<ProcGen::ModelCreator>()->Start();
     GetSubsystem<ProcGen::TextureCreator>()->Start();
-    GetSubsystem<ProcGen::MaterialCreator>()->Start();
 
+    // VOXELS
     GetSubsystem<Voxels::World>()->Start();
 
     // CONTROLLER
-    
     GetSubsystem<ProcGen::Controller>()->Start();
-    GetSubsystem<ProcGen::Controller>()->SetControls(&scene_->GetChild("Camera")->GetComponent<ProcGen::CameraController>()->controls_);
 
+    // ================================================================
+    // TOYS
+    
     // SHADER
-    
-    GetSubsystem<Toy::ShaderToy>()->CreateSceneContent();
+    // GetSubsystem<Toy::ShaderToy>()->Start();
 
-    // VOXEL
-    
+    // VOXELS
     // GetSubsystem<Toy::VoxelToy>()->Start();
-    // GetSubsystem<Toy::VoxelToy>()->CreateSceneContent();
 
     // PROC MODEL
-    
     // CreateProceduralModel();
+
+    // CUSTOM GEOM
+    GetSubsystem<Toy::GeometryToy>()->Start();
 }
 
 void App::CreateConsoleAndDebugHud() {
@@ -124,7 +121,8 @@ void App::CreateConsoleAndDebugHud() {
 }
 
 void App::CreateProceduralModel() {
-    Node* node = scene_->CreateChild("ProceduralObject");
+    
+    Node* node = GetSubsystem<ProcGen::SceneManager>()->GetScene()->CreateChild("ProceduralObject");
     ProcGen::ProcModel* procModel = node->CreateComponent<ProcGen::ProcModel>();
 
     Vector<Vector3> points = {
@@ -242,7 +240,7 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
         GetSubsystem<DebugHud>()->ToggleAll();
 
 
-    auto* node = scene_->GetChild("ProceduralObject");
+    auto* node = GetSubsystem<ProcGen::SceneManager>()->GetScene()->GetChild("ProceduralObject");
     if (node) {
         auto* procModel = node->GetComponent<ProcGen::ProcModel>();
         if (key == KEY_M) {

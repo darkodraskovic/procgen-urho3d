@@ -1,14 +1,11 @@
 #pragma once
 
-#include <Urho3D/Container/Vector.h>
 #include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Math/Vector2.h>
 #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/VertexBuffer.h>
 #include <Urho3D/Graphics/IndexBuffer.h>
-#include <Urho3D/Math/Vector3.h>
 
 using namespace Urho3D;
 

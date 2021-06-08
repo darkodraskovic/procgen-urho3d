@@ -28,9 +28,7 @@ VoxelToy::VoxelToy(Context *context) : Object(context) {}
 void VoxelToy::Start() {
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(VoxelToy, HandleKeyDown));
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(VoxelToy, HandlePostUpdate));
-}
 
-void VoxelToy::CreateSceneContent() {
     CreateVoxels();
     CreateCharacter();
 }

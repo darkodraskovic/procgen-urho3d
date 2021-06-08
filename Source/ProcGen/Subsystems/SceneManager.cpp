@@ -18,6 +18,12 @@ using namespace ProcGen;
 
 SceneManager::SceneManager(Context* context) : Object(context) {}
 
+void SceneManager::Start() {
+    CreateScene();
+    CreateSkybox("Materials/Space.xml");
+    SetupViewport();
+}
+
 void SceneManager::CreateScene() {
     auto* cache = GetSubsystem<ResourceCache>();
 
@@ -76,6 +82,4 @@ void SceneManager::SetupViewport() {
     debugRenderer_ =  scene_->CreateComponent<DebugRenderer>();
 }
 
-Scene* SceneManager::GetScene() {
-    return scene_;
-}
+Scene *SceneManager::GetScene() { return scene_; }

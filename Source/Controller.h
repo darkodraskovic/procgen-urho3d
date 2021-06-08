@@ -18,6 +18,8 @@ namespace ProcGen {
         void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
         void SetControls(Urho3D::Controls* controls);
+        
+        private:
         Urho3D::Controls* controls_;
     };
 
