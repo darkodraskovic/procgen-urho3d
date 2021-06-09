@@ -13,11 +13,9 @@ namespace Toy {
 
     public:
         explicit GeometryToy (Context* context);
-
         void Start();
-        CustomGeometry* CreateCustomGeometry(PrimitiveType type, bool hasNormals=true, bool hasColors=true, bool hasTexCoords=false, bool hasTangents=false);
-        void CreateTestGeometry();
+        void HandleUpdate(StringHash eventType, VariantMap& eventData);
         
+        Node* CreateVehicle();
     };
-
 }

@@ -16,6 +16,7 @@
 #include "App.h"
 
 #include "GeometryToy.h"
+#include "ProcGen/Subsystems/GeometryCreator.h"
 #include "ProcGen/Subsystems/SceneManager.h"
 #include "ProcGen/Subsystems/ModelCreator.h"
 #include "ProcGen/Subsystems/TextureCreator.h"
@@ -30,9 +31,12 @@
 #include "Voxels/Components/Chunk.h"
 #include "Voxels/Components/Character.h"
 
+#include "Simulation/Vehicle.h"
+
 #include "ShaderToy.h"
 #include "VoxelToy.h"
 #include "Controller.h"
+
 
 using namespace Urho3D;
 App::App(Context* context) :
@@ -41,6 +45,7 @@ App::App(Context* context) :
     context_->RegisterSubsystem<ProcGen::ModelCreator>();
     context_->RegisterSubsystem<ProcGen::TextureCreator>();
     context_->RegisterSubsystem<ProcGen::MaterialCreator>();
+    context_->RegisterSubsystem<ProcGen::GeometryCreator>();
 
     context_->RegisterFactory<ProcGen::CameraController>();
     context_->RegisterFactory<ProcGen::ProcModel>();
@@ -52,11 +57,14 @@ App::App(Context* context) :
     context_->RegisterFactory<Voxels::Chunk>();
     Voxels::Character::RegisterObject(context);
 
+    
     context_->RegisterSubsystem<ProcGen::Controller>();
     
     context_->RegisterSubsystem<Toy::ShaderToy>();
     context_->RegisterSubsystem<Toy::VoxelToy>();
     context_->RegisterSubsystem<Toy::GeometryToy>();
+    
+    context_->RegisterFactory<Simulation::Vehicle>();
 }
 
 void App::Setup() {
