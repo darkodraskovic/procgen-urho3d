@@ -18,20 +18,23 @@
 #include "GeometryToy.h"
 #include "Simulation/Vehicle.h"
 
+#include <libtcod/color.hpp>
+
 using namespace Toy;
 
 GeometryToy::GeometryToy(Context* context) : Object(context) {}
 
 void GeometryToy::Start() {
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(GeometryToy, HandleUpdate));
     // URHO3D_LOGINFO("Geom Toy START");
+    
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(GeometryToy, HandleUpdate));
 
     auto* cache = GetSubsystem<ResourceCache>();
     Scene* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
     scene->GetComponent<Skybox>(true)->SetEnabled(false);
 
     auto* camNode = scene->GetChild("Camera");
-    camNode->Translate(Vector3::BACK * 12);
+    camNode->Translate(Vector3::BACK * 32);
 
     // CreateTestGeometry();
     auto* vehicleNode = CreateVehicle();
@@ -40,6 +43,9 @@ void GeometryToy::Start() {
     auto* targetNode = modelCreator->CreateStockModel("Box");
     targetNode->SetName("Target");
     targetNode->SetScale(.5);
+
+    float dist = 2;
+    targetNode->SetPosition({dist,dist,0});
 
     vehicleNode->GetComponent<Simulation::Vehicle>()->target_ = targetNode;
 }
@@ -50,7 +56,7 @@ Node* GeometryToy::CreateVehicle() {
     CustomGeometry *customGeom = geomCreator->CreateCustomGeometry(PrimitiveType::TRIANGLE_LIST, 3);
 
     Vector3 normal{0,0,-1};
-    float y = 1.0 / Sqrt(3.0);
+    float y = 1.0 / Sqrt(3.0) * .75;
 
     customGeom->DefineVertex(Vector3(-.5, y, 0));
     customGeom->DefineNormal(normal);
@@ -72,22 +78,28 @@ Node* GeometryToy::CreateVehicle() {
     // body->SetAngularFactor({0,1,0});
     // body->SetLinearFactor({1,1,0});
     
-    
     auto* shape = node->CreateComponent<CollisionShape>();
     shape->SetCustomConvexHull(customGeom);
 
     // Vehicle
+    node->SetName("Vehicle");
     auto* vehicle = node->CreateComponent<Simulation::Vehicle>();
     return vehicle->GetNode();
 }
 
 void GeometryToy::HandleUpdate(StringHash eventType, VariantMap& eventData) {
-    auto* sceneManager = GetSubsystem<ProcGen::SceneManager>();
-    auto* targetNode = sceneManager->GetScene()->GetChild("Target");
+    // auto* sceneManager = GetSubsystem<ProcGen::SceneManager>();
+    // auto* targetNode = sceneManager->GetScene()->GetChild("Target");
 
-    Vector3 targetPos{
-        4 * Cos(M_RADTODEG * GetSubsystem<Time>()->GetElapsedTime()),
-        4 * Sin(M_RADTODEG * GetSubsystem<Time>()->GetElapsedTime()),
-        0};
-    targetNode->SetPosition(targetPos);
+    // Vector3 targetPos{
+    //     4 * Cos(M_RADTODEG * GetSubsystem<Time>()->GetElapsedTime()),
+    //     4 * Sin(M_RADTODEG * GetSubsystem<Time>()->GetElapsedTime()),
+    //     0};
+    // targetNode->SetPosition(targetPos);
+
+    Scene* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    auto* camNode = scene->GetChild("Camera");
+    auto* vehicleNode = scene->GetChild("Vehicle");
+    camNode->SetPosition(vehicleNode->GetPosition());
+    camNode->Translate(Vector3::BACK * 32);
 }

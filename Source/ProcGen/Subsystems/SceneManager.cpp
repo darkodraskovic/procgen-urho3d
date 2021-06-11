@@ -9,6 +9,7 @@
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Graphics/RenderPath.h>
+#include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Resource/XMLFile.h>
 
 #include "SceneManager.h"
@@ -31,6 +32,7 @@ void SceneManager::CreateScene() {
 
     scene_->CreateComponent<Octree>();
     scene_->CreateComponent<PhysicsWorld>();
+    debugRenderer_ = scene_->CreateComponent<DebugRenderer>();
 
     Node* zoneNode = scene_->CreateChild("Zone");
     auto* zone = zoneNode->CreateComponent<Zone>();
@@ -78,8 +80,6 @@ void SceneManager::SetupViewport() {
     // effectRenderPath->SetShaderParameter("BloomMix", Vector2(1.1f, .7f));
     // effectRenderPath->SetEnabled("Bloom", true);
     // viewport->SetRenderPath(effectRenderPath);
-
-    debugRenderer_ =  scene_->CreateComponent<DebugRenderer>();
 }
 
 Scene *SceneManager::GetScene() { return scene_; }

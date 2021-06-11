@@ -1,5 +1,5 @@
 #include <Urho3D/IO/Log.h>
-#include <libtcod/noise.h>
+#include <libtcod/noise.hpp>
 
 #include "Utils.h"
 

@@ -19,12 +19,19 @@ namespace Simulation {
         virtual void DelayedStart() override;
         
         void Steer(const Vector3& target);
+        void Wander();
         Node* target_ = nullptr;
         
     private:
-        float maxSpeed_ = 4.;
-        float maxForce_ = 4.;
+        bool arrived_ = false;
+        
+        float maxSpeed_ = 3.f;
+        float maxForce_ = 3.f;
         float angularIntertia_ = .05f;
+        float slowdownTreshlod_ = 1.f;
+
+        float wanderRadius_ = 2.f;
+        float wanderDistance_ = 4.f;
     };
 
 }
