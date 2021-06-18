@@ -3,9 +3,9 @@
 #include <Urho3D/Graphics/Technique.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Scene/Node.h>
 
 #include "ModelCreator.h"
-#include "SceneManager.h"
 
 using namespace ProcGen;
 
@@ -18,16 +18,20 @@ void ModelCreator::Start() {
     defaultMaterial_->SetTechnique(0, tech);
 }
 
-Node* ModelCreator::CreateStockModel(const String& modelName, Material* material){
-    Scene* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+Node* ModelCreator::CreateStockModel(const String& modelName, Material* material, const Vector3& position, const Quaternion& rotation){
     
-    Node* node = scene->CreateChild(modelName);
+    Node* node = new Node(context_);
+    node->SetName(modelName);
+    
     StaticModel* staticModel = node->CreateComponent<StaticModel>();
     auto* cache = GetSubsystem<ResourceCache>();
     staticModel->SetModel(cache->GetResource<Model>("Models/" + modelName + ".mdl"));
 
     if (!material) staticModel->SetMaterial(defaultMaterial_);
     else staticModel->SetMaterial(material);
+
+    node->SetPosition(position);
+    node->SetRotation(rotation);
 
     return node;
 }

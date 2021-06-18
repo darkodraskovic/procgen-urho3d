@@ -3,6 +3,7 @@
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Scene/Node.h>
 
 #include "SceneManager.h"
 #include "GeometryCreator.h"
@@ -14,8 +15,8 @@ GeometryCreator::GeometryCreator(Context* context) : Object(context) {}
 CustomGeometry* GeometryCreator::CreateCustomGeometry(PrimitiveType type, int numVertices, bool hasNormals, bool hasColors, bool hasTexCoords, bool hasTangents) {
     auto* cache = GetSubsystem<ResourceCache>();
 
-    Node *customGeomNode = GetSubsystem<ProcGen::SceneManager>()->GetScene()->CreateChild();
-    CustomGeometry* customGeom = customGeomNode->CreateComponent<CustomGeometry>();
+    Node* node = new Node(context_);
+    CustomGeometry* customGeom = node->CreateComponent<CustomGeometry>();
     customGeom->SetNumGeometries(1);
     customGeom->SetMaterial(cache->GetResource<Material>("Materials/VColUnlit.xml"));
     customGeom->DefineGeometry(0, type, numVertices, hasNormals, hasColors, hasTexCoords, hasTangents);

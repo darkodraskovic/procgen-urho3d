@@ -19,7 +19,7 @@
 
 #include "VoxelToy.h"
 #include "App.h"
-#include "Controller.h"
+#include "ProcGen/Subsystems/Controller.h"
 
 using namespace Toy;
 

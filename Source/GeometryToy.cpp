@@ -28,12 +28,12 @@ void GeometryToy::Start() {
     // URHO3D_LOGINFO("Geom Toy START");
     
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(GeometryToy, HandleUpdate));
+    scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
 
     auto* cache = GetSubsystem<ResourceCache>();
-    Scene* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
-    scene->GetComponent<Skybox>(true)->SetEnabled(false);
+    scene_->GetComponent<Skybox>(true)->SetEnabled(false);
 
-    auto* camNode = scene->GetChild("Camera");
+    auto* camNode = scene_->GetChild("Camera");
     camNode->Translate(Vector3::BACK * 32);
 
     // CreateTestGeometry();
@@ -41,6 +41,7 @@ void GeometryToy::Start() {
 
     auto* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     auto* targetNode = modelCreator->CreateStockModel("Box");
+    scene_->AddChild(targetNode);
     targetNode->SetName("Target");
     targetNode->SetScale(.5);
 
@@ -54,6 +55,7 @@ Node* GeometryToy::CreateVehicle() {
     // Geometry
     auto* geomCreator = GetSubsystem<ProcGen::GeometryCreator>();
     CustomGeometry *customGeom = geomCreator->CreateCustomGeometry(PrimitiveType::TRIANGLE_LIST, 3);
+    scene_->AddChild(customGeom->GetNode());
 
     Vector3 normal{0,0,-1};
     float y = 1.0 / Sqrt(3.0) * .75;
@@ -88,8 +90,7 @@ Node* GeometryToy::CreateVehicle() {
 }
 
 void GeometryToy::HandleUpdate(StringHash eventType, VariantMap& eventData) {
-    // auto* sceneManager = GetSubsystem<ProcGen::SceneManager>();
-    // auto* targetNode = sceneManager->GetScene()->GetChild("Target");
+    // auto* targetNode = scene_->GetChild("Target");
 
     // Vector3 targetPos{
     //     4 * Cos(M_RADTODEG * GetSubsystem<Time>()->GetElapsedTime()),
@@ -97,9 +98,8 @@ void GeometryToy::HandleUpdate(StringHash eventType, VariantMap& eventData) {
     //     0};
     // targetNode->SetPosition(targetPos);
 
-    Scene* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
-    auto* camNode = scene->GetChild("Camera");
-    auto* vehicleNode = scene->GetChild("Vehicle");
+    auto* camNode = scene_->GetChild("Camera");
+    auto* vehicleNode = scene_->GetChild("Vehicle");
     camNode->SetPosition(vehicleNode->GetPosition());
     camNode->Translate(Vector3::BACK * 32);
 }

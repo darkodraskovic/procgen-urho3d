@@ -15,15 +15,8 @@
 
 #include "App.h"
 
-#include "GeometryToy.h"
-#include "ProcGen/Subsystems/GeometryCreator.h"
-#include "ProcGen/Subsystems/SceneManager.h"
-#include "ProcGen/Subsystems/ModelCreator.h"
-#include "ProcGen/Subsystems/TextureCreator.h"
-#include "ProcGen/Subsystems/MaterialCreator.h"
-
-#include "ProcGen/Components/CameraController.h"
-#include "ProcGen/Components/ProcModel.h"
+#include "ProcGen/Register.h"
+#include "Simulation/Register.h"
 
 #include "Voxels/Subsystems/World.h"
 #include "Voxels/Subsystems/Utils.h"
@@ -31,34 +24,26 @@
 #include "Voxels/Components/Chunk.h"
 #include "Voxels/Components/Character.h"
 
-#include "Simulation/Vehicle.h"
-
 #include "ShaderToy.h"
 #include "VoxelToy.h"
-#include "Controller.h"
+#include "GeometryToy.h"
 
 
 using namespace Urho3D;
 App::App(Context* context) :
     Application(context) {
-    context_->RegisterSubsystem<ProcGen::SceneManager>();
-    context_->RegisterSubsystem<ProcGen::ModelCreator>();
-    context_->RegisterSubsystem<ProcGen::TextureCreator>();
-    context_->RegisterSubsystem<ProcGen::MaterialCreator>();
-    context_->RegisterSubsystem<ProcGen::GeometryCreator>();
+    // ProcGen
+    ProcGen::Register(context_);
+    Simulation::Register(context_);
 
-    context_->RegisterFactory<ProcGen::CameraController>();
-    context_->RegisterFactory<ProcGen::ProcModel>();
-
+    // Voxels
     context_->RegisterSubsystem<Voxels::Utils>();
     context_->RegisterSubsystem<Voxels::World>();
 
     context_->RegisterFactory<Voxels::Block>();
     context_->RegisterFactory<Voxels::Chunk>();
     Voxels::Character::RegisterObject(context);
-
     
-    context_->RegisterSubsystem<ProcGen::Controller>();
     
     context_->RegisterSubsystem<Toy::ShaderToy>();
     context_->RegisterSubsystem<Toy::VoxelToy>();
@@ -95,13 +80,18 @@ void App::Start() {
     GetSubsystem<Voxels::World>()->Start();
 
     // CONTROLLER
-    GetSubsystem<ProcGen::Controller>()->Start();
+    auto* controller = GetSubsystem<ProcGen::Controller>();
+    controller->Start();
 
+    auto* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    auto* camNode = scene->GetChild("Camera");
+    controller->SetControls(&camNode->GetComponent<ProcGen::CameraController>()->controls_);
+    
     // ================================================================
     // TOYS
     
     // SHADER
-    // GetSubsystem<Toy::ShaderToy>()->Start();
+    GetSubsystem<Toy::ShaderToy>()->Start();
 
     // VOXELS
     // GetSubsystem<Toy::VoxelToy>()->Start();
@@ -110,7 +100,7 @@ void App::Start() {
     // CreateProceduralModel();
 
     // CUSTOM GEOM
-    GetSubsystem<Toy::GeometryToy>()->Start();
+    // GetSubsystem<Toy::GeometryToy>()->Start();
 }
 
 void App::CreateConsoleAndDebugHud() {

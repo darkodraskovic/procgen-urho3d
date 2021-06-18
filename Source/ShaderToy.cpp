@@ -22,51 +22,58 @@ void ShaderToy::Start() {
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
     ProcGen::MaterialCreator* materialCreator =  GetSubsystem<ProcGen::MaterialCreator>();
-    auto* sceneManager = GetSubsystem<ProcGen::SceneManager>();
+    scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
 
     int w = 320, h = 320;
 
     // ================================================================
-
     // IMAGE
-    auto* mmDiffuseImg = cache->GetResource<Image>("Textures/MM_Diffuse.png");
-    auto* mmNormalImg = cache->GetResource<Image>("Textures/MM_Normal.png");
 
-    Image* procImg(new Image(context_));
-    procImg->SetSize(w, h, 3);
-    for (int y = 0; y < h; ++y) {
-        bool ymod = y % (w/10) < (w/20);
-        for (int x = 0; x < w; ++x) {
-            if (ymod) procImg->SetPixel(x, y, Color::RED);
-            else procImg->SetPixel(x, y, Color::GREEN);
-        }
-    }
+    // DIFFUSE
+    Image* diffuseImage;
+    
+    diffuseImage = cache->GetResource<Image>("Textures/MM_Diffuse.png");
 
+    // diffImage = new Image(context_);
+    // diffImage->SetSize(w, h, 3);
+    // for (int y = 0; y < h; ++y) {
+    //     bool ymod = y % (w/10) < (w/20);
+    //     for (int x = 0; x < w; ++x) {
+    //         if (ymod) diffImage->SetPixel(x, y, Color::RED);
+    //         else diffImage->SetPixel(x, y, Color::GREEN);
+    //     }
+    // }
+
+    // NORMAL
+    Image* normalImage;
+    
+    normalImage = cache->GetResource<Image>("Textures/MM_Normal.png");
+    
     // ================================================================
     // TEXTURE
     
     Texture2D* diffuseTexture;
 
     // DIFFUSE > IMAGE
-    // diffuseTexture = textureCreator->CreateImageTexture(procImg);
-    // diffuseTexture = textureCreator->CreateImageTexture(mmDiffuseImg);
+    // diffuseTexture = textureCreator->CreateImageTexture(diffuseImage);
 
     // DIFFUSE > EFFECT (Post-process)
-    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Shapes");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Shapes");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_ScottishTartan");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Patterns_TicTacToe");
-    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Bricks");
+    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Bricks");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Truchet");
     
-    // diffuseTexture->SetFilterMode(Urho3D::FILTER_NEAREST);
-    diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
+    diffuseTexture->SetFilterMode(Urho3D::FILTER_NEAREST);
+    // diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
     
     // NORMAL
     Texture2D* normalTexture;
-    normalTexture = textureCreator->CreateImageTexture(mmNormalImg);
+    normalTexture = textureCreator->CreateImageTexture(normalImage);
 
     // SKYBOX
-    auto* skyboxTexture = cache->GetResource<TextureCube>("Textures/Space.xml");
+    TextureCube* skyboxTexture;
+    skyboxTexture = cache->GetResource<TextureCube>("Textures/Space.xml");
 
     // ================================================================
     // MATERIAL
@@ -98,9 +105,10 @@ void ShaderToy::Start() {
 
     // node = modelCreator->CreateStockModel("TeaPot", material);
 
-    // node = modelCreator->CreateStockModel("Plane", material);
-    // node->Rotate(Quaternion(-90, 0, 0));
+    // node = modelCreator->CreateStockModel("Plane", material, Vector3::ZERO, Quaternion(90, 0, 0));
 
+    scene_->AddChild(node);
+    
     // ================================================================
     // BODY
     auto* body = node->CreateComponent<RigidBody>();
@@ -111,23 +119,16 @@ void ShaderToy::Start() {
 
     // ================================================================
     // CAM
-    auto* camNode = sceneManager->GetScene()->GetChild("Camera");
+    auto* camNode = scene_->GetChild("Camera");
     
     camNode->Rotate(Quaternion(30, 180, 0));
     camNode->Translate(Vector3::BACK * 3);
-    
-    // camNode->Translate(Vector3::BACK * 2);
-    
     camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();
 
     // ================================================================
-    // SPRITE
+    // Texture SPRITE
 
     auto* ui = GetSubsystem<UI>();
-    // auto* graphics = GetSubsystem<Graphics>();
-    
-    // auto width = (float)graphics->GetWidth();
-    // auto height = (float)graphics->GetHeight();
     
     SharedPtr<Sprite> sprite(new Sprite(context_));
     sprite->SetTexture(diffuseTexture);

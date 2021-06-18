@@ -2,9 +2,7 @@
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Input/InputConstants.h>
 
-#include "ProcGen/Subsystems/SceneManager.h"
-#include "ProcGen/Components/CameraController.h"
-
+#include "../Components/CameraController.h"
 #include "Controller.h"
 
 using namespace ProcGen;
@@ -13,17 +11,12 @@ Controller::Controller(Context* context) : Object(context) {}
 
 void Controller::Start() {
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Controller, HandleUpdate));
-
-    auto* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
-    auto* camNode = scene->GetChild("Camera");
-    SetControls(&camNode->GetComponent<ProcGen::CameraController>()->controls_);
 }
 
 void Controller::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
 
-    // Take the frame time step, which is stored as a float
     // float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     auto* input = GetSubsystem<Input>();
