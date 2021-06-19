@@ -15,8 +15,13 @@
 
 #include "App.h"
 
-#include "ProcGen/Register.h"
-#include "Simulation/Register.h"
+#include "ProcGen/Engine.h"
+#include "ProcGen/Subsystems/Controller.h"
+#include "ProcGen/Subsystems/SceneManager.h"
+#include "ProcGen/Components/CameraController.h"
+#include "ProcGen/Components/ProcModel.h"
+
+#include "Simulation/Engine.h"
 
 #include "Voxels/Subsystems/World.h"
 #include "Voxels/Subsystems/Utils.h"
@@ -28,13 +33,17 @@
 #include "VoxelToy.h"
 #include "GeometryToy.h"
 
-
 using namespace Urho3D;
 App::App(Context* context) :
     Application(context) {
+    
     // ProcGen
-    ProcGen::Register(context_);
-    Simulation::Register(context_);
+    context_->RegisterSubsystem<ProcGen::Engine>();
+    GetSubsystem<ProcGen::Engine>()->Register();
+
+    // SImulation
+    context_->RegisterSubsystem<Simulation::Engine>();
+    GetSubsystem<Simulation::Engine>()->Register();
 
     // Voxels
     context_->RegisterSubsystem<Voxels::Utils>();
@@ -44,12 +53,9 @@ App::App(Context* context) :
     context_->RegisterFactory<Voxels::Chunk>();
     Voxels::Character::RegisterObject(context);
     
-    
     context_->RegisterSubsystem<Toy::ShaderToy>();
     context_->RegisterSubsystem<Toy::VoxelToy>();
     context_->RegisterSubsystem<Toy::GeometryToy>();
-    
-    context_->RegisterFactory<Simulation::Vehicle>();
 }
 
 void App::Setup() {
@@ -71,18 +77,16 @@ void App::Start() {
 
     // ================================================================
     // CORE
+    GetSubsystem<ProcGen::Engine>()->Start();
+    GetSubsystem<Simulation::Engine>()->Start();
     
     GetSubsystem<ProcGen::SceneManager>()->Start();
-    GetSubsystem<ProcGen::ModelCreator>()->Start();
-    GetSubsystem<ProcGen::TextureCreator>()->Start();
 
     // VOXELS
     GetSubsystem<Voxels::World>()->Start();
 
     // CONTROLLER
     auto* controller = GetSubsystem<ProcGen::Controller>();
-    controller->Start();
-
     auto* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
     auto* camNode = scene->GetChild("Camera");
     controller->SetControls(&camNode->GetComponent<ProcGen::CameraController>()->controls_);

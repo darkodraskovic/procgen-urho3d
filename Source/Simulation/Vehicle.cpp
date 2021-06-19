@@ -10,7 +10,6 @@
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 
-#include "../ProcGen/Subsystems/SceneManager.h"
 #include "Vehicle.h"
 
 using namespace Simulation;
@@ -21,8 +20,10 @@ Vehicle::Vehicle(Context* context) : LogicComponent(context) {
 
 void Vehicle::Start() {
     // Add default target node
+    
     target_ = new Node(context_);
     target_->SetPosition(node_->GetPosition());
+    
     // SetRandomSeed(0);
 }
 
@@ -42,10 +43,6 @@ void Vehicle::Update(float timeStep) {
         Steer(target_->GetPosition());
     }
     if (arrived_) Wander();
-
-    // Scene* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
-    // auto* debug = scene->GetComponent<DebugRenderer>();
-    // debug->AddCircle(target_->GetPosition(), Vector3::FORWARD, wanderRadius_, Color::RED);
 }
 
 void Vehicle::Steer(const Vector3& target) {
