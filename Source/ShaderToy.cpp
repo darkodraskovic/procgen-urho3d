@@ -1,3 +1,4 @@
+#include <Urho3D/Graphics/GraphicsDefs.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Resource/Image.h>
 #include <Urho3D/Physics/RigidBody.h>
@@ -64,8 +65,7 @@ void ShaderToy::Start() {
     diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Bricks");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Truchet");
     
-    diffuseTexture->SetFilterMode(Urho3D::FILTER_NEAREST);
-    // diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
+    diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
     
     // NORMAL
     Texture2D* normalTexture;
