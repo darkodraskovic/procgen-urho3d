@@ -25,7 +25,7 @@ void ShaderToy::Start() {
     ProcGen::MaterialCreator* materialCreator =  GetSubsystem<ProcGen::MaterialCreator>();
     scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
 
-    int w = 320, h = 320;
+    int w = 320*2, h = 320*2;
 
     // ================================================================
     // IMAGE
@@ -62,8 +62,8 @@ void ShaderToy::Start() {
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Shapes");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_ScottishTartan");
     // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Patterns_TicTacToe");
-    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Bricks");
-    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Truchet");
+    // diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Bricks");
+    diffuseTexture = textureCreator->CreateEffectTexture(w, h, "PPE_Truchet");
     
     diffuseTexture->SetFilterMode(Urho3D::FILTER_BILINEAR);
     
@@ -120,7 +120,8 @@ void ShaderToy::Start() {
     // ================================================================
     // CAM
     auto* camNode = scene_->GetChild("Camera");
-    
+
+    camNode->Translate(Vector3::RIGHT);
     camNode->Rotate(Quaternion(30, 180, 0));
     camNode->Translate(Vector3::BACK * 3);
     camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();
