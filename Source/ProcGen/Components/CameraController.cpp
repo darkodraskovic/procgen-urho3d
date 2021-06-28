@@ -38,11 +38,11 @@ void CameraController::Update(float timeStep) {
     if (controls_.IsDown(CTRL_UP))
         node_->Translate(Vector3::UP * MOVE_SPEED * timeStep);
 
-    controls_.pitch_ = Clamp(controls_.pitch_, -80.0f, 80.0f);
+    controls_.pitch_ = Clamp(controls_.pitch_, -90.0f, 90.0f);
     node_->SetRotation(Quaternion(controls_.pitch_, controls_.yaw_, 0.0f));
 }
 
-void CameraController::UpdateRotation() {
+void CameraController::Sync() {
     controls_.yaw_ = node_->GetRotation().YawAngle();
     controls_.pitch_ = node_->GetRotation().PitchAngle();
 }

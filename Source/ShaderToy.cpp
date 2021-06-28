@@ -124,7 +124,7 @@ void ShaderToy::Start() {
     camNode->Translate(Vector3::RIGHT);
     camNode->Rotate(Quaternion(30, 180, 0));
     camNode->Translate(Vector3::BACK * 3);
-    camNode->GetComponent<ProcGen::CameraController>()->UpdateRotation();
+    camNode->GetComponent<ProcGen::CameraController>()->Sync();
 
     // ================================================================
     // Texture SPRITE

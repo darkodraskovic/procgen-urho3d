@@ -29,6 +29,8 @@
 #include "Voxels/Components/Chunk.h"
 #include "Voxels/Components/Character.h"
 
+#include "Maze/Engine.h"
+
 #include "ShaderToy.h"
 #include "VoxelToy.h"
 #include "GeometryToy.h"
@@ -41,10 +43,14 @@ App::App(Context* context) :
     context_->RegisterSubsystem<ProcGen::Engine>();
     GetSubsystem<ProcGen::Engine>()->Register();
 
-    // SImulation
+    // Simulation
     context_->RegisterSubsystem<Simulation::Engine>();
     GetSubsystem<Simulation::Engine>()->Register();
 
+    // Simulation
+    context_->RegisterSubsystem<Maze::Engine>();
+    GetSubsystem<Maze::Engine>()->Register();
+    
     // Voxels
     context_->RegisterSubsystem<Voxels::Utils>();
     context_->RegisterSubsystem<Voxels::World>();
@@ -79,6 +85,7 @@ void App::Start() {
     // CORE
     GetSubsystem<ProcGen::Engine>()->Start();
     GetSubsystem<Simulation::Engine>()->Start();
+    GetSubsystem<Maze::Engine>()->Start();
     
     GetSubsystem<ProcGen::SceneManager>()->Start();
 
@@ -95,7 +102,7 @@ void App::Start() {
     // TOYS
     
     // SHADER
-    GetSubsystem<Toy::ShaderToy>()->Start();
+    // GetSubsystem<Toy::ShaderToy>()->Start();
 
     // VOXELS
     // GetSubsystem<Toy::VoxelToy>()->Start();
@@ -104,7 +111,7 @@ void App::Start() {
     // CreateProceduralModel();
 
     // CUSTOM GEOM
-    // GetSubsystem<Toy::GeometryToy>()->Start();
+    GetSubsystem<Toy::GeometryToy>()->Start();
 }
 
 void App::CreateConsoleAndDebugHud() {

@@ -24,7 +24,7 @@ namespace ProcGen {
     public:
         explicit CameraController(Context* context);
         void Update(float timeStep) override;
-        void UpdateRotation();
+        void Sync();
         
         Urho3D::Controls controls_;
         

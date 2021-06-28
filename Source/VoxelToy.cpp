@@ -84,7 +84,7 @@ void VoxelToy::CreateVoxels() {
     cam->SetPosition(Vector3::UP * size.y_ + Vector3::RIGHT * size.x_);
     cam->LookAt(size / 2);
     cam->Translate(Vector3::BACK * size.y_);
-    cam->GetComponent<ProcGen::CameraController>()->UpdateRotation();
+    cam->GetComponent<ProcGen::CameraController>()->Sync();
 }
 
 void VoxelToy::CreateCharacter() {
@@ -126,7 +126,7 @@ void VoxelToy::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
         Urho3D::Controls* ctrl = firstPerson_ ? &player_->controls_ : &camController->controls_;
         GetSubsystem<ProcGen::Controller>()->SetControls(ctrl);
         if (!firstPerson_) {
-            camController->UpdateRotation();
+            camController->Sync();
         } 
     }
 }
