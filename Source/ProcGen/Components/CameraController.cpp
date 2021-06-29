@@ -19,24 +19,20 @@ void CameraController::Update(float timeStep) {
 
     auto* input = GetSubsystem<Urho3D::Input>();
 
-    // Movement speed as world units per second    
-    const float MOVE_SPEED = 8.0f;
-    // const float MOVE_SPEED = 32.0f;
-
     using namespace Urho3D;
     
     if (controls_.IsDown(CTRL_FORWARD))
-        node_->Translate(Vector3::FORWARD * MOVE_SPEED * timeStep);
+        node_->Translate(Vector3::FORWARD * moveSpeed_ * timeStep);
     if (controls_.IsDown(CTRL_BACK))
-        node_->Translate(Vector3::BACK * MOVE_SPEED * timeStep);
+        node_->Translate(Vector3::BACK * moveSpeed_ * timeStep);
     if (controls_.IsDown(CTRL_LEFT))
-        node_->Translate(Vector3::LEFT * MOVE_SPEED * timeStep);
+        node_->Translate(Vector3::LEFT * moveSpeed_ * timeStep);
     if (controls_.IsDown(CTRL_RIGHT))
-        node_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);
+        node_->Translate(Vector3::RIGHT * moveSpeed_ * timeStep);
     if (controls_.IsDown(CTRL_DOWN))
-        node_->Translate(Vector3::DOWN * MOVE_SPEED * timeStep);
+        node_->Translate(Vector3::DOWN * moveSpeed_ * timeStep);
     if (controls_.IsDown(CTRL_UP))
-        node_->Translate(Vector3::UP * MOVE_SPEED * timeStep);
+        node_->Translate(Vector3::UP * moveSpeed_ * timeStep);
 
     controls_.pitch_ = Clamp(controls_.pitch_, -90.0f, 90.0f);
     node_->SetRotation(Quaternion(controls_.pitch_, controls_.yaw_, 0.0f));

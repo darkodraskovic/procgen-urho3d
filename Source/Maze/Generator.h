@@ -25,6 +25,9 @@ namespace Maze {
         void InitializeMap(unsigned int width, unsigned int height);
         virtual void Generate();
         void Draw();
+        int CountSquareNeighbors(int x, int z);
+        int CountDiagonalNeighbors(int x, int z);
+        int CountAllNeighbors(int x, int z);
 
     protected:
         WeakPtr<Node> node_;

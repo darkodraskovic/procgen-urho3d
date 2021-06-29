@@ -15,16 +15,40 @@ void Crawler::Start() {
 }
 
 void Crawler::Generate() {
+    for (int i = 0; i < 3; ++i) {
+        CrawlH();
+    }
+    for (int i = 0; i < 3; ++i) {
+        CrawlV();        
+    }
+}
+
+void Crawler::CrawlH(){
     bool done = false;
-    int x = width_ / 2;
-    int z = height_ / 2;
+    int x = 1;
+    int z = Random(1, (int)height_-1);
 
     while (!done) {
         map_[x][z] = CELL_EMPTY;
 
-        if (Rand() % 2) x += Random(-1, 2);
+        if (Rand() % 3) x += Random(0, 2);
         else z += Random(-1, 2);
-        
-        done |= (x == 0 || x >= width_ || z == 0 || z >= height_);
+
+        done |= (x >= width_-1 || z == 1 || z >= height_-1);
     }
-}
+};
+
+void Crawler::CrawlV(){
+    bool done = false;
+    int x = Random(1, (int)width_-1);
+    int z = 1;
+
+    while (!done) {
+        map_[x][z] = CELL_EMPTY;
+
+        if (Rand() % 3) z += Random(0, 2);
+        else x += Random(-1, 2);
+
+        done |= (x == 1 || x >= width_-1 || z >= height_-1);
+    }
+};

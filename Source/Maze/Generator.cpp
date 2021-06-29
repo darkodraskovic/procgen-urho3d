@@ -49,3 +49,33 @@ void Generator::Draw() {
         }
     }
 }
+
+int Generator::CountSquareNeighbors(int x, int z) {
+    int count = 0;
+
+    if (x <= 0 || x >= width_ - 1 || z <= 0 || z >= height_ - 1) return 5;
+    
+    if (map_[x-1][z] == 0) count++;
+    if (map_[x+1][z] == 0) count++;
+    if (map_[x][z-1] == 0) count++;
+    if (map_[x][z+1] == 0) count++;
+    
+    return count;
+}
+
+int Generator::CountDiagonalNeighbors(int x, int z) {
+    int count = 0;
+
+    if (x <= 0 || x >= width_ - 1 || z <= 0 || z >= height_ - 1) return 5;
+    
+    if (map_[x-1][z-1] == 0) count++;
+    if (map_[x+1][z-1] == 0) count++;
+    if (map_[x-1][z+1] == 0) count++;
+    if (map_[x+1][z+1] == 0) count++;
+    
+    return count;
+}
+
+int Generator::CountAllNeighbors(int x, int z) {
+    return CountSquareNeighbors(x, z) + CountDiagonalNeighbors(x, z);
+}

@@ -27,6 +27,7 @@ namespace ProcGen {
         void Sync();
         
         Urho3D::Controls controls_;
+        float moveSpeed_ = 12.0;
         
     private:
         /// Camera yaw angle.
