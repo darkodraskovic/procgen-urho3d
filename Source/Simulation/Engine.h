@@ -9,7 +9,6 @@ namespace Simulation {
 
     class Engine : public Object {
         URHO3D_OBJECT(Engine, Object);
-        void Register();
         void Start();
 
     public:

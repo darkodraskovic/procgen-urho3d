@@ -3,9 +3,16 @@
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Core/Context.h>
 
+#include "Subsystems/Utils.h"
+#include "Subsystems/World.h"
+#include "Components/Block.h"
+#include "Components/Chunk.h"
+
+#include "Components/Character.h"
+
 using namespace Urho3D;
 
-namespace Maze {
+namespace Voxels {
 
     class Engine : public Object {
         URHO3D_OBJECT(Engine, Object);
@@ -14,4 +21,5 @@ namespace Maze {
     public:
         explicit Engine (Context* context);
     };
+
 }

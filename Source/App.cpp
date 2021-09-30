@@ -16,20 +16,10 @@
 #include "App.h"
 
 #include "ProcGen/Engine.h"
-#include "ProcGen/Subsystems/Controller.h"
-#include "ProcGen/Subsystems/SceneManager.h"
-#include "ProcGen/Components/CameraController.h"
-#include "ProcGen/Components/ProcModel.h"
 
 #include "Simulation/Engine.h"
-
-#include "Voxels/Subsystems/World.h"
-#include "Voxels/Subsystems/Utils.h"
-#include "Voxels/Components/Block.h"
-#include "Voxels/Components/Chunk.h"
-#include "Voxels/Components/Character.h"
-
 #include "Maze/Engine.h"
+#include "Voxels/Engine.h"
 
 #include "ShaderToy.h"
 #include "VoxelToy.h"
@@ -38,27 +28,12 @@
 using namespace Urho3D;
 App::App(Context* context) :
     Application(context) {
-    
-    // ProcGen
+
     context_->RegisterSubsystem<ProcGen::Engine>();
-    GetSubsystem<ProcGen::Engine>()->Register();
-
-    // Simulation
     context_->RegisterSubsystem<Simulation::Engine>();
-    GetSubsystem<Simulation::Engine>()->Register();
-
-    // Simulation
     context_->RegisterSubsystem<Maze::Engine>();
-    GetSubsystem<Maze::Engine>()->Register();
-    
-    // Voxels
-    context_->RegisterSubsystem<Voxels::Utils>();
-    context_->RegisterSubsystem<Voxels::World>();
+    context_->RegisterSubsystem<Voxels::Engine>();
 
-    context_->RegisterFactory<Voxels::Block>();
-    context_->RegisterFactory<Voxels::Chunk>();
-    Voxels::Character::RegisterObject(context);
-    
     context_->RegisterSubsystem<Toy::ShaderToy>();
     context_->RegisterSubsystem<Toy::VoxelToy>();
     context_->RegisterSubsystem<Toy::GeometryToy>();
@@ -70,7 +45,7 @@ void App::Setup() {
     engineParameters_[EP_WINDOW_POSITION_Y]  = 0;
     engineParameters_[EP_WINDOW_WIDTH]  = 1366;
     engineParameters_[EP_WINDOW_HEIGHT]  = 768;
-    engineParameters_[EP_MULTI_SAMPLE] = 4;    
+    engineParameters_[EP_MULTI_SAMPLE] = 4;
 }
 
 void threadHello(const WorkItem *workItem, unsigned threadIndex) {
@@ -86,21 +61,17 @@ void App::Start() {
     GetSubsystem<ProcGen::Engine>()->Start();
     GetSubsystem<Simulation::Engine>()->Start();
     GetSubsystem<Maze::Engine>()->Start();
-    
-    GetSubsystem<ProcGen::SceneManager>()->Start();
-
-    // VOXELS
-    GetSubsystem<Voxels::World>()->Start();
+    GetSubsystem<Voxels::Engine>()->Start();
 
     // CONTROLLER
     auto* controller = GetSubsystem<ProcGen::Controller>();
     auto* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
     auto* camNode = scene->GetChild("Camera");
     controller->SetControls(&camNode->GetComponent<ProcGen::CameraController>()->controls_);
-    
+
     // ================================================================
     // TOYS
-    
+
     // SHADER
     // GetSubsystem<Toy::ShaderToy>()->Start();
 
@@ -130,7 +101,7 @@ void App::CreateConsoleAndDebugHud() {
 }
 
 void App::CreateProceduralModel() {
-    
+
     Node* node = GetSubsystem<ProcGen::SceneManager>()->GetScene()->CreateChild("ProceduralObject");
     ProcGen::ProcModel* procModel = node->CreateComponent<ProcGen::ProcModel>();
 

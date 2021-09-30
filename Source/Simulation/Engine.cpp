@@ -5,11 +5,10 @@
 
 using namespace Simulation;
 
-Engine::Engine(Context* context) : Object(context) {}
-
-void Engine::Register() {
-    context_->RegisterFactory<Simulation::Vehicle>();
+Engine::Engine(Context* context) : Object(context) {
+    context_->RegisterFactory<Simulation::Vehicle>();    
 }
+
 void Engine::Start() {
     URHO3D_LOGINFO("Simulation Start()");
     // context_->RegisterFactory<Simulation::Vehicle>();
