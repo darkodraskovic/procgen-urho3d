@@ -76,13 +76,13 @@ void App::Start() {
     // GetSubsystem<Toy::ShaderToy>()->Start();
 
     // VOXELS
-    // GetSubsystem<Toy::VoxelToy>()->Start();
+    GetSubsystem<Toy::VoxelToy>()->Start();
 
     // PROC MODEL
     // CreateProceduralModel();
 
     // CUSTOM GEOM
-    GetSubsystem<Toy::GeometryToy>()->Start();
+    // GetSubsystem<Toy::GeometryToy>()->Start();
 }
 
 void App::CreateConsoleAndDebugHud() {

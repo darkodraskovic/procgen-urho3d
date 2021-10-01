@@ -34,11 +34,10 @@ void ProcModel::CalculateNormals() {
 void ProcModel::GenerateData() {
     if (!normals_.Size()) CalculateNormals();
 
-    // PODVector<VertexElement> vertexElements{{TYPE_VECTOR3, SEM_POSITION}};
-    vertexElements.Push({TYPE_VECTOR3, SEM_POSITION});
-    if (normals_.Size()) vertexElements.Push({TYPE_VECTOR3, SEM_NORMAL});
-    if (colors_.Size()) vertexElements.Push({TYPE_VECTOR4, SEM_COLOR});
-    if (uvs_.Size()) vertexElements.Push({TYPE_VECTOR2, SEM_TEXCOORD});
+    vertexElements_.Push({TYPE_VECTOR3, SEM_POSITION});
+    if (normals_.Size()) vertexElements_.Push({TYPE_VECTOR3, SEM_NORMAL});
+    if (colors_.Size()) vertexElements_.Push({TYPE_VECTOR4, SEM_COLOR});
+    if (uvs_.Size()) vertexElements_.Push({TYPE_VECTOR2, SEM_TEXCOORD});
 
     vectorBuffer_.Clear();
     for (int i = 0; i < positions_.Size(); i++) {
@@ -53,7 +52,7 @@ void ProcModel::Commit() {
     // buffers
     SharedPtr<VertexBuffer>vertexBuffer(new VertexBuffer(context_));
     vertexBuffer->SetShadowed(true);
-    vertexBuffer->SetSize(positions_.Size(), vertexElements);
+    vertexBuffer->SetSize(positions_.Size(), vertexElements_);
     vertexBuffer->SetData((void*)vectorBuffer_.GetData());
     
     SharedPtr<IndexBuffer>indexBuffer(new IndexBuffer(context_));
@@ -81,6 +80,7 @@ void ProcModel::Commit() {
     morphRangeCounts.Push(0);
     model->SetVertexBuffers({vertexBuffer}, morphRangeStarts, morphRangeCounts);
     model->SetIndexBuffers({indexBuffer});
+    // Construct from an array of vertices.
     model->SetBoundingBox(BoundingBox(&positions_.Front(), positions_.Size()));
 
     auto* staticModel = node_->GetComponent<StaticModel>();

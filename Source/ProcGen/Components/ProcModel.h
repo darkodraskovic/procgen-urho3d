@@ -39,10 +39,9 @@ namespace ProcGen {
         
     private:
         bool drawNormals_ = false;
-        SharedPtr<VertexBuffer> vertexBuffer_;
-        SharedPtr<IndexBuffer> indexBuffer_;
+        
         VectorBuffer vectorBuffer_;
-        PODVector<VertexElement> vertexElements;
+        PODVector<VertexElement> vertexElements_;
     };
 
 }  // ProcGen
