@@ -8,8 +8,6 @@
 #include "Components/Block.h"
 #include "Components/Chunk.h"
 
-#include "Components/Character.h"
-
 using namespace Urho3D;
 
 namespace Voxels {

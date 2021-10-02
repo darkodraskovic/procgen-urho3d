@@ -5,7 +5,6 @@
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Node.h>
 
-#include "SceneManager.h"
 #include "GeometryCreator.h"
 
 using namespace ProcGen;

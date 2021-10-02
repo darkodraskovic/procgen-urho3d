@@ -2,26 +2,19 @@
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Input/InputConstants.h>
 
-#include "../Components/CameraController.h"
-#include "Controller.h"
+#include "ControllerManager.h"
 
-using namespace ProcGen;
+using namespace FPS;
 
-Controller::Controller(Context* context) : Object(context) {}
+ControllerManager::ControllerManager(Context* context) : Object(context) {}
 
-void Controller::Start() {
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Controller, HandleUpdate));
+void ControllerManager::Start() {
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(ControllerManager, HandleUpdate));
 }
 
-void Controller::HandleUpdate(StringHash eventType, VariantMap& eventData)
+void ControllerManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
-    using namespace Update;
-
-    // float timeStep = eventData[P_TIMESTEP].GetFloat();
-
     auto* input = GetSubsystem<Input>();
-
-    using namespace ProcGen;
     
     controls_->Set(CTRL_FORWARD, input->GetKeyDown(KEY_W));
     controls_->Set(CTRL_BACK, input->GetKeyDown(KEY_S));
@@ -38,6 +31,6 @@ void Controller::HandleUpdate(StringHash eventType, VariantMap& eventData)
     controls_->pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
 }
 
-void Controller::SetControls(Urho3D::Controls* controls) {
+void ControllerManager::SetControls(Urho3D::Controls* controls) {
     controls_ = controls;
 }

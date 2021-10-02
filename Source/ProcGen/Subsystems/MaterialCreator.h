@@ -2,7 +2,6 @@
 
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Graphics/Material.h>
-// #include <Urho3D/Graphics/Texture.h>
 
 using namespace Urho3D;
 

@@ -10,14 +10,14 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/Graphics/Technique.h>
 
-#include "../ProcGen/Components/CameraController.h"
-#include "../ProcGen/Subsystems/SceneManager.h"
 #include "../ProcGen/Subsystems/TextureCreator.h"
 
 #include "../Voxels/Subsystems/Utils.h"
 #include "../Voxels/Subsystems/World.h"
 
-#include "../ProcGen/Subsystems/Controller.h"
+#include "../FPS/Components/CameraController.h"
+#include "../FPS/Subsystems/SceneManager.h"
+#include "../FPS/Subsystems/ControllerManager.h"
 
 #include "VoxelToy.h"
 
@@ -37,7 +37,7 @@ void VoxelToy::CreateVoxels() {
     auto* cache = GetSubsystem<ResourceCache>();
     auto* ui = GetSubsystem<UI>();
 
-    auto* sceneManager = GetSubsystem<ProcGen::SceneManager>();
+    auto* sceneManager = GetSubsystem<FPS::SceneManager>();
     
     XMLFile* xmlFile = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
     ui->GetRoot()->SetDefaultStyle(xmlFile);
@@ -84,11 +84,11 @@ void VoxelToy::CreateVoxels() {
     cam->SetPosition(Vector3::UP * size.y_ + Vector3::RIGHT * size.x_);
     cam->LookAt(size / 2);
     cam->Translate(Vector3::BACK * size.y_);
-    cam->GetComponent<ProcGen::CameraController>()->Sync();
+    cam->GetComponent<FPS::CameraController>()->Sync();
 }
 
 void VoxelToy::CreateCharacter() {
-    auto* sceneManager = GetSubsystem<ProcGen::SceneManager>();
+    auto* sceneManager = GetSubsystem<FPS::SceneManager>();
     
     Node* node = sceneManager->GetScene()->CreateChild("Player");
 
@@ -106,7 +106,7 @@ void VoxelToy::CreateCharacter() {
 
     auto* shape = node->CreateComponent<CollisionShape>();
     shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
-    player_ = node->CreateComponent<Voxels::Character>();
+    player_ = node->CreateComponent<FPS::CharacterController>();
 
     auto* world = GetSubsystem<Voxels::World>();    
     world->SetPlayer(player_);
@@ -117,14 +117,14 @@ void VoxelToy::CreateCharacter() {
 void VoxelToy::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     using namespace KeyDown;
     int key = eventData[P_KEY].GetInt();
-    auto* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    auto* scene = GetSubsystem<FPS::SceneManager>()->GetScene();
 
     if (key == KEY_TAB) {
         firstPerson_ = !firstPerson_;
-        auto* camController = scene->GetChild("Camera")->GetComponent<ProcGen::CameraController>();
+        auto* camController = scene->GetChild("Camera")->GetComponent<FPS::CameraController>();
         camController->SetEnabled(!firstPerson_);
         Urho3D::Controls* ctrl = firstPerson_ ? &player_->controls_ : &camController->controls_;
-        GetSubsystem<ProcGen::Controller>()->SetControls(ctrl);
+        GetSubsystem<FPS::ControllerManager>()->SetControls(ctrl);
         if (!firstPerson_) {
             camController->Sync();
         } 
@@ -139,7 +139,7 @@ void VoxelToy::HandlePostUpdate(StringHash eventType, VariantMap &eventData) {
         const Quaternion& rot = playerNode->GetRotation();
         Quaternion dir = rot * Quaternion(player_->controls_.pitch_, Vector3::RIGHT);
 
-        auto* camNode = GetSubsystem<ProcGen::SceneManager>()->GetScene()->GetChild("Camera");
+        auto* camNode = GetSubsystem<FPS::SceneManager>()->GetScene()->GetChild("Camera");
         camNode->SetRotation(dir);
         Vector3 pos = playerNode->GetPosition(); pos.y_ += player_->GetSize().y_;
         camNode->SetPosition(pos);

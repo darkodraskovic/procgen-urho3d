@@ -5,9 +5,10 @@
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/UI/UI.h>
 
+#include "../Subsystems/ControllerManager.h"
 #include "CameraController.h"
 
-using namespace ProcGen;
+using namespace FPS;
 
 CameraController::CameraController(Context *context) : LogicComponent(context) {
     SetUpdateEventMask(USE_UPDATE);
@@ -19,8 +20,6 @@ void CameraController::Update(float timeStep) {
 
     auto* input = GetSubsystem<Urho3D::Input>();
 
-    using namespace Urho3D;
-    
     if (controls_.IsDown(CTRL_FORWARD))
         node_->Translate(Vector3::FORWARD * moveSpeed_ * timeStep);
     if (controls_.IsDown(CTRL_BACK))

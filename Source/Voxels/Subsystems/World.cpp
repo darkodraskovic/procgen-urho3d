@@ -131,6 +131,6 @@ IntVector3 World::WorldToBlock(const Vector3& position) {
     return IntVector3(position.x_, position.y_, position.z_) / chunkSize_;
 }
 
-void World::SetPlayer(Character* player) {
+void World::SetPlayer(FPS::CharacterController* player) {
     player_ = player;
 }

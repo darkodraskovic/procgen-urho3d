@@ -20,6 +20,7 @@
 #include "Simulation/Engine.h"
 #include "Maze/Engine.h"
 #include "Voxels/Engine.h"
+#include "FPS/Engine.h"
 
 #include "Toys/ShaderToy.h"
 #include "Toys/VoxelToy.h"
@@ -33,6 +34,7 @@ App::App(Context* context) :
     context_->RegisterSubsystem<Simulation::Engine>();
     context_->RegisterSubsystem<Maze::Engine>();
     context_->RegisterSubsystem<Voxels::Engine>();
+    context_->RegisterSubsystem<FPS::Engine>();
 
     context_->RegisterSubsystem<Toy::ShaderToy>();
     context_->RegisterSubsystem<Toy::VoxelToy>();
@@ -62,12 +64,13 @@ void App::Start() {
     GetSubsystem<Simulation::Engine>()->Start();
     GetSubsystem<Maze::Engine>()->Start();
     GetSubsystem<Voxels::Engine>()->Start();
+    GetSubsystem<FPS::Engine>()->Start();
 
     // CONTROLLER
-    auto* controller = GetSubsystem<ProcGen::Controller>();
-    auto* scene = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    auto* controller = GetSubsystem<FPS::ControllerManager>();
+    auto* scene = GetSubsystem<FPS::SceneManager>()->GetScene();
     auto* camNode = scene->GetChild("Camera");
-    controller->SetControls(&camNode->GetComponent<ProcGen::CameraController>()->controls_);
+    controller->SetControls(&camNode->GetComponent<FPS::CameraController>()->controls_);
 
     // ================================================================
     // TOYS
@@ -76,13 +79,13 @@ void App::Start() {
     // GetSubsystem<Toy::ShaderToy>()->Start();
 
     // VOXELS
-    // GetSubsystem<Toy::VoxelToy>()->Start();
+    GetSubsystem<Toy::VoxelToy>()->Start();
 
     // PROC MODEL
     // CreateProceduralModel();
 
     // CUSTOM GEOM
-    GetSubsystem<Toy::SimulationToy>()->Start();
+    // GetSubsystem<Toy::SimulationToy>()->Start();
 }
 
 void App::CreateConsoleAndDebugHud() {
@@ -102,7 +105,7 @@ void App::CreateConsoleAndDebugHud() {
 
 void App::CreateProceduralModel() {
 
-    Node* node = GetSubsystem<ProcGen::SceneManager>()->GetScene()->CreateChild("ProceduralObject");
+    Node* node = GetSubsystem<FPS::SceneManager>()->GetScene()->CreateChild("ProceduralObject");
     ProcGen::ProcModel* procModel = node->CreateComponent<ProcGen::ProcModel>();
 
     Vector<Vector3> points = {
@@ -220,7 +223,7 @@ void App::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
         GetSubsystem<DebugHud>()->ToggleAll();
 
 
-    auto* node = GetSubsystem<ProcGen::SceneManager>()->GetScene()->GetChild("ProceduralObject");
+    auto* node = GetSubsystem<FPS::SceneManager>()->GetScene()->GetChild("ProceduralObject");
     if (node) {
         auto* procModel = node->GetComponent<ProcGen::ProcModel>();
         if (key == KEY_M) {

@@ -11,9 +11,9 @@
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Resource/ResourceCache.h>
 
-#include "../ProcGen/Subsystems/SceneManager.h"
 #include "../ProcGen/Subsystems/ModelCreator.h"
 #include "../ProcGen/Subsystems/GeometryCreator.h"
+#include "../FPS/Subsystems/SceneManager.h"
 
 #include "SimulationToy.h"
 #include "../Simulation/Vehicle.h"
@@ -26,7 +26,7 @@ void SimulationToy::Start() {
     // URHO3D_LOGINFO("Geom Toy START");
     
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SimulationToy, HandleUpdate));
-    scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    scene_ = GetSubsystem<FPS::SceneManager>()->GetScene();
 
     auto* cache = GetSubsystem<ResourceCache>();
     scene_->GetComponent<Skybox>(true)->SetEnabled(false);

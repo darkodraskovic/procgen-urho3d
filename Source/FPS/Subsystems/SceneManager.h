@@ -6,7 +6,7 @@
 
 using namespace Urho3D;
 
-namespace ProcGen {
+namespace FPS {
 
     class SceneManager : public Object {
         URHO3D_OBJECT(SceneManager, Object);

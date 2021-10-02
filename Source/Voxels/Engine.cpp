@@ -11,8 +11,6 @@ Engine::Engine(Context* context) : Object(context) {
 
     context_->RegisterFactory<Voxels::Block>();
     context_->RegisterFactory<Voxels::Chunk>();
-
-    Voxels::Character::RegisterObject(context_);
 }
 
 void Engine::Start() {

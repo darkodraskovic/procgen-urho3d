@@ -3,7 +3,6 @@
 #include <Urho3D/Graphics/Texture.h>
 #include <Urho3D/Resource/ResourceCache.h>
 
-
 #include "MaterialCreator.h"
 
 using namespace ProcGen;

@@ -9,12 +9,13 @@
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
 
-#include "Character.h"
-#include "../../ProcGen/Components/CameraController.h"
+#include "CharacterController.h"
+#include "CameraController.h"
+#include "../Subsystems/ControllerManager.h"
 
-using namespace Voxels;
+using namespace FPS;
 
-Character::Character(Context* context) :
+CharacterController::CharacterController(Context* context) :
     LogicComponent(context),
     onGround_(false),
     okToJump_(true),
@@ -24,9 +25,9 @@ Character::Character(Context* context) :
     SetUpdateEventMask(USE_FIXEDUPDATE | USE_UPDATE);
 }
 
-void Character::RegisterObject(Context* context)
+void CharacterController::RegisterObject(Context* context)
 {
-    context->RegisterFactory<Character>();
+    context->RegisterFactory<CharacterController>();
 
     // These macros register the class attributes to the Context for automatic load / save handling.
     // We specify the Default attribute mode which means it will be used both for saving into file, and network replication
@@ -37,18 +38,18 @@ void Character::RegisterObject(Context* context)
     URHO3D_ATTRIBUTE("In Air Timer", float, inAirTimer_, 0.0f, AM_DEFAULT);
 }
 
-void Character::Start()
+void CharacterController::Start()
 {
     // Component has been inserted into its scene node. Subscribe to events now
-    SubscribeToEvent(GetNode(), E_NODECOLLISION, URHO3D_HANDLER(Character, HandleNodeCollision));
+    SubscribeToEvent(GetNode(), E_NODECOLLISION, URHO3D_HANDLER(CharacterController, HandleNodeCollision));
 }
 
-void Character::Update(float timeStep) {
+void CharacterController::Update(float timeStep) {
     controls_.pitch_ = Clamp(controls_.pitch_, -80.0f, 80.0f);
     node_->SetRotation(Quaternion(controls_.yaw_, Vector3::UP));
 }
 
-void Character::FixedUpdate(float timeStep)
+void CharacterController::FixedUpdate(float timeStep)
 {
     /// \todo Could cache the components for faster access instead of finding them each frame
     auto* body = GetComponent<RigidBody>();
@@ -68,13 +69,13 @@ void Character::FixedUpdate(float timeStep)
     // Velocity on the XZ plane
     Vector3 planeVelocity(velocity.x_, 0.0f, velocity.z_);
 
-    if (controls_.IsDown(ProcGen::CTRL_FORWARD))
+    if (controls_.IsDown(CTRL_FORWARD))
         moveDir += Vector3::FORWARD;
-    if (controls_.IsDown(ProcGen::CTRL_BACK))
+    if (controls_.IsDown(CTRL_BACK))
         moveDir += Vector3::BACK;
-    if (controls_.IsDown(ProcGen::CTRL_LEFT))
+    if (controls_.IsDown(CTRL_LEFT))
         moveDir += Vector3::LEFT;
-    if (controls_.IsDown(ProcGen::CTRL_RIGHT))
+    if (controls_.IsDown(CTRL_RIGHT))
         moveDir += Vector3::RIGHT;
 
     // Normalize move vector so that diagonal strafing is not faster
@@ -91,7 +92,7 @@ void Character::FixedUpdate(float timeStep)
         body->ApplyImpulse(brakeForce);
 
         // Jump. Must release jump control between jumps
-        if (controls_.IsDown(ProcGen::CTRL_JUMP))
+        if (controls_.IsDown(CTRL_JUMP))
         {
             if (okToJump_)
             {
@@ -107,7 +108,7 @@ void Character::FixedUpdate(float timeStep)
     onGround_ = false;
 }
 
-void Character::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
+void CharacterController::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
 {
     // Check collision contacts and see if character is standing on ground (look for a contact that has near vertical normal)
     using namespace NodeCollision;
@@ -131,6 +132,6 @@ void Character::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
     }
 }
 
-Vector3 Character::GetSize() {
+Vector3 CharacterController::GetSize() {
     return node_->GetComponent<CollisionShape>()->GetSize();
 }

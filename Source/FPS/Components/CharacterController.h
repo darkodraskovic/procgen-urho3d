@@ -28,7 +28,8 @@
 
 using namespace Urho3D;
 
-namespace Voxels {
+namespace FPS {
+    
     const float MOVE_FORCE = 1.2f;
     const float INAIR_MOVE_FORCE = 0.02f;
     const float BRAKE_FORCE = 0.2f;
@@ -36,13 +37,13 @@ namespace Voxels {
     const float INAIR_THRESHOLD_TIME = 0.1f;
 
 /// Character component, responsible for physical movement according to controls, as well as animation.
-    class Character : public LogicComponent
+    class CharacterController : public LogicComponent
     {
-        URHO3D_OBJECT(Character, LogicComponent);
+        URHO3D_OBJECT(CharacterController, LogicComponent);
 
     public:
         /// Construct.
-        explicit Character(Context* context);
+        explicit CharacterController(Context* context);
 
         /// Register object factory and attributes.
         static void RegisterObject(Context* context);
@@ -54,7 +55,7 @@ namespace Voxels {
         void FixedUpdate(float timeStep) override;
         Vector3 GetSize();
 
-        /// Movement controls. Assigned by the main program each frame.
+        // Referenced by ControllerManager
         Controls controls_;
 
     private:

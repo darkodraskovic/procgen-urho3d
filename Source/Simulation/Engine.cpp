@@ -1,7 +1,6 @@
 #include <Urho3D/IO/Log.h>
 
 #include "Engine.h"
-#include "Vehicle.h"
 
 using namespace Simulation;
 

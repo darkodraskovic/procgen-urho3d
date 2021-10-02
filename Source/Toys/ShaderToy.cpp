@@ -6,11 +6,12 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/Graphics/TextureCube.h>
 
-#include "../ProcGen/Components/CameraController.h"
 #include "../ProcGen/Subsystems/ModelCreator.h"
 #include "../ProcGen/Subsystems/MaterialCreator.h"
 #include "../ProcGen/Subsystems/TextureCreator.h"
-#include "../ProcGen/Subsystems/SceneManager.h"
+
+#include "../FPS/Components/CameraController.h"
+#include "../FPS/Subsystems/SceneManager.h"
 
 #include "ShaderToy.h"
 
@@ -23,7 +24,7 @@ void ShaderToy::Start() {
     ProcGen::ModelCreator* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
     ProcGen::MaterialCreator* materialCreator =  GetSubsystem<ProcGen::MaterialCreator>();
-    scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
+    scene_ = GetSubsystem<FPS::SceneManager>()->GetScene();
 
     int w = 320*2, h = 320*2;
 
@@ -124,7 +125,7 @@ void ShaderToy::Start() {
     camNode->Translate(Vector3::RIGHT);
     camNode->Rotate(Quaternion(30, 180, 0));
     camNode->Translate(Vector3::BACK * 3);
-    camNode->GetComponent<ProcGen::CameraController>()->Sync();
+    camNode->GetComponent<FPS::CameraController>()->Sync();
 
     // ================================================================
     // Texture SPRITE

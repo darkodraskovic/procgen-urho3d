@@ -3,7 +3,7 @@
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Core/Context.h>
 
-#include "../Voxels/Components/Character.h"
+#include "../FPS/Components/CharacterController.h"
 
 using namespace Urho3D;
 
@@ -22,7 +22,7 @@ namespace Toy {
         void CreateCharacter();
 
     private:
-        WeakPtr<Voxels::Character> player_ = nullptr;
+        WeakPtr<FPS::CharacterController> player_ = nullptr;
         bool firstPerson_ = false;
     };
 }

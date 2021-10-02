@@ -15,7 +15,7 @@
 #include "SceneManager.h"
 #include "../Components/CameraController.h"
 
-using namespace ProcGen;
+using namespace FPS;
 
 SceneManager::SceneManager(Context* context) : Object(context) {}
 
@@ -67,7 +67,7 @@ void SceneManager::CreateSkybox(const String& material) {
 
 void SceneManager::SetupViewport() {
     auto* camNode_ = scene_->CreateChild("Camera");
-    camNode_->CreateComponent<ProcGen::CameraController>();
+    camNode_->CreateComponent<CameraController>();
     auto* camera = camNode_->CreateComponent<Camera>();
 
     auto* renderer = GetSubsystem<Renderer>();
