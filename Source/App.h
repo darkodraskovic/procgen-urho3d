@@ -17,6 +17,4 @@ private:
 
     void SubscribeToEvents();
     void CreateConsoleAndDebugHud();
-
-    void CreateProceduralModel();
 };

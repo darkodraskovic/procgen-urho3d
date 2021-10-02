@@ -27,10 +27,9 @@ VoxelToy::VoxelToy(Context *context) : Object(context) {}
 
 void VoxelToy::Start() {
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(VoxelToy, HandleKeyDown));
-    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(VoxelToy, HandlePostUpdate));
 
     CreateVoxels();
-    CreateCharacter();
+    SetupCharacter();
 }
 
 void VoxelToy::CreateVoxels() {
@@ -87,59 +86,30 @@ void VoxelToy::CreateVoxels() {
     camController_->Sync();
 }
 
-void VoxelToy::CreateCharacter() {
+void VoxelToy::SetupCharacter() {
     auto* sceneManager = GetSubsystem<FPS::SceneManager>();
-    
-    Node* node = sceneManager->GetScene()->CreateChild("Player");
 
-    Node* lightNode = node->CreateChild("DirectionalLight");
+    Node* charNode = sceneManager->CreateFPSCharacter();
+
+    Node* lightNode = charNode->CreateChild("DirectionalLight");
     lightNode->Translate(Vector3::UP * 2);
     auto* light = lightNode->CreateComponent<Light>();
     light->SetLightType(Urho3D::LIGHT_POINT);
     light->SetBrightness(.5);
 
-    auto* body = node->CreateComponent<RigidBody>();
-    body->SetCollisionLayer(1);
-    body->SetMass(1.0f);
-    body->SetAngularFactor(Vector3::ZERO);
-    body->SetCollisionEventMode(COLLISION_ALWAYS);
-
-    auto* shape = node->CreateComponent<CollisionShape>();
-    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
-    charController_ = node->CreateComponent<FPS::CharacterController>();
-
-    auto* world = GetSubsystem<Voxels::World>();
-    Vector3 size = world->GetWorldSize();    
-    charController_->GetNode()->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
+    Vector3 size = GetSubsystem<Voxels::World>()->GetWorldSize();
+    charNode->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
+    
+    charController_ = charNode->GetComponent<FPS::CharacterController>();
+    charController_->SetEnabled(firstPerson_);
 }
 
 void VoxelToy::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
     using namespace KeyDown;
     int key = eventData[P_KEY].GetInt();
-    auto* scene = GetSubsystem<FPS::SceneManager>()->GetScene();
 
     if (key == KEY_TAB) {
         firstPerson_ = !firstPerson_;
-        
-        camController_->SetEnabled(!firstPerson_);
-        charController_->SetEnabled(firstPerson_);
-        Controls* ctrl = firstPerson_ ? &charController_->controls_ : &camController_->controls_;
-
-        camController_->Sync();
-    }
-}
-
-void VoxelToy::HandlePostUpdate(StringHash eventType, VariantMap &eventData) {
-    if (firstPerson_) {
-        Node* playerNode = charController_->GetNode();
-
-        // Get camera lookat dir from character yaw + pitch
-        const Quaternion& rot = playerNode->GetRotation();
-        Quaternion dir = rot * Quaternion(charController_->controls_.pitch_, Vector3::RIGHT);
-        auto* camNode = camController_->GetNode();
-        camNode->SetRotation(dir);
-        
-        Vector3 pos = playerNode->GetPosition(); pos.y_ += charController_->GetSize().y_;
-        camNode->SetPosition(pos);
+        GetSubsystem<FPS::SceneManager>()->SetFPS(firstPerson_);
     }
 }

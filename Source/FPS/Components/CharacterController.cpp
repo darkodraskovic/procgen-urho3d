@@ -1,5 +1,6 @@
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/AnimationController.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/IO/MemoryBuffer.h>
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
@@ -9,9 +10,8 @@
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
 
-#include "CharacterController.h"
-#include "CameraController.h"
 #include "../Subsystems/ControllerManager.h"
+#include "CharacterController.h"
 
 using namespace FPS;
 
@@ -22,7 +22,7 @@ CharacterController::CharacterController(Context* context) :
     inAirTimer_(0.0f)
 {
     // Only the physics update event is needed: unsubscribe from the rest for optimization
-    SetUpdateEventMask(USE_FIXEDUPDATE | USE_UPDATE);
+    SetUpdateEventMask(USE_FIXEDUPDATE | USE_UPDATE | USE_POSTUPDATE);
 }
 
 void CharacterController::RegisterObject(Context* context)
@@ -108,6 +108,18 @@ void CharacterController::FixedUpdate(float timeStep)
     onGround_ = false;
 }
 
+void CharacterController::PostUpdate(float timeStep) {
+    // Get camera lookat dir from character yaw + pitch
+    const Quaternion& rot = node_->GetRotation();
+    Quaternion dir = rot * Quaternion(controls_.pitch_, Vector3::RIGHT);
+    auto* camNode = node_->GetScene()->GetChild("Camera");
+    camNode->SetRotation(dir);
+        
+    Vector3 pos = node_->GetPosition();
+    pos.y_ += node_->GetComponent<CollisionShape>()->GetSize().y_;
+    camNode->SetPosition(pos);
+}
+
 void CharacterController::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
 {
     // Check collision contacts and see if character is standing on ground (look for a contact that has near vertical normal)
@@ -130,8 +142,4 @@ void CharacterController::HandleNodeCollision(StringHash eventType, VariantMap& 
                 onGround_ = true;
         }
     }
-}
-
-Vector3 CharacterController::GetSize() {
-    return node_->GetComponent<CollisionShape>()->GetSize();
 }

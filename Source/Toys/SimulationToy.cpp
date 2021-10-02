@@ -23,29 +23,22 @@ using namespace Toy;
 SimulationToy::SimulationToy(Context* context) : Object(context) {}
 
 void SimulationToy::Start() {
-    // URHO3D_LOGINFO("Geom Toy START");
-    
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SimulationToy, HandleUpdate));
+    
     scene_ = GetSubsystem<FPS::SceneManager>()->GetScene();
-
-    auto* cache = GetSubsystem<ResourceCache>();
     scene_->GetComponent<Skybox>(true)->SetEnabled(false);
 
     auto* camNode = scene_->GetChild("Camera");
     camNode->Translate(Vector3::BACK * 32);
-
-    // CreateTestGeometry();
-    auto* vehicleNode = CreateVehicle();
 
     auto* modelCreator = GetSubsystem<ProcGen::ModelCreator>();
     auto* targetNode = modelCreator->CreateStockModel("Box");
     scene_->AddChild(targetNode);
     targetNode->SetName("Target");
     targetNode->SetScale(.5);
-
-    float dist = 2;
-    targetNode->SetPosition({dist,dist,0});
-
+    targetNode->SetPosition({2,2,0});
+    
+    auto* vehicleNode = CreateVehicle();
     vehicleNode->GetComponent<Simulation::Vehicle>()->target_ = targetNode;
 }
 
@@ -73,10 +66,6 @@ Node* SimulationToy::CreateVehicle() {
     // RigidBody
     auto* node = customGeom->GetNode();
     auto* body = node->CreateComponent<RigidBody>();
-    body->SetMass(1);
-    // body->SetUseGravity(false);
-    // body->SetAngularFactor({0,1,0});
-    // body->SetLinearFactor({1,1,0});
     
     auto* shape = node->CreateComponent<CollisionShape>();
     shape->SetCustomConvexHull(customGeom);

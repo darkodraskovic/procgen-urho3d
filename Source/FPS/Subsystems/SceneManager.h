@@ -16,11 +16,13 @@ namespace FPS {
         void Start();
 
         Scene* GetScene();
-        
+        Node* CreateFPSCharacter();        
+        void SetFPS(bool enabled);
     private:
         void CreateScene();
         void CreateSkybox(const String& material);
         void SetupViewport();
+
         
         SharedPtr<DebugRenderer> debugRenderer_;
         SharedPtr<Scene> scene_;

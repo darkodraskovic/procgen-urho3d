@@ -48,13 +48,11 @@ namespace FPS {
         /// Register object factory and attributes.
         static void RegisterObject(Context* context);
 
-        /// Handle startup. Called by LogicComponent base class.
         void Start() override;
         void Update(float timeStep) override;
-        /// Handle physics world update. Called by LogicComponent base class.
         void FixedUpdate(float timeStep) override;
-        Vector3 GetSize();
-
+        void PostUpdate(float timeStep) override;
+        
         // Referenced by ControllerManager
         Urho3D::Controls controls_;
 

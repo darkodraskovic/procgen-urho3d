@@ -6,14 +6,19 @@
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/Skybox.h>
 #include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
+#include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Graphics/RenderPath.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Resource/XMLFile.h>
 
 #include "SceneManager.h"
+
+#include "../Subsystems/ControllerManager.h"
 #include "../Components/CameraController.h"
+#include "../Components/CharacterController.h"
 
 using namespace FPS;
 
@@ -23,6 +28,10 @@ void SceneManager::Start() {
     CreateScene();
     CreateSkybox("Materials/Space.xml");
     SetupViewport();
+
+    auto* ctrlManager = GetSubsystem<FPS::ControllerManager>();
+    auto* camNode = scene_->GetChild("Camera");
+    ctrlManager->SetControls(&camNode->GetComponent<FPS::CameraController>()->controls_);
 }
 
 void SceneManager::CreateScene() {
@@ -66,13 +75,11 @@ void SceneManager::CreateSkybox(const String& material) {
 }
 
 void SceneManager::SetupViewport() {
-    auto* camNode_ = scene_->CreateChild("Camera");
-    camNode_->CreateComponent<CameraController>();
-    auto* camera = camNode_->CreateComponent<Camera>();
-
-    auto* renderer = GetSubsystem<Renderer>();
-    SharedPtr<Viewport> viewport(new Viewport(context_, scene_, camNode_->GetComponent<Camera>()));
-    renderer->SetViewport(0, viewport);
+    auto* camNode = scene_->CreateChild("Camera");
+    camNode->CreateComponent<CameraController>();
+    
+    SharedPtr<Viewport> viewport(new Viewport(context_, scene_, camNode->CreateComponent<Camera>()));
+    GetSubsystem<Renderer>()->SetViewport(0, viewport);
 
     auto* cache = GetSubsystem<ResourceCache>();
     SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
@@ -83,3 +90,33 @@ void SceneManager::SetupViewport() {
 }
 
 Scene *SceneManager::GetScene() { return scene_; }
+
+// TODO: move this code to separate module
+Node* SceneManager::CreateFPSCharacter() {
+    Node* charNode = scene_->CreateChild("Player");
+    charNode->CreateComponent<FPS::CharacterController>();
+
+    auto* body = charNode->CreateComponent<RigidBody>();
+    body->SetCollisionLayer(1);
+    body->SetMass(1.0f);
+    body->SetAngularFactor(Vector3::ZERO);
+    body->SetCollisionEventMode(COLLISION_ALWAYS);
+
+    auto* shape = charNode->CreateComponent<CollisionShape>();
+    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
+
+    return charNode;
+}
+
+void SceneManager::SetFPS(bool enabled) {
+    auto* charController = scene_->GetChild("Player")->GetComponent<FPS::CharacterController>();
+    auto* camController = scene_->GetChild("Camera")->GetComponent<FPS::CameraController>();
+
+    Urho3D::Controls* ctrl = enabled ? &charController->controls_ : &camController->controls_;
+    GetSubsystem<FPS::ControllerManager>()->SetControls(ctrl);
+
+    camController->SetEnabled(!enabled);
+    charController->SetEnabled(enabled);
+
+    camController->Sync();
+}

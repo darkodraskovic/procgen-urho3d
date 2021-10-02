@@ -4,6 +4,7 @@
 #include <Urho3D/Core/Context.h>
 
 #include "../FPS/Components/CharacterController.h"
+#include "../FPS/Components/CameraController.h"
 
 using namespace Urho3D;
 
@@ -15,11 +16,10 @@ namespace Toy {
     public:
         explicit VoxelToy (Context* context);
         void Start();
-        void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
         void HandleKeyDown(StringHash eventType, VariantMap& eventData);
         
         void CreateVoxels();
-        void CreateCharacter();
+        void SetupCharacter();
 
     private:
         WeakPtr<FPS::CameraController> camController_ = nullptr;

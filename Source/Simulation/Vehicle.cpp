@@ -36,6 +36,7 @@ void Vehicle::DelayedStart() {
     body->SetUseGravity(false);
     body->SetAngularFactor({0,1,0});
     body->SetLinearFactor({1,1,0});
+    body->SetMass(1);
 }
 
 void Vehicle::Update(float timeStep) {
