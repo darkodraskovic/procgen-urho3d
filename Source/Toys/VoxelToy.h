@@ -22,7 +22,8 @@ namespace Toy {
         void CreateCharacter();
 
     private:
-        WeakPtr<FPS::CharacterController> player_ = nullptr;
+        WeakPtr<FPS::CameraController> camController_ = nullptr;
+        WeakPtr<FPS::CharacterController> charController_ = nullptr;
         bool firstPerson_ = false;
     };
 }

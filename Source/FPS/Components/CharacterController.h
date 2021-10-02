@@ -56,7 +56,7 @@ namespace FPS {
         Vector3 GetSize();
 
         // Referenced by ControllerManager
-        Controls controls_;
+        Urho3D::Controls controls_;
 
     private:
         /// Handle physics collision event.

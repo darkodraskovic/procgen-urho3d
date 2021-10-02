@@ -53,13 +53,11 @@ void VoxelToy::CreateVoxels() {
 
     auto* world = GetSubsystem<Voxels::World>();
     auto* utils = GetSubsystem<Voxels::Utils>();
-    auto* cam = sceneManager->GetScene()->GetChild("Camera");
 
     world->SetRoot(sceneManager->GetScene());
 
-    ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
-
     // material
+    ProcGen::TextureCreator* textureCreator =  GetSubsystem<ProcGen::TextureCreator>();
     auto* image = cache->GetResource<Image>("Textures/VoxelTerrain.png");
     auto* texture = textureCreator->CreateImageTexture(image);
     texture->SetFilterMode(Urho3D::FILTER_NEAREST);
@@ -78,13 +76,15 @@ void VoxelToy::CreateVoxels() {
 
     world->CreateColumns();
     world->Build();
-    // world->Model();
 
     Vector3 size = world->GetWorldSize();
+    auto* cam = sceneManager->GetScene()->GetChild("Camera");    
     cam->SetPosition(Vector3::UP * size.y_ + Vector3::RIGHT * size.x_);
     cam->LookAt(size / 2);
     cam->Translate(Vector3::BACK * size.y_);
-    cam->GetComponent<FPS::CameraController>()->Sync();
+    
+    camController_ = cam->GetComponent<FPS::CameraController>();
+    camController_->Sync();
 }
 
 void VoxelToy::CreateCharacter() {
@@ -106,12 +106,11 @@ void VoxelToy::CreateCharacter() {
 
     auto* shape = node->CreateComponent<CollisionShape>();
     shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
-    player_ = node->CreateComponent<FPS::CharacterController>();
+    charController_ = node->CreateComponent<FPS::CharacterController>();
 
-    auto* world = GetSubsystem<Voxels::World>();    
-    world->SetPlayer(player_);
+    auto* world = GetSubsystem<Voxels::World>();
     Vector3 size = world->GetWorldSize();    
-    player_->GetNode()->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
+    charController_->GetNode()->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
 }
 
 void VoxelToy::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
@@ -121,27 +120,26 @@ void VoxelToy::HandleKeyDown(StringHash eventType, VariantMap& eventData) {
 
     if (key == KEY_TAB) {
         firstPerson_ = !firstPerson_;
-        auto* camController = scene->GetChild("Camera")->GetComponent<FPS::CameraController>();
-        camController->SetEnabled(!firstPerson_);
-        Urho3D::Controls* ctrl = firstPerson_ ? &player_->controls_ : &camController->controls_;
-        GetSubsystem<FPS::ControllerManager>()->SetControls(ctrl);
-        if (!firstPerson_) {
-            camController->Sync();
-        } 
+        
+        camController_->SetEnabled(!firstPerson_);
+        charController_->SetEnabled(firstPerson_);
+        Controls* ctrl = firstPerson_ ? &charController_->controls_ : &camController_->controls_;
+
+        camController_->Sync();
     }
 }
 
 void VoxelToy::HandlePostUpdate(StringHash eventType, VariantMap &eventData) {
-    if (player_ && firstPerson_) {
-        Node* playerNode = player_->GetNode();
+    if (firstPerson_) {
+        Node* playerNode = charController_->GetNode();
 
         // Get camera lookat dir from character yaw + pitch
         const Quaternion& rot = playerNode->GetRotation();
-        Quaternion dir = rot * Quaternion(player_->controls_.pitch_, Vector3::RIGHT);
-
-        auto* camNode = GetSubsystem<FPS::SceneManager>()->GetScene()->GetChild("Camera");
+        Quaternion dir = rot * Quaternion(charController_->controls_.pitch_, Vector3::RIGHT);
+        auto* camNode = camController_->GetNode();
         camNode->SetRotation(dir);
-        Vector3 pos = playerNode->GetPosition(); pos.y_ += player_->GetSize().y_;
+        
+        Vector3 pos = playerNode->GetPosition(); pos.y_ += charController_->GetSize().y_;
         camNode->SetPosition(pos);
     }
 }

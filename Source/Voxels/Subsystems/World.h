@@ -7,8 +7,6 @@
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Core/WorkQueue.h>
 
-#include "../../FPS/Components/CharacterController.h"
-
 using namespace Urho3D;
 
 namespace Voxels {
@@ -34,7 +32,6 @@ namespace Voxels {
         Vector3 GetWorldPosition(int x, int y, int z);
         IntVector3 WorldToBlock(const Vector3& position);
 
-        void SetPlayer(FPS::CharacterController* player);
         WorkQueue* GetWorkQueue();
 
         static void BuildAsync(const WorkItem* workItem, unsigned threadIndex);
@@ -45,7 +42,6 @@ namespace Voxels {
     private:
         SharedPtr<Node> root_;
         SharedPtr<Material> material_;
-        FPS::CharacterController* player_;
         SharedPtr<WorkQueue> workQueue_;
         unsigned int workItemCounter_ = 0;
     };
