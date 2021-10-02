@@ -9,11 +9,11 @@ using namespace Urho3D;
 
 namespace Toy {
 
-    class GeometryToy : public Object {
-        URHO3D_OBJECT(GeometryToy, Object);
+    class SimulationToy : public Object {
+        URHO3D_OBJECT(SimulationToy, Object);
 
     public:
-        explicit GeometryToy (Context* context);
+        explicit SimulationToy (Context* context);
         void Start();
         void HandleUpdate(StringHash eventType, VariantMap& eventData);
 

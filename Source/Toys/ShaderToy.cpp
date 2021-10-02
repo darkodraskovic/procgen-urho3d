@@ -6,11 +6,11 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/Graphics/TextureCube.h>
 
-#include "ProcGen/Components/CameraController.h"
-#include "ProcGen/Subsystems/ModelCreator.h"
-#include "ProcGen/Subsystems/MaterialCreator.h"
-#include "ProcGen/Subsystems/TextureCreator.h"
-#include "ProcGen/Subsystems/SceneManager.h"
+#include "../ProcGen/Components/CameraController.h"
+#include "../ProcGen/Subsystems/ModelCreator.h"
+#include "../ProcGen/Subsystems/MaterialCreator.h"
+#include "../ProcGen/Subsystems/TextureCreator.h"
+#include "../ProcGen/Subsystems/SceneManager.h"
 
 #include "ShaderToy.h"
 

@@ -10,16 +10,16 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/Graphics/Technique.h>
 
-#include "ProcGen/Components/CameraController.h"
-#include "ProcGen/Subsystems/SceneManager.h"
-#include "ProcGen/Subsystems/TextureCreator.h"
+#include "../ProcGen/Components/CameraController.h"
+#include "../ProcGen/Subsystems/SceneManager.h"
+#include "../ProcGen/Subsystems/TextureCreator.h"
 
-#include "Voxels/Subsystems/Utils.h"
-#include "Voxels/Subsystems/World.h"
+#include "../Voxels/Subsystems/Utils.h"
+#include "../Voxels/Subsystems/World.h"
+
+#include "../ProcGen/Subsystems/Controller.h"
 
 #include "VoxelToy.h"
-#include "App.h"
-#include "ProcGen/Subsystems/Controller.h"
 
 using namespace Toy;
 

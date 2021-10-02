@@ -3,7 +3,7 @@
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Core/Context.h>
 
-#include "Voxels/Components/Character.h"
+#include "../Voxels/Components/Character.h"
 
 using namespace Urho3D;
 

@@ -21,9 +21,9 @@
 #include "Maze/Engine.h"
 #include "Voxels/Engine.h"
 
-#include "ShaderToy.h"
-#include "VoxelToy.h"
-#include "GeometryToy.h"
+#include "Toys/ShaderToy.h"
+#include "Toys/VoxelToy.h"
+#include "Toys/SimulationToy.h"
 
 using namespace Urho3D;
 App::App(Context* context) :
@@ -36,7 +36,7 @@ App::App(Context* context) :
 
     context_->RegisterSubsystem<Toy::ShaderToy>();
     context_->RegisterSubsystem<Toy::VoxelToy>();
-    context_->RegisterSubsystem<Toy::GeometryToy>();
+    context_->RegisterSubsystem<Toy::SimulationToy>();
 }
 
 void App::Setup() {
@@ -76,13 +76,13 @@ void App::Start() {
     // GetSubsystem<Toy::ShaderToy>()->Start();
 
     // VOXELS
-    GetSubsystem<Toy::VoxelToy>()->Start();
+    // GetSubsystem<Toy::VoxelToy>()->Start();
 
     // PROC MODEL
     // CreateProceduralModel();
 
     // CUSTOM GEOM
-    // GetSubsystem<Toy::GeometryToy>()->Start();
+    GetSubsystem<Toy::SimulationToy>()->Start();
 }
 
 void App::CreateConsoleAndDebugHud() {

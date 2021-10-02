@@ -11,23 +11,21 @@
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Resource/ResourceCache.h>
 
-#include "ProcGen/Subsystems/SceneManager.h"
-#include "ProcGen/Subsystems/ModelCreator.h"
-#include "ProcGen/Subsystems/GeometryCreator.h"
+#include "../ProcGen/Subsystems/SceneManager.h"
+#include "../ProcGen/Subsystems/ModelCreator.h"
+#include "../ProcGen/Subsystems/GeometryCreator.h"
 
-#include "GeometryToy.h"
-#include "Simulation/Vehicle.h"
-
-#include <libtcod/color.hpp>
+#include "SimulationToy.h"
+#include "../Simulation/Vehicle.h"
 
 using namespace Toy;
 
-GeometryToy::GeometryToy(Context* context) : Object(context) {}
+SimulationToy::SimulationToy(Context* context) : Object(context) {}
 
-void GeometryToy::Start() {
+void SimulationToy::Start() {
     // URHO3D_LOGINFO("Geom Toy START");
     
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(GeometryToy, HandleUpdate));
+    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SimulationToy, HandleUpdate));
     scene_ = GetSubsystem<ProcGen::SceneManager>()->GetScene();
 
     auto* cache = GetSubsystem<ResourceCache>();
@@ -51,7 +49,7 @@ void GeometryToy::Start() {
     vehicleNode->GetComponent<Simulation::Vehicle>()->target_ = targetNode;
 }
 
-Node* GeometryToy::CreateVehicle() {
+Node* SimulationToy::CreateVehicle() {
     // Geometry
     auto* geomCreator = GetSubsystem<ProcGen::GeometryCreator>();
     CustomGeometry *customGeom = geomCreator->CreateCustomGeometry(PrimitiveType::TRIANGLE_LIST, 3);
@@ -89,7 +87,7 @@ Node* GeometryToy::CreateVehicle() {
     return vehicle->GetNode();
 }
 
-void GeometryToy::HandleUpdate(StringHash eventType, VariantMap& eventData) {
+void SimulationToy::HandleUpdate(StringHash eventType, VariantMap& eventData) {
     // auto* targetNode = scene_->GetChild("Target");
 
     // Vector3 targetPos{
