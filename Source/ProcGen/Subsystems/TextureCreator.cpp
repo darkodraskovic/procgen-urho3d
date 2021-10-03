@@ -29,7 +29,7 @@ void TextureCreator::Start() {
  void TextureCreator::SetScene(Scene *scene) {
     scene_ = scene;
 
-    auto* octree = scene_->CreateComponent<Octree>();
+    auto* octree = scene_->GetComponent<Octree>();
     if (!octree) scene_->CreateComponent<Octree>();
 
     cameraNode_ =  scene_->GetChild("Camera");
