@@ -26,23 +26,21 @@ SceneManager::SceneManager(Context* context) : Object(context) {}
 
 void SceneManager::Start() {
     CreateScene();
-    CreateSkybox("Materials/Space.xml");
     SetupViewport();
-
-    auto* ctrlManager = GetSubsystem<FPS::ControllerManager>();
-    auto* camNode = scene_->GetChild("Camera");
-    ctrlManager->SetControls(&camNode->GetComponent<FPS::CameraController>()->controls_);
+    SetupCamController();
 }
 
 void SceneManager::CreateScene() {
-    auto* cache = GetSubsystem<ResourceCache>();
-
     scene_ = new Scene(context_);
 
     scene_->CreateComponent<Octree>();
     scene_->CreateComponent<PhysicsWorld>();
     debugRenderer_ = scene_->CreateComponent<DebugRenderer>();
 
+    scene_->CreateChild("Camera")->CreateComponent<Camera>();
+}
+
+void SceneManager::SetupLights() {
     Node* zoneNode = scene_->CreateChild("Zone");
     auto* zone = zoneNode->CreateComponent<Zone>();
     zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
@@ -63,7 +61,7 @@ void SceneManager::CreateScene() {
 
 void SceneManager::CreateSkybox(const String& material) {
     auto* cache = GetSubsystem<ResourceCache>();
-    
+
     // Create skybox. The Skybox component is used like StaticModel, but it will be always located at the camera, giving the
     // illusion of the box planes being far away. Use just the ordinary Box model and a suitable material, whose shader will
     // generate the necessary 3D texture coordinates for cube mapping
@@ -75,13 +73,14 @@ void SceneManager::CreateSkybox(const String& material) {
 }
 
 void SceneManager::SetupViewport() {
-    auto* camNode = scene_->CreateChild("Camera");
-    camNode->CreateComponent<CameraController>();
-    
-    SharedPtr<Viewport> viewport(new Viewport(context_, scene_, camNode->CreateComponent<Camera>()));
+    auto* cam = scene_->GetChild("Camera")->GetComponent<Camera>();
+    SharedPtr<Viewport> viewport(new Viewport(context_, scene_, cam));
     GetSubsystem<Renderer>()->SetViewport(0, viewport);
+}
 
+void SceneManager::SetupEffects() {
     auto* cache = GetSubsystem<ResourceCache>();
+    auto* viewport = GetSubsystem<Renderer>()->GetViewport(0);
     SharedPtr<RenderPath> effectRenderPath = viewport->GetRenderPath()->Clone();
     // effectRenderPath->Append(cache->GetResource<XMLFile>("PostProcess/GreyScale.xml"));
     // effectRenderPath->SetShaderParameter("BloomMix", Vector2(1.1f, .7f));
@@ -89,23 +88,29 @@ void SceneManager::SetupViewport() {
     // viewport->SetRenderPath(effectRenderPath);
 }
 
+void SceneManager::SetupCamController() {
+    auto* camController = scene_->GetChild("Camera")->CreateComponent<CameraController>();
+    auto* ctrlManager = GetSubsystem<FPS::ControllerManager>();
+    ctrlManager->SetControls(&camController->controls_);
+}
+
 Scene *SceneManager::GetScene() { return scene_; }
 
 // TODO: move this code to separate module
-Node* SceneManager::CreateFPSCharacter() {
-    Node* charNode = scene_->CreateChild("Player");
-    charNode->CreateComponent<FPS::CharacterController>();
+Node* SceneManager::CreatePlayer() {
+    Node* node = scene_->CreateChild("Player");
+    node->CreateComponent<FPS::CharacterController>();
 
-    auto* body = charNode->CreateComponent<RigidBody>();
+    auto* body = node->CreateComponent<RigidBody>();
     body->SetCollisionLayer(1);
     body->SetMass(1.0f);
     body->SetAngularFactor(Vector3::ZERO);
     body->SetCollisionEventMode(COLLISION_ALWAYS);
 
-    auto* shape = charNode->CreateComponent<CollisionShape>();
+    auto* shape = node->CreateComponent<CollisionShape>();
     shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
 
-    return charNode;
+    return node;
 }
 
 void SceneManager::SetFPS(bool enabled) {
@@ -115,8 +120,8 @@ void SceneManager::SetFPS(bool enabled) {
     Urho3D::Controls* ctrl = enabled ? &charController->controls_ : &camController->controls_;
     GetSubsystem<FPS::ControllerManager>()->SetControls(ctrl);
 
+    camController->Sync();
+    
     camController->SetEnabled(!enabled);
     charController->SetEnabled(enabled);
-
-    camController->Sync();
 }

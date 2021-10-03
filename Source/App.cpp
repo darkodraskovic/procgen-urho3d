@@ -68,6 +68,12 @@ void App::Start() {
     GetSubsystem<Voxels::Engine>()->Start();
     GetSubsystem<FPS::Engine>()->Start();
 
+    // Scene addenda
+    auto* sceneManager = GetSubsystem<FPS::SceneManager>();
+    sceneManager->SetupLights();
+    sceneManager->CreateSkybox("Materials/Space.xml");
+    sceneManager->SetupEffects();
+    
     // ================================================================
     // TOYS
 
@@ -75,10 +81,10 @@ void App::Start() {
     // GetSubsystem<Toy::ShaderToy>()->Start();
 
     // VOXELS
-    // GetSubsystem<Toy::VoxelToy>()->Start();
+    GetSubsystem<Toy::VoxelToy>()->Start();
 
     // PROC MODEL
-    GetSubsystem<Toy::ProcModelToy>()->Start();
+    // GetSubsystem<Toy::ProcModelToy>()->Start();
 
     // CUSTOM GEOM
     // GetSubsystem<Toy::SimulationToy>()->Start();

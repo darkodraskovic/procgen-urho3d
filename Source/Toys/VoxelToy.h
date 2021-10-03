@@ -19,7 +19,7 @@ namespace Toy {
         void HandleKeyDown(StringHash eventType, VariantMap& eventData);
         
         void CreateVoxels();
-        void SetupCharacter();
+        void SetupPlayer();
 
     private:
         WeakPtr<FPS::CameraController> camController_ = nullptr;

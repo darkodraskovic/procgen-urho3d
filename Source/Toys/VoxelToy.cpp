@@ -29,7 +29,7 @@ void VoxelToy::Start() {
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(VoxelToy, HandleKeyDown));
 
     CreateVoxels();
-    SetupCharacter();
+    SetupPlayer();
 }
 
 void VoxelToy::CreateVoxels() {
@@ -86,21 +86,22 @@ void VoxelToy::CreateVoxels() {
     camController_->Sync();
 }
 
-void VoxelToy::SetupCharacter() {
+void VoxelToy::SetupPlayer() {
     auto* sceneManager = GetSubsystem<FPS::SceneManager>();
 
-    Node* charNode = sceneManager->CreateFPSCharacter();
+    Node* playerNode = sceneManager->CreatePlayer();
+    sceneManager->GetScene()->AddChild(playerNode);
 
-    Node* lightNode = charNode->CreateChild("DirectionalLight");
+    Node* lightNode = playerNode->CreateChild("DirectionalLight");
     lightNode->Translate(Vector3::UP * 2);
     auto* light = lightNode->CreateComponent<Light>();
     light->SetLightType(Urho3D::LIGHT_POINT);
     light->SetBrightness(.5);
 
     Vector3 size = GetSubsystem<Voxels::World>()->GetWorldSize();
-    charNode->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
+    playerNode->SetPosition(size / 2 + Vector3::UP * size.y_ / 2);
     
-    charController_ = charNode->GetComponent<FPS::CharacterController>();
+    charController_ = playerNode->GetComponent<FPS::CharacterController>();
     charController_->SetEnabled(firstPerson_);
 }
 

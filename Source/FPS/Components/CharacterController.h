@@ -49,6 +49,7 @@ namespace FPS {
         static void RegisterObject(Context* context);
 
         void Start() override;
+        // void OnSceneSet(Scene* scene) override;        
         void Update(float timeStep) override;
         void FixedUpdate(float timeStep) override;
         void PostUpdate(float timeStep) override;
