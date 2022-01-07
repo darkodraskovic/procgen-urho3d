@@ -1,20 +1,21 @@
-#include <Urho3D/Engine/Application.h>
+#pragma once
 
-using namespace Urho3D;
+#include <Urho3D/Urho3DAll.h>
 
-class App : public Application
-{
-public:
-    App(Context* context);
-    virtual void Setup();
-    virtual void Start();
-    virtual void Stop();
+class App : public Application {
+  URHO3D_OBJECT(App, Application);
 
-private:
-    void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
+ public:
+  explicit App(Context* context);
+  virtual void Setup() override;
+  virtual void Start() override;
+  virtual void Stop() override;
 
-    void SubscribeToEvents();
-    void CreateConsoleAndDebugHud();
+ private:
+  void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+  void HandleUpdate(StringHash eventType, VariantMap& eventData);
+  void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
+
+  void SubscribeToEvents();
+  void CreateConsoleAndDebugHud();
 };

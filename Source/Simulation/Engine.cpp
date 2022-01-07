@@ -1,14 +1,12 @@
-#include <Urho3D/IO/Log.h>
-
 #include "Engine.h"
 
 using namespace Simulation;
 
-Engine::Engine(Context* context) : Object(context) {
-    context_->RegisterFactory<Simulation::Vehicle>();    
+Simulation::Engine::Engine(Context* context) : Object(context) {
+  context_->RegisterFactory<Simulation::Vehicle>();
 }
 
-void Engine::Start() {
-    URHO3D_LOGINFO("Simulation Start()");
-    // context_->RegisterFactory<Simulation::Vehicle>();
+void Simulation::Engine::Start() {
+  URHO3D_LOGINFO("Simulation Start()");
+  // context_->RegisterFactory<Simulation::Vehicle>();
 }

@@ -1,22 +1,18 @@
 #pragma once
 
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Scene/Scene.h>
-
-using namespace Urho3D;
+#include <Urho3D/Urho3DAll.h>
 
 namespace Toy {
 
-    class ShaderToy : public Object {
-        URHO3D_OBJECT(ShaderToy, Object);
+class ShaderToy : public Object {
+  URHO3D_OBJECT(ShaderToy, Object);
 
-    public:
-        explicit ShaderToy (Context* context);
+ public:
+  explicit ShaderToy(Context* context);
 
-        void Start();
+  void Start();
 
-    private:
-        Scene* scene_;
-    };
-}
+ private:
+  Scene* scene_;
+};
+}  // namespace Toy

@@ -1,20 +1,16 @@
 #pragma once
 
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Scene/Scene.h>
-
-using namespace Urho3D;
+#include <Urho3D/Urho3DAll.h>
 
 namespace Toy {
 
-    class ProcModelToy : public Object {
-        URHO3D_OBJECT(ProcModelToy, Object);
+class ProcModelToy : public Object {
+  URHO3D_OBJECT(ProcModelToy, Object);
 
-    public:
-        explicit ProcModelToy (Context* context);
-        Node* CreateModel();
+ public:
+  explicit ProcModelToy(Context* context);
+  Node* CreateModel();
 
-        void Start();
-    };
-}
+  void Start();
+};
+}  // namespace Toy

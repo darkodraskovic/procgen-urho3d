@@ -1,14 +1,8 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
-#include <Urho3D/Engine/Application.h>
-#include <Urho3D/Math/Color.h>
-
-using namespace Urho3D;
+#include <Urho3D/Urho3DAll.h>
 
 namespace Merc {
-    Color fromHex(unsigned int hexVal);
-    Color fromHex(const char *str);
-}
-
-#endif /* UTILS_H */
+Color fromHex(unsigned int hexVal);
+Color fromHex(const char *str);
+}  // namespace Merc

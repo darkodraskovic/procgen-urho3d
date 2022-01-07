@@ -1,37 +1,36 @@
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/Technique.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Scene/Node.h>
-
 #include "ModelCreator.h"
 
 using namespace ProcGen;
 
-ModelCreator::ModelCreator(Context *context) : Object(context) {}
+ModelCreator::ModelCreator(Context* context) : Object(context) {}
 
 void ModelCreator::Start() {
-    auto* cache = GetSubsystem<ResourceCache>();
-    auto* tech = GetSubsystem<ResourceCache>()->GetResource<Technique>("Techniques/NoTexture.xml");
-    defaultMaterial_ = new Material(context_);
-    defaultMaterial_->SetTechnique(0, tech);
+  auto* cache = GetSubsystem<ResourceCache>();
+  auto* tech = GetSubsystem<ResourceCache>()->GetResource<Technique>(
+      "Techniques/NoTexture.xml");
+  defaultMaterial_ = new Material(context_);
+  defaultMaterial_->SetTechnique(0, tech);
 }
 
-Node* ModelCreator::CreateStockModel(const String& modelName, Material* material, const Vector3& position, const Quaternion& rotation){
-    
-    Node* node = new Node(context_);
-    node->SetName(modelName);
-    
-    StaticModel* staticModel = node->CreateComponent<StaticModel>();
-    auto* cache = GetSubsystem<ResourceCache>();
-    staticModel->SetModel(cache->GetResource<Model>("Models/" + modelName + ".mdl"));
+Node* ModelCreator::CreateStockModel(const String& modelName,
+                                     Material* material,
+                                     const Vector3& position,
+                                     const Quaternion& rotation) {
+  Node* node = new Node(context_);
+  node->SetName(modelName);
 
-    if (!material) staticModel->SetMaterial(defaultMaterial_);
-    else staticModel->SetMaterial(material);
+  StaticModel* staticModel = node->CreateComponent<StaticModel>();
+  auto* cache = GetSubsystem<ResourceCache>();
+  staticModel->SetModel(
+      cache->GetResource<Model>("Models/" + modelName + ".mdl"));
 
-    node->SetPosition(position);
-    node->SetRotation(rotation);
+  if (!material)
+    staticModel->SetMaterial(defaultMaterial_);
+  else
+    staticModel->SetMaterial(material);
 
-    return node;
+  node->SetPosition(position);
+  node->SetRotation(rotation);
+
+  return node;
 }

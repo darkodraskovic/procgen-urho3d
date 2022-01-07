@@ -1,25 +1,20 @@
 #pragma once
 
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Graphics/CustomGeometry.h>
-#include <Urho3D/Scene/Scene.h>
-
-using namespace Urho3D;
+#include <Urho3D/Urho3DAll.h>
 
 namespace Toy {
 
-    class SimulationToy : public Object {
-        URHO3D_OBJECT(SimulationToy, Object);
+class SimulationToy : public Object {
+  URHO3D_OBJECT(SimulationToy, Object);
 
-    public:
-        explicit SimulationToy (Context* context);
-        void Start();
-        void HandleUpdate(StringHash eventType, VariantMap& eventData);
+ public:
+  explicit SimulationToy(Context* context);
+  void Start();
+  void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-        Node* CreateVehicle();
-        
-    private:
-        Scene* scene_;
-    };
-}
+  Node* CreateVehicle();
+
+ private:
+  Scene* scene_;
+};
+}  // namespace Toy
