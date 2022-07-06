@@ -9,7 +9,7 @@ using namespace ProcGen;
 using namespace Voxels;
 
 Chunk::Chunk(Context* context) : LogicComponent(context) {
-  SetUpdateEventMask(USE_NO_EVENT);
+  SetUpdateEventMask(Urho3D::LogicComponentEvents::None);
 }
 
 void Chunk::Start() {

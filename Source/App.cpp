@@ -56,7 +56,7 @@ void App::Start() {
   // TOYS
 
   // SHADER
-  // GetSubsystem<Toy::ShaderToy>()->Start();
+  GetSubsystem<Toy::ShaderToy>()->Start();
 
   // VOXELS
   // GetSubsystem<Toy::VoxelToy>()->Start();
@@ -65,7 +65,7 @@ void App::Start() {
   // GetSubsystem<Toy::ProcModelToy>()->Start();
 
   // CUSTOM GEOM
-  GetSubsystem<Toy::SimulationToy>()->Start();
+  // GetSubsystem<Toy::SimulationToy>()->Start();
 }
 
 void App::CreateConsoleAndDebugHud() {

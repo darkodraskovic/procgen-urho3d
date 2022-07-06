@@ -65,7 +65,7 @@ void World::Build() {
   }
 }
 
-void World::BuildAsync(const WorkItem* workItem, unsigned threadIndex) {
+void World::BuildAsync(const WorkItem* workItem, i32 threadIndex) {
   Chunk* chunk = (Chunk*)workItem->aux_;
   chunk->Build();
 }

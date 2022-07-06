@@ -3,7 +3,7 @@
 using namespace ProcGen;
 
 ProcModel::ProcModel(Context* context) : LogicComponent(context) {
-  SetUpdateEventMask(USE_NO_EVENT);
+  SetUpdateEventMask(LogicComponentEvents::None);
 }
 
 void ProcModel::CalculateNormals() {
@@ -63,8 +63,8 @@ void ProcModel::Commit() {
   // TODO
   // Optional. Morph ranges could also be not defined. Define a zero range (no
   // morphing) for the vertex buffer.
-  PODVector<unsigned> morphRangeStarts;
-  PODVector<unsigned> morphRangeCounts;
+  Vector<unsigned> morphRangeStarts;
+  Vector<unsigned> morphRangeCounts;
   morphRangeStarts.Push(0);
   morphRangeCounts.Push(0);
   model->SetVertexBuffers({vertexBuffer}, morphRangeStarts, morphRangeCounts);

@@ -19,3 +19,5 @@ script
 **/*.mtl
 **/*.blend1
 .cmake
+lib/
+ninja/

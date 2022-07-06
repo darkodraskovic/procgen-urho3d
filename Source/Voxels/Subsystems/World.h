@@ -29,7 +29,7 @@ class World : public Object {
 
   WorkQueue* GetWorkQueue();
 
-  static void BuildAsync(const WorkItem* workItem, unsigned threadIndex);
+  static void BuildAsync(const WorkItem* workItem, i32 threadIndex);
 
   IntVector3 size_ = {4, 16, 4};
   int chunkSize_ = 16;

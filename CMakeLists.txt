@@ -28,4 +28,12 @@ define_source_files (EXTRA_CPP_FILES ${SRC_CPP_FILES} EXTRA_H_FILES ${SRC_H_FILE
 # Setup target with resource copying
 setup_main_executable ()
 
-target_link_libraries(${TARGET_NAME} tcod)
+set(TCOD tcod)
+
+if (WIN32)
+  set(TCOD libtcod)
+  target_include_directories(${TARGET_NAME} PUBLIC lib/libtcod/include)
+  target_link_directories(${TARGET_NAME} PUBLIC lib/libtcod)
+endif()
+
+target_link_libraries(${TARGET_NAME} ${TCOD})

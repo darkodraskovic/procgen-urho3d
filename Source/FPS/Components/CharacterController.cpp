@@ -12,7 +12,9 @@ CharacterController::CharacterController(Context* context)
       inAirTimer_(0.0f) {
   // Only the physics update event is needed: unsubscribe from the rest for
   // optimization
-  SetUpdateEventMask(USE_FIXEDUPDATE | USE_UPDATE | USE_POSTUPDATE);
+  SetUpdateEventMask(LogicComponentEvents::FixedUpdate |
+                     LogicComponentEvents::Update |
+                     LogicComponentEvents::PostUpdate);
 }
 
 void CharacterController::RegisterObject(Context* context) {

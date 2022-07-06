@@ -33,7 +33,7 @@ class ProcModel : public LogicComponent {
   bool drawNormals_ = false;
 
   VectorBuffer vectorBuffer_;
-  PODVector<VertexElement> vertexElements_;
+  Vector<VertexElement> vertexElements_;
 };
 
 }  // namespace ProcGen

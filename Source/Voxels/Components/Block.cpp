@@ -28,7 +28,7 @@ Vector<Vector<Vector2>> UVs = {
 };
 
 Block::Block(Context* context) : LogicComponent(context) {
-  SetUpdateEventMask(USE_NO_EVENT);
+  SetUpdateEventMask(LogicComponentEvents::None);
 }
 
 void Block::CreateQuad(BlockFace face, BlockType type,

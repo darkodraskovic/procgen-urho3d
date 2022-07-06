@@ -3,7 +3,7 @@
 using namespace Simulation;
 
 Vehicle::Vehicle(Context* context) : LogicComponent(context) {
-  SetUpdateEventMask(USE_UPDATE);
+  SetUpdateEventMask(LogicComponentEvents::Update);
 }
 
 void Vehicle::Start() {
@@ -63,7 +63,9 @@ void Vehicle::Wander() {
   Vector3 orientation = node_->GetComponent<RigidBody>()->GetLinearVelocity();
   Vector3 center =
       node_->GetPosition() + orientation.Normalized() * wanderDistance_;
-  float x = Cos(Random(-M_PI, M_PI) * M_RADTODEG) * wanderRadius_ + center.x_;
-  float y = Sin(Random(-M_PI, M_PI) * M_RADTODEG) * wanderRadius_ + center.y_;
+  float x =
+      Cos(Random(-(float)M_PI, M_PI) * M_RADTODEG) * wanderRadius_ + center.x_;
+  float y =
+      Sin(Random(-(float)M_PI, M_PI) * M_RADTODEG) * wanderRadius_ + center.y_;
   target_->SetPosition({x, y, 0});
 }

@@ -5,7 +5,7 @@
 using namespace FPS;
 
 CameraController::CameraController(Context* context) : LogicComponent(context) {
-  SetUpdateEventMask(USE_UPDATE);
+  SetUpdateEventMask(LogicComponentEvents::Update);
 }
 
 void CameraController::Update(float timeStep) {
